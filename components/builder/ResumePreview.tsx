@@ -44,12 +44,21 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, template }) 
     return (
         <div 
             id="resume-preview-content" 
-            className="bg-white text-black shadow-lg w-full min-h-full"
-            style={{ backgroundColor: '#ffffff !important', color: '#000000 !important', minHeight: '100vh' }}
+            className="bg-white text-black shadow-lg w-full min-h-full overflow-x-auto"
+            style={{ 
+                backgroundColor: '#ffffff !important', 
+                color: '#000000 !important', 
+                minHeight: '100vh',
+                fontSize: 'clamp(8px, 2vw, 10px)'
+            }}
         >
            <div 
-               className="bg-white w-full min-h-full"
-               style={{ backgroundColor: '#ffffff !important', minHeight: 'inherit' }}
+               className="bg-white w-full min-h-full px-2 sm:px-4 md:px-6 lg:px-8"
+               style={{ 
+                   backgroundColor: '#ffffff !important', 
+                   minHeight: 'inherit',
+                   minWidth: '320px'
+               }}
            >
                {renderTemplate()}
            </div>
