@@ -14,7 +14,7 @@ const SidebarSection: React.FC<{ title: string; icon: React.ElementType; childre
 
 export const InfographicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     return (
-        <div className="flex font-sans text-[10pt] h-full">
+        <div className="flex font-sans text-[10pt] h-full bg-white">
             {/* Sidebar */}
             <div className="w-[35%] bg-sky-800 text-white p-6">
                 <div className="text-center mb-8">

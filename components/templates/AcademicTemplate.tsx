@@ -9,7 +9,7 @@ const SectionHeader: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
 export const AcademicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     return (
-        <div className="p-10 font-serif text-[11pt] leading-relaxed text-gray-900 h-full">
+        <div className="p-10 font-serif text-[11pt] leading-relaxed text-gray-900 h-full bg-white">
              <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
                 .font-lora { font-family: 'Lora', serif; }

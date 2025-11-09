@@ -10,7 +10,7 @@ const SectionHeader: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
 export const ClassicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     return (
-        <div className="p-8 font-serif text-[10pt] leading-snug h-full">
+        <div className="p-8 font-serif text-[10pt] leading-snug h-full bg-white">
             <header className="text-center mb-6">
                 <h1 className="text-3xl font-bold tracking-wider">{data.name}</h1>
                 <div className="flex justify-center items-center space-x-4 text-xs mt-2 text-gray-600">

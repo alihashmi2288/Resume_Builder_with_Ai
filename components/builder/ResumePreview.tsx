@@ -42,8 +42,17 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, template }) 
     };
 
     return (
-        <div id="resume-preview-content" className="bg-white text-black shadow-lg aspect-[8.5/11] w-full h-full">
-           {renderTemplate()}
+        <div 
+            id="resume-preview-content" 
+            className="bg-white text-black shadow-lg w-full min-h-full"
+            style={{ backgroundColor: '#ffffff !important', color: '#000000 !important', minHeight: '100vh' }}
+        >
+           <div 
+               className="bg-white w-full min-h-full"
+               style={{ backgroundColor: '#ffffff !important', minHeight: 'inherit' }}
+           >
+               {renderTemplate()}
+           </div>
         </div>
     );
 };
