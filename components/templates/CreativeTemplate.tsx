@@ -20,7 +20,7 @@ export const CreativeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     }
 
     return (
-        <div className="p-8 font-sans text-[10pt] leading-normal h-full bg-white">
+        <div className="p-8 font-sans text-[10pt] leading-normal h-full">
             <header className="flex items-center mb-8">
                 <div className="flex-shrink-0 h-20 w-20 rounded-full bg-teal-600 flex items-center justify-center text-white text-3xl font-bold">
                     {getInitials(data.name)}

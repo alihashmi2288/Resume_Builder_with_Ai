@@ -108,8 +108,8 @@ const BuilderPage: React.FC = () => {
             <ResumeForm resumeData={resumeData} dispatch={dispatch} />
           </div>
           <div className={`lg:col-span-3 ${viewMode === 'form' ? 'hidden' : ''} md:block`}>
-            <div className="sticky top-[140px] max-h-[calc(100vh-160px)] overflow-y-auto bg-white rounded-lg p-4">
-              <ResumePreview data={resumeData} template={activeTemplate} />
+            <div className="sticky top-[140px] max-h-[calc(100vh-160px)] overflow-y-auto">
+              <ResumePreview data={resumeData} template={activeTemplate} isBuilder={true} />
             </div>
           </div>
         </div>

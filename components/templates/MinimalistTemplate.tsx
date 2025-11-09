@@ -9,7 +9,7 @@ const SectionHeader: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
 export const MinimalistTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     return (
-        <div className="p-12 font-light font-sans text-[10pt] leading-relaxed text-gray-800 h-full bg-white">
+        <div className="p-12 font-light font-sans text-[10pt] leading-relaxed text-gray-800 h-full">
             <header className="text-center mb-10">
                 <h1 className="text-4xl font-normal tracking-widest">{data.name.toUpperCase()}</h1>
                 <div className="flex justify-center items-center space-x-3 text-xs mt-2 text-gray-500 tracking-wider">

@@ -9,7 +9,7 @@ const SectionHeader: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
 export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     return (
-        <div className="p-8 font-sans text-[10pt] leading-normal bg-white h-full">
+        <div className="p-8 font-sans text-[10pt] leading-normal bg-gray-50 h-full">
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap');
                 .font-roboto { font-family: 'Roboto', sans-serif; }

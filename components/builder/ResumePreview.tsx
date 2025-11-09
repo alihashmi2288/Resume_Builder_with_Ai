@@ -13,9 +13,10 @@ import { StartupTemplate } from '../templates/StartupTemplate';
 interface ResumePreviewProps {
     data: ResumeData;
     template: TemplateId;
+    isBuilder?: boolean;
 }
 
-export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, template }) => {
+export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, template, isBuilder = false }) => {
     const renderTemplate = () => {
         switch (template) {
             case 'classic':
@@ -44,21 +45,29 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, template }) 
     return (
         <div 
             id="resume-preview-content" 
-            className="bg-white text-black shadow-lg w-full min-h-full overflow-x-auto"
-            style={{ 
-                backgroundColor: '#ffffff !important', 
-                color: '#000000 !important', 
-                minHeight: '100vh',
-                fontSize: 'clamp(8px, 2vw, 10px)'
-            }}
+            className={`bg-white text-black shadow-lg w-full ${
+                isBuilder 
+                    ? 'overflow-auto min-h-screen' 
+                    : 'aspect-[8.5/11] h-full min-h-full'
+            }`}
+            style={isBuilder ? {
+                backgroundColor: '#ffffff !important',
+                color: '#000000 !important',
+                fontSize: 'clamp(7px, 1.8vw, 10px)'
+            } : {}}
         >
            <div 
-               className="bg-white w-full min-h-full px-2 sm:px-4 md:px-6 lg:px-8"
-               style={{ 
-                   backgroundColor: '#ffffff !important', 
-                   minHeight: 'inherit',
-                   minWidth: '320px'
-               }}
+               className={`bg-white w-full ${
+                   isBuilder 
+                       ? 'min-h-full p-2 sm:p-4 md:p-6 lg:p-8' 
+                       : 'h-full min-h-full'
+               }`}
+               style={isBuilder ? {
+                   backgroundColor: '#ffffff !important',
+                   minWidth: '300px',
+                   wordWrap: 'break-word',
+                   overflowWrap: 'break-word'
+               } : {}}
            >
                {renderTemplate()}
            </div>
