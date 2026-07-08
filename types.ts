@@ -33,6 +33,9 @@ export interface ResumeData {
   education: Education[];
   experience: Experience[];
   projects: Project[];
+  themeColor?: ThemeColor;
 }
+
+export type ThemeColor = 'slate' | 'indigo' | 'emerald' | 'blue' | 'rose' | 'amber';
 
 export type TemplateId = 'classic' | 'modern' | 'creative' | 'technical' | 'minimalist' | 'academic' | 'executive' | 'infographic' | 'startup';

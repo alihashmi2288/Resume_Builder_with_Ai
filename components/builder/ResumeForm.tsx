@@ -3,7 +3,7 @@ import { type ResumeData, type Experience, type Education, type Project } from '
 import { type Action } from '../../hooks/useResumeStore';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/Accordion';
 import { Button } from '../ui/Button';
-import { Bot, Plus, Trash2, Sparkles, Loader2, SearchCheck } from 'lucide-react';
+import { Bot, Plus, Trash2, Sparkles, Loader2, SearchCheck, ChevronUp, ChevronDown } from 'lucide-react';
 import { generateAISummary, enhanceAIBulletPoint, suggestAISkills, generateAIResume, analyzeAndSuggestKeywords } from '../../services/gemini';
 
 interface ResumeFormProps {
@@ -12,29 +12,35 @@ interface ResumeFormProps {
 }
 
 const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-    <input {...props} className="w-full h-9 px-3 py-2 bg-transparent border rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+    <input 
+      {...props} 
+      className="w-full h-9 px-3 py-2 bg-background border border-border rounded-lg text-sm transition-all duration-200 hover:border-muted-foreground/30 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50" 
+    />
 );
 
 const Textarea = (props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
-    <textarea {...props} className="w-full min-h-[80px] px-3 py-2 bg-transparent border rounded-md text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+    <textarea 
+      {...props} 
+      className="w-full min-h-[80px] px-3 py-2 bg-background border border-border rounded-lg text-sm transition-all duration-200 hover:border-muted-foreground/30 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50" 
+    />
 );
 
 const FieldGroup: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
     <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium">{label}</label>
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</label>
         {children}
     </div>
 );
 
 const AIButton: React.FC<{ onClick: () => void; isLoading: boolean, children: React.ReactNode }> = ({ onClick, isLoading, children }) => (
     <div className="relative group w-fit">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-lime-400 via-emerald-500 to-cyan-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-lime-400 via-emerald-500 to-cyan-500 rounded-lg blur opacity-60 group-hover:opacity-90 transition duration-300 animate-tilt"></div>
         <Button
             variant="outline"
             size="sm"
             onClick={onClick}
             disabled={isLoading}
-            className="relative flex items-center gap-2 bg-background"
+            className="relative flex items-center gap-2 bg-background border-border hover:bg-accent/50"
         >
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-lime-500" />}
             {children}
@@ -151,36 +157,38 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
 
     return (
         <div className="space-y-6">
-            <div className="p-4 border border-lime-500/30 rounded-lg bg-card text-card-foreground shadow-lg shadow-lime-500/10 dark:shadow-lime-500/20">
+            {/* AI Assistant Card */}
+            <div className="p-5 border border-lime-500/30 rounded-2xl bg-card text-card-foreground shadow-lg shadow-lime-500/5 dark:shadow-lime-500/10">
                 <div className="flex items-center gap-2 mb-2">
                     <Bot className="h-5 w-5 text-lime-500" />
-                    <h3 className="text-lg font-semibold bg-gradient-to-r from-lime-400 to-emerald-500 text-transparent bg-clip-text">AI Assistant</h3>
+                    <h3 className="text-lg font-bold bg-gradient-to-r from-lime-400 to-emerald-500 text-transparent bg-clip-text">AI Architect Assistant</h3>
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">Generate a full resume draft based on a job title.</p>
+                <p className="text-xs text-muted-foreground mb-4">Generate a comprehensive, ATS-ready resume draft for any role in seconds.</p>
                 <div className="flex flex-col sm:flex-row gap-2">
                     <Input value={jobTitle} onChange={e => setJobTitle(e.target.value)} placeholder="e.g., Senior Product Manager" />
-                    <AIButton onClick={handleGenerateFullResume} isLoading={loadingStates.fullResume}>Generate</AIButton>
+                    <AIButton onClick={handleGenerateFullResume} isLoading={loadingStates.fullResume}>Generate Draft</AIButton>
                 </div>
             </div>
 
-            <Accordion type="multiple" defaultValue={['personal', 'summary', 'experience']} className="w-full">
+            <Accordion type="multiple" defaultValue={['personal', 'summary', 'experience']} className="w-full border rounded-2xl bg-card overflow-hidden divide-y">
                 
-                <AccordionItem value="ats-optimizer">
-                    <AccordionTrigger>ATS Keyword Optimizer</AccordionTrigger>
-                    <AccordionContent className="space-y-4">
+                {/* ATS Optimizer */}
+                <AccordionItem value="ats-optimizer" className="border-b-0 px-4 py-1">
+                    <AccordionTrigger className="font-bold text-sm">ATS Keyword Optimizer</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pb-4">
                         <FieldGroup label="Paste Job Description Here">
-                            <Textarea value={jobDescription} onChange={e => setJobDescription(e.target.value)} rows={6} placeholder="Paste the full job description to find missing keywords..." />
+                            <Textarea value={jobDescription} onChange={e => setJobDescription(e.target.value)} rows={5} placeholder="Paste the full target job posting text here to identify key matching keywords..." />
                         </FieldGroup>
-                        <Button variant="secondary" size="sm" onClick={handleAnalyzeKeywords} disabled={loadingStates.ats}>
+                        <Button variant="secondary" size="sm" onClick={handleAnalyzeKeywords} disabled={loadingStates.ats} className="w-full sm:w-auto">
                             {loadingStates.ats ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <SearchCheck className="h-4 w-4 mr-2" />}
-                            Analyze & Suggest Keywords
+                            Compare & Suggest Keywords
                         </Button>
                         {atsKeywords.length > 0 && (
-                            <div className="p-3 bg-secondary rounded-md">
-                                <h4 className="text-sm font-semibold mb-2">Suggested Keywords to Add:</h4>
+                            <div className="p-4 bg-secondary/50 border rounded-xl">
+                                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2.5">Suggested Keywords to Add:</h4>
                                 <div className="flex flex-wrap gap-2">
                                     {atsKeywords.map(keyword => (
-                                        <span key={keyword} className="text-xs bg-background border px-2 py-1 rounded-full">{keyword}</span>
+                                        <span key={keyword} className="text-xs bg-background border px-2.5 py-1 rounded-full font-medium shadow-sm">{keyword}</span>
                                     ))}
                                 </div>
                             </div>
@@ -188,69 +196,140 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
                     </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="personal">
-                    <AccordionTrigger>Personal Details</AccordionTrigger>
-                    <AccordionContent className="space-y-4">
-                        <FieldGroup label="Full Name"><Input value={resumeData.name} onChange={e => handleFieldChange('name', e.target.value)} /></FieldGroup>
-                        <FieldGroup label="Email"><Input type="email" value={resumeData.email} onChange={e => handleFieldChange('email', e.target.value)} /></FieldGroup>
-                        <FieldGroup label="Phone"><Input value={resumeData.phone} onChange={e => handleFieldChange('phone', e.target.value)} /></FieldGroup>
-                        <FieldGroup label="Website / Portfolio"><Input value={resumeData.website} onChange={e => handleFieldChange('website', e.target.value)} /></FieldGroup>
+                {/* Personal Details */}
+                <AccordionItem value="personal" className="border-b-0 px-4 py-1">
+                    <AccordionTrigger className="font-bold text-sm">Personal Details</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pb-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FieldGroup label="Full Name"><Input value={resumeData.name} onChange={e => handleFieldChange('name', e.target.value)} /></FieldGroup>
+                            <FieldGroup label="Email"><Input type="email" value={resumeData.email} onChange={e => handleFieldChange('email', e.target.value)} /></FieldGroup>
+                            <FieldGroup label="Phone"><Input value={resumeData.phone} onChange={e => handleFieldChange('phone', e.target.value)} /></FieldGroup>
+                            <FieldGroup label="Website / Portfolio"><Input value={resumeData.website} onChange={e => handleFieldChange('website', e.target.value)} /></FieldGroup>
+                        </div>
                     </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="summary">
-                    <AccordionTrigger>Professional Summary</AccordionTrigger>
-                    <AccordionContent className="space-y-2">
-                        <FieldGroup label="Summary">
-                            <Textarea value={resumeData.summary} onChange={e => handleFieldChange('summary', e.target.value)} rows={4} />
+                {/* Summary */}
+                <AccordionItem value="summary" className="border-b-0 px-4 py-1">
+                    <AccordionTrigger className="font-bold text-sm">Professional Summary</AccordionTrigger>
+                    <AccordionContent className="space-y-3 pb-4">
+                        <FieldGroup label="Summary Description">
+                            <Textarea value={resumeData.summary} onChange={e => handleFieldChange('summary', e.target.value)} rows={4} placeholder="Write a brief pitch about your career background..." />
                         </FieldGroup>
                         <AIButton onClick={handleGenerateSummary} isLoading={loadingStates.summary}>Generate Summary</AIButton>
                     </AccordionContent>
                 </AccordionItem>
 
-                 <AccordionItem value="skills">
-                    <AccordionTrigger>Skills</AccordionTrigger>
-                    <AccordionContent className="space-y-2">
+                {/* Skills */}
+                <AccordionItem value="skills" className="border-b-0 px-4 py-1">
+                    <AccordionTrigger className="font-bold text-sm">Skills</AccordionTrigger>
+                    <AccordionContent className="space-y-3 pb-4">
                          <FieldGroup label="Skills (comma-separated)">
-                            <Textarea value={resumeData.skills} onChange={e => handleFieldChange('skills', e.target.value)} rows={3} />
+                            <Textarea value={resumeData.skills} onChange={e => handleFieldChange('skills', e.target.value)} rows={3} placeholder="React, Node.js, Project Management, Agile..." />
                         </FieldGroup>
                          <AIButton onClick={handleSuggestSkills} isLoading={loadingStates.skills}>Suggest Skills</AIButton>
                     </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="experience">
-                    <AccordionTrigger>Experience</AccordionTrigger>
-                    <AccordionContent className="space-y-6">
-                        {resumeData.experience.map(exp => (
-                            <div key={exp.id} className="p-4 border rounded-md relative">
-                                <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleDeleteItem('experience', exp.id)}><Trash2 className="h-4 w-4" /></Button>
-                                <div className="space-y-4">
-                                    <FieldGroup label="Company"><Input value={exp.company} onChange={e => handleItemChange('experience', exp.id, { company: e.target.value })} /></FieldGroup>
-                                    <FieldGroup label="Job Title"><Input value={exp.title} onChange={e => handleItemChange('experience', exp.id, { title: e.target.value })} /></FieldGroup>
+                {/* Experience */}
+                <AccordionItem value="experience" className="border-b-0 px-4 py-1">
+                    <AccordionTrigger className="font-bold text-sm">Experience</AccordionTrigger>
+                    <AccordionContent className="space-y-6 pb-4">
+                        {resumeData.experience.map((exp, idx) => (
+                            <div key={exp.id} className="p-4 border rounded-xl relative bg-background/40 hover:bg-background/80 transition-colors">
+                                <div className="absolute top-3 right-3 flex items-center gap-1">
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-7 w-7" 
+                                        onClick={() => dispatch({ type: 'MOVE_ITEM_UP', field: 'experience', id: exp.id })}
+                                        disabled={idx === 0}
+                                        title="Move Up"
+                                    >
+                                        <ChevronUp className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-7 w-7" 
+                                        onClick={() => dispatch({ type: 'MOVE_ITEM_DOWN', field: 'experience', id: exp.id })}
+                                        disabled={idx === resumeData.experience.length - 1}
+                                        title="Move Down"
+                                    >
+                                        <ChevronDown className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                                        onClick={() => handleDeleteItem('experience', exp.id)}
+                                        title="Delete Entry"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                <div className="space-y-4 pt-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <FieldGroup label="Company"><Input value={exp.company} onChange={e => handleItemChange('experience', exp.id, { company: e.target.value })} /></FieldGroup>
+                                        <FieldGroup label="Job Title"><Input value={exp.title} onChange={e => handleItemChange('experience', exp.id, { title: e.target.value })} /></FieldGroup>
+                                    </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <FieldGroup label="Start Date"><Input value={exp.startDate} onChange={e => handleItemChange('experience', exp.id, { startDate: e.target.value })} /></FieldGroup>
                                         <FieldGroup label="End Date"><Input value={exp.endDate} onChange={e => handleItemChange('experience', exp.id, { endDate: e.target.value })} /></FieldGroup>
                                     </div>
                                     <FieldGroup label="Description (one bullet point per line)">
-                                        <Textarea value={exp.description} onChange={e => handleItemChange('experience', exp.id, { description: e.target.value })} rows={5} />
+                                        <Textarea value={exp.description} onChange={e => handleItemChange('experience', exp.id, { description: e.target.value })} rows={5} placeholder="Use action verbs. E.g.:\n- Led development on core cloud product\n- Managed a team of 4 engineers" />
                                     </FieldGroup>
                                     <AIButton onClick={() => handleEnhanceDescription(exp.id, exp.description)} isLoading={loadingStates.experience[exp.id]}>Enhance Description</AIButton>
                                 </div>
                             </div>
                         ))}
-                        <Button variant="outline" onClick={() => handleAddItem('experience')} className="flex items-center gap-2"><Plus className="h-4 w-4"/> Add Experience</Button>
+                        <Button variant="outline" onClick={() => handleAddItem('experience')} className="w-full flex items-center justify-center gap-2 border-dashed py-5 hover:bg-secondary/40 rounded-xl"><Plus className="h-4 w-4"/> Add Experience</Button>
                     </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="education">
-                    <AccordionTrigger>Education</AccordionTrigger>
-                    <AccordionContent className="space-y-6">
-                        {resumeData.education.map(edu => (
-                            <div key={edu.id} className="p-4 border rounded-md relative">
-                                <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleDeleteItem('education', edu.id)}><Trash2 className="h-4 w-4" /></Button>
-                                <div className="space-y-4">
-                                    <FieldGroup label="University"><Input value={edu.university} onChange={e => handleItemChange('education', edu.id, { university: e.target.value })} /></FieldGroup>
-                                    <FieldGroup label="Degree"><Input value={edu.degree} onChange={e => handleItemChange('education', edu.id, { degree: e.target.value })} /></FieldGroup>
+                {/* Education */}
+                <AccordionItem value="education" className="border-b-0 px-4 py-1">
+                    <AccordionTrigger className="font-bold text-sm">Education</AccordionTrigger>
+                    <AccordionContent className="space-y-6 pb-4">
+                        {resumeData.education.map((edu, idx) => (
+                            <div key={edu.id} className="p-4 border rounded-xl relative bg-background/40 hover:bg-background/80 transition-colors">
+                                <div className="absolute top-3 right-3 flex items-center gap-1">
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-7 w-7" 
+                                        onClick={() => dispatch({ type: 'MOVE_ITEM_UP', field: 'education', id: edu.id })}
+                                        disabled={idx === 0}
+                                        title="Move Up"
+                                    >
+                                        <ChevronUp className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-7 w-7" 
+                                        onClick={() => dispatch({ type: 'MOVE_ITEM_DOWN', field: 'education', id: edu.id })}
+                                        disabled={idx === resumeData.education.length - 1}
+                                        title="Move Down"
+                                    >
+                                        <ChevronDown className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                                        onClick={() => handleDeleteItem('education', edu.id)}
+                                        title="Delete Entry"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                <div className="space-y-4 pt-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <FieldGroup label="University"><Input value={edu.university} onChange={e => handleItemChange('education', edu.id, { university: e.target.value })} /></FieldGroup>
+                                        <FieldGroup label="Degree"><Input value={edu.degree} onChange={e => handleItemChange('education', edu.id, { degree: e.target.value })} /></FieldGroup>
+                                    </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <FieldGroup label="Start Date"><Input value={edu.startDate} onChange={e => handleItemChange('education', edu.id, { startDate: e.target.value })} /></FieldGroup>
                                         <FieldGroup label="End Date"><Input value={edu.endDate} onChange={e => handleItemChange('education', edu.id, { endDate: e.target.value })} /></FieldGroup>
@@ -258,25 +337,57 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
                                 </div>
                             </div>
                         ))}
-                         <Button variant="outline" onClick={() => handleAddItem('education')} className="flex items-center gap-2"><Plus className="h-4 w-4"/> Add Education</Button>
+                        <Button variant="outline" onClick={() => handleAddItem('education')} className="w-full flex items-center justify-center gap-2 border-dashed py-5 hover:bg-secondary/40 rounded-xl"><Plus className="h-4 w-4"/> Add Education</Button>
                     </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="projects">
-                    <AccordionTrigger>Projects</AccordionTrigger>
-                    <AccordionContent className="space-y-6">
-                        {resumeData.projects.map(proj => (
-                            <div key={proj.id} className="p-4 border rounded-md relative">
-                                <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleDeleteItem('projects', proj.id)}><Trash2 className="h-4 w-4" /></Button>
-                                <div className="space-y-4">
-                                    <FieldGroup label="Project Name"><Input value={proj.name} onChange={e => handleItemChange('projects', proj.id, { name: e.target.value })} /></FieldGroup>
-                                    {/* Fix: Changed FieldGromp to FieldGroup */}
-                                    <FieldGroup label="URL (Optional)"><Input value={proj.url} onChange={e => handleItemChange('projects', proj.id, { url: e.target.value })} /></FieldGroup>
-                                    <FieldGroup label="Description"><Textarea value={proj.description} onChange={e => handleItemChange('projects', proj.id, { description: e.target.value })} rows={3} /></FieldGroup>
+                {/* Projects */}
+                <AccordionItem value="projects" className="border-b-0 px-4 py-1">
+                    <AccordionTrigger className="font-bold text-sm">Projects</AccordionTrigger>
+                    <AccordionContent className="space-y-6 pb-4">
+                        {resumeData.projects.map((proj, idx) => (
+                            <div key={proj.id} className="p-4 border rounded-xl relative bg-background/40 hover:bg-background/80 transition-colors">
+                                <div className="absolute top-3 right-3 flex items-center gap-1">
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-7 w-7" 
+                                        onClick={() => dispatch({ type: 'MOVE_ITEM_UP', field: 'projects', id: proj.id })}
+                                        disabled={idx === 0}
+                                        title="Move Up"
+                                    >
+                                        <ChevronUp className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-7 w-7" 
+                                        onClick={() => dispatch({ type: 'MOVE_ITEM_DOWN', field: 'projects', id: proj.id })}
+                                        disabled={idx === resumeData.projects.length - 1}
+                                        title="Move Down"
+                                    >
+                                        <ChevronDown className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                                        onClick={() => handleDeleteItem('projects', proj.id)}
+                                        title="Delete Entry"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                <div className="space-y-4 pt-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <FieldGroup label="Project Name"><Input value={proj.name} onChange={e => handleItemChange('projects', proj.id, { name: e.target.value })} /></FieldGroup>
+                                        <FieldGroup label="URL (Optional)"><Input value={proj.url || ''} onChange={e => handleItemChange('projects', proj.id, { url: e.target.value })} /></FieldGroup>
+                                    </div>
+                                    <FieldGroup label="Description"><Textarea value={proj.description} onChange={e => handleItemChange('projects', proj.id, { description: e.target.value })} rows={3} placeholder="Describe the project, technologies used, and your individual contribution..." /></FieldGroup>
                                 </div>
                             </div>
                         ))}
-                         <Button variant="outline" onClick={() => handleAddItem('projects')} className="flex items-center gap-2"><Plus className="h-4 w-4"/> Add Project</Button>
+                         <Button variant="outline" onClick={() => handleAddItem('projects')} className="w-full flex items-center justify-center gap-2 border-dashed py-5 hover:bg-secondary/40 rounded-xl"><Plus className="h-4 w-4"/> Add Project</Button>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

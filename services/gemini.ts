@@ -3,15 +3,25 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { type ResumeData } from '../types';
 
-// Per coding guidelines, the API key must be from process.env.API_KEY.
-// The GoogleGenAI instance should be created here.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+let aiInstance: GoogleGenAI | null = null;
+
+function getAI(): GoogleGenAI {
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Gemini API key is not configured. Please set the GEMINI_API_KEY environment variable to use AI features.");
+  }
+  if (!aiInstance) {
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+}
 
 // Per coding guidelines, use a modern model. gemini-2.5-flash is suitable for these text tasks.
 const textModel = "gemini-2.5-flash";
 
 async function callGeminiText(prompt: string): Promise<string> {
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: textModel,
       contents: prompt,
@@ -125,6 +135,7 @@ export const generateAIResume = async (jobTitle: string): Promise<ResumeData> =>
     };
 
     try {
+        const ai = getAI();
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,

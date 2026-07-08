@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { ResumeData } from '../../types';
+import { getThemeClasses } from '../../lib/colors';
 
 const SectionHeader: React.FC<{ children: React.ReactNode, className?: string }> = ({ children, className }) => (
     <h2 className={`text-sm font-bold uppercase tracking-widest border-b-2 pb-1 mb-3 ${className}`}>
@@ -8,8 +9,7 @@ const SectionHeader: React.FC<{ children: React.ReactNode, className?: string }>
 );
 
 export const CreativeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
-    const accentColor = 'text-teal-600';
-    const accentBorder = 'border-teal-600';
+    const theme = getThemeClasses(data.themeColor);
 
     const getInitials = (name: string) => {
         const names = name.split(' ');
@@ -20,18 +20,18 @@ export const CreativeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     }
 
     return (
-        <div className="p-8 font-sans text-[10pt] leading-normal h-full">
+        <div className="p-8 font-sans text-[10pt] leading-normal h-full bg-white text-black">
             <header className="flex items-center mb-8">
-                <div className="flex-shrink-0 h-20 w-20 rounded-full bg-teal-600 flex items-center justify-center text-white text-3xl font-bold">
+                <div className={`flex-shrink-0 h-20 w-20 rounded-full ${theme.bg} flex items-center justify-center text-white text-3xl font-bold`}>
                     {getInitials(data.name)}
                 </div>
                 <div className="ml-6">
                     <h1 className="text-4xl font-bold tracking-tight">{data.name}</h1>
-                    <div className="flex items-center space-x-4 text-xs mt-1 text-gray-600">
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs mt-1 text-gray-600">
                         <span>{data.email}</span>
                         <span>|</span>
                         <span>{data.phone}</span>
-                         <span>|</span>
+                        <span>|</span>
                         <span>{data.website}</span>
                     </div>
                 </div>
@@ -44,10 +44,10 @@ export const CreativeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
             <div className="grid grid-cols-3 gap-8">
                 <div className="col-span-2">
                      <section className="mb-6">
-                        <SectionHeader className={`${accentColor} ${accentBorder}`}>Experience</SectionHeader>
+                        <SectionHeader className={`${theme.text} ${theme.border}`}>Experience</SectionHeader>
                         {data.experience.map(exp => (
                             <div key={exp.id} className="mb-4">
-                                <div className="flex justify-between items-baseline">
+                                <div className="flex justify-between items-baseline flex-wrap gap-2">
                                     <h3 className="text-sm font-semibold">{exp.title} at <span className="italic">{exp.company}</span></h3>
                                     <span className="text-xs font-light text-gray-600">{exp.startDate} - {exp.endDate}</span>
                                 </div>
@@ -58,26 +58,26 @@ export const CreativeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                         ))}
                     </section>
                      <section>
-                        <SectionHeader className={`${accentColor} ${accentBorder}`}>Projects</SectionHeader>
+                        <SectionHeader className={`${theme.text} ${theme.border}`}>Projects</SectionHeader>
                          {data.projects.map(proj => (
                             <div key={proj.id} className="mb-3">
-                                 <div className="flex items-baseline">
+                                 <div className="flex items-baseline flex-wrap gap-2">
                                     <h3 className="text-sm font-semibold">{proj.name}</h3>
-                                    {proj.url && <a href={proj.url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 ml-2 hover:underline">[{proj.url}]</a>}
+                                    {proj.url && <a href={`https://${proj.url.replace(/^https?:\/\//, '')}`} target="_blank" rel="noreferrer" className={`text-xs ${theme.text} hover:underline`}>[{proj.url}]</a>}
                                 </div>
-                                <p className="text-xs text-gray-800">{proj.description}</p>
+                                <p className="text-xs text-gray-800 leading-relaxed">{proj.description}</p>
                             </div>
                         ))}
                     </section>
                 </div>
                 <div className="col-span-1">
                     <section className="mb-6">
-                        <SectionHeader className={`${accentColor} ${accentBorder}`}>Skills</SectionHeader>
-                        <p className="text-xs text-gray-800">{data.skills}</p>
+                        <SectionHeader className={`${theme.text} ${theme.border}`}>Skills</SectionHeader>
+                        <p className="text-xs text-gray-800 leading-relaxed">{data.skills}</p>
                     </section>
                     
                      <section>
-                        <SectionHeader className={`${accentColor} ${accentBorder}`}>Education</SectionHeader>
+                        <SectionHeader className={`${theme.text} ${theme.border}`}>Education</SectionHeader>
                         {data.education.map(edu => (
                             <div key={edu.id} className="mb-3 text-xs">
                                 <h3 className="font-semibold">{edu.degree}</h3>

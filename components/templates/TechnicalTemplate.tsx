@@ -1,15 +1,18 @@
 import * as React from 'react';
 import type { ResumeData } from '../../types';
-
-const SectionHeader: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">
-        {children}
-    </h2>
-);
+import { getThemeClasses } from '../../lib/colors';
 
 export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+    const theme = getThemeClasses(data.themeColor);
+
+    const SectionHeader: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+        <h2 className={`text-xs font-bold uppercase tracking-wider ${theme.text} mb-2`}>
+            {children}
+        </h2>
+    );
+
     return (
-        <div className="p-8 font-sans text-[10pt] leading-normal bg-gray-50 h-full">
+        <div className="p-8 font-sans text-[10pt] leading-normal bg-gray-50 text-gray-900 h-full">
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap');
                 .font-roboto { font-family: 'Roboto', sans-serif; }
@@ -18,17 +21,17 @@ export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
             <div className="font-roboto">
                 <header className="mb-6">
                     <h1 className="text-3xl font-bold">{data.name}</h1>
-                    <div className="flex items-center space-x-3 text-xs mt-1 text-gray-600">
-                        <a href={`mailto:${data.email}`} className="hover:text-blue-600">{data.email}</a>
+                    <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs mt-1 text-gray-600">
+                        <a href={`mailto:${data.email}`} className={`hover:text-blue-600 ${theme.text}`}>{data.email}</a>
                         <span>&bull;</span>
                         <span>{data.phone}</span>
                         <span>&bull;</span>
-                        <a href={`https://${data.website}`} className="hover:text-blue-600">{data.website}</a>
+                        <a href={`https://${data.website.replace(/^https?:\/\//, '')}`} className={`hover:text-blue-600 ${theme.text}`}>{data.website}</a>
                     </div>
                 </header>
 
                 <section className="mb-6">
-                    <p className="text-xs text-gray-700">{data.summary}</p>
+                    <p className="text-xs text-gray-700 leading-relaxed">{data.summary}</p>
                 </section>
                 
                 <div className="grid grid-cols-3 gap-6">
@@ -37,9 +40,9 @@ export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                             <SectionHeader>Experience</SectionHeader>
                             {data.experience.map(exp => (
                                 <div key={exp.id} className="mb-4">
-                                    <div className="flex justify-between items-start">
+                                    <div className="flex justify-between items-start flex-wrap gap-2">
                                         <div>
-                                            <h3 className="text-sm font-bold">{exp.title}</h3>
+                                            <h3 className="text-sm font-bold text-gray-900">{exp.title}</h3>
                                             <p className="text-xs text-gray-700">{exp.company}</p>
                                         </div>
                                         <span className="text-xs text-gray-500 whitespace-nowrap">{exp.startDate} - {exp.endDate}</span>
@@ -55,8 +58,8 @@ export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                         <section className="mb-6">
                             <SectionHeader>Skills</SectionHeader>
                             <div className="flex flex-wrap gap-1">
-                                {data.skills.split(',').map(skill => (
-                                    <span key={skill} className="bg-gray-200 text-gray-800 text-[9pt] px-2 py-1 rounded font-roboto-mono">{skill.trim()}</span>
+                                {data.skills.split(',').map((skill, index) => (
+                                    <span key={index} className={`${theme.bgLight} ${theme.textDark} text-[9pt] px-2 py-1 rounded font-roboto-mono font-medium border ${theme.borderLight}`}>{skill.trim()}</span>
                                 ))}
                             </div>
                         </section>
@@ -64,9 +67,9 @@ export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                             <SectionHeader>Projects</SectionHeader>
                             {data.projects.map(proj => (
                                 <div key={proj.id} className="mb-3">
-                                    <h3 className="text-sm font-bold">{proj.name}</h3>
-                                    <p className="text-xs text-gray-600 mb-1">{proj.description}</p>
-                                    {proj.url && <a href={proj.url} className="text-xs text-blue-600 hover:underline">View Project</a>}
+                                    <h3 className="text-sm font-bold text-gray-900">{proj.name}</h3>
+                                    <p className="text-xs text-gray-600 mb-1 leading-relaxed">{proj.description}</p>
+                                    {proj.url && <a href={`https://${proj.url.replace(/^https?:\/\//, '')}`} className={`text-xs ${theme.text} hover:underline`}>View Project</a>}
                                 </div>
                             ))}
                         </section>
@@ -74,7 +77,7 @@ export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                             <SectionHeader>Education</SectionHeader>
                             {data.education.map(edu => (
                                 <div key={edu.id} className="mb-2">
-                                    <h3 className="text-sm font-bold">{edu.degree}</h3>
+                                    <h3 className="text-sm font-bold text-gray-900">{edu.degree}</h3>
                                     <p className="text-xs text-gray-700">{edu.university}</p>
                                     <p className="text-xs text-gray-500">{edu.startDate} - {edu.endDate}</p>
                                 </div>
