@@ -12,6 +12,8 @@ import {
   Edit3, Copy, PlusCircle, ChevronDown, LayoutTemplate, Settings2
 } from 'lucide-react';
 
+import { useToast } from '../context/ToastContext';
+
 const colors: { id: ThemeColor; name: string; hex: string }[] = [
   { id: 'slate',   name: 'Slate',   hex: '#475569' },
   { id: 'indigo',  name: 'Indigo',  hex: '#4f46e5' },
@@ -23,6 +25,7 @@ const colors: { id: ThemeColor; name: string; hex: string }[] = [
 
 const BuilderPage: React.FC = () => {
   const { resumeData, drafts, activeDraftId, dispatch } = useResumeStore();
+  const { showToast, confirm } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTemplate, setActiveTemplate] = React.useState<TemplateId>(
     (searchParams.get('template') as TemplateId) || 'classic'
@@ -39,17 +42,31 @@ const BuilderPage: React.FC = () => {
   const handleTemplateChange = (template: TemplateId) => {
     setActiveTemplate(template);
     setSearchParams({ template });
+    showToast(`Switched template to ${template}`, 'info');
   };
 
-  const handleReset = () => {
-    if (window.confirm('Reset all data for this profile? This cannot be undone.')) {
+  const handleReset = async () => {
+    const ok = await confirm({
+      title: 'Reset Profile Data?',
+      message: 'This will reset all sections in this profile. This cannot be undone.',
+      confirmText: 'Reset Data',
+      destructive: true,
+    });
+    if (ok) {
       dispatch({ type: 'RESET_DATA' });
+      showToast('Profile data reset.', 'info');
     }
   };
 
-  const handleLoadDemo = () => {
-    if (window.confirm('Load sample data into this profile?')) {
+  const handleLoadDemo = async () => {
+    const ok = await confirm({
+      title: 'Load Sample Data?',
+      message: 'This will load sample software engineer profile details to help you preview all resume features.',
+      confirmText: 'Load Demo',
+    });
+    if (ok) {
       dispatch({ type: 'LOAD_DEMO_DATA' });
+      showToast('Demo profile loaded successfully!', 'success');
     }
   };
 
@@ -62,8 +79,9 @@ const BuilderPage: React.FC = () => {
       document.body.appendChild(a);
       a.click();
       a.remove();
+      showToast('Resume JSON exported successfully.', 'success');
     } catch {
-      alert('Failed to export resume data.');
+      showToast('Failed to export resume data.', 'error');
     }
   };
 
@@ -78,12 +96,12 @@ const BuilderPage: React.FC = () => {
           const parsed = JSON.parse(event.target?.result as string);
           if (parsed && typeof parsed === 'object' && 'name' in parsed && 'skills' in parsed) {
             dispatch({ type: 'LOAD_DRAFT', data: parsed });
-            alert('Resume data imported successfully!');
+            showToast('Resume data imported successfully!', 'success');
           } else {
-            alert('Invalid resume data structure.');
+            showToast('Invalid resume data format.', 'error');
           }
         } catch {
-          alert('Error parsing JSON file.');
+          showToast('Error parsing JSON file.', 'error');
         }
       };
     }
@@ -144,11 +162,17 @@ const BuilderPage: React.FC = () => {
                   </button>
                   {/* New profile */}
                   <button
-                    onClick={() => {
-                      const name = prompt('New profile name:', 'New Resume');
+                    onClick={async () => {
+                      const name = window.prompt('New profile name:', 'New Resume');
                       if (name?.trim()) {
-                        const demo = confirm('Populate with sample data?');
+                        const demo = await confirm({
+                          title: 'Populate with Sample Data?',
+                          message: 'Would you like to populate this new profile with sample resume details?',
+                          confirmText: 'Yes, load sample',
+                          cancelText: 'No, start blank',
+                        });
                         dispatch({ type: 'CREATE_DRAFT', name: name.trim(), isDemo: demo });
+                        showToast(`Created profile "${name.trim()}".`, 'success');
                       }
                     }}
                     className="h-7 w-7 flex items-center justify-center text-primary hover:bg-primary/10 transition-all duration-200 active:scale-90"
@@ -159,10 +183,22 @@ const BuilderPage: React.FC = () => {
                   </button>
                   {/* Delete */}
                   <button
-                    onClick={() => {
-                      if (drafts.length <= 1) { alert('Keep at least one profile.'); return; }
+                    onClick={async () => {
+                      if (drafts.length <= 1) { 
+                        showToast('You must keep at least one profile.', 'warning'); 
+                        return; 
+                      }
                       const name = drafts.find((d) => d.id === activeDraftId)?.name || '';
-                      if (confirm(`Delete profile "${name}"?`)) dispatch({ type: 'DELETE_DRAFT', id: activeDraftId });
+                      const ok = await confirm({
+                        title: 'Delete Profile?',
+                        message: `Are you sure you want to permanently delete profile "${name}"?`,
+                        confirmText: 'Delete Profile',
+                        destructive: true,
+                      });
+                      if (ok) {
+                        dispatch({ type: 'DELETE_DRAFT', id: activeDraftId });
+                        showToast(`Profile "${name}" deleted.`, 'info');
+                      }
                     }}
                     disabled={drafts.length <= 1}
                     className="h-7 w-7 flex items-center justify-center text-destructive hover:bg-destructive/10 disabled:opacity-30 disabled:pointer-events-none transition-all duration-200 active:scale-90"

@@ -1,6 +1,78 @@
-/* index.css — supplemental styles that Tailwind can't handle inline */
+/* index.css — Supplemental design tokens & Modern Web Standards */
 
-/* ─── Resume preview font-scale overrides (already in index.html too but kept here for build compat) ─ */
+:root {
+  color-scheme: light dark;
+}
+
+/* ─── Modern Web Guidance: Typographic Legibility ───────────────────────── */
+/* Short text blocks: evenly balance line-breaks across lines */
+h1, h2, h3, h4, h5, h6, .text-balance {
+  text-wrap: balance;
+}
+
+/* Multi-line blocks: avoid orphaned words / runts at paragraph ends */
+p, li, blockquote, .text-pretty {
+  text-wrap: pretty;
+}
+
+/* ─── Modern Web Guidance: Form Feedback & Focus ───────────────────────── */
+input:user-invalid,
+textarea:user-invalid {
+  border-color: hsl(var(--destructive) / 0.7);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 1px;
+}
+
+/* ─── Modern Web Guidance: Standard Custom Scrollbars ──────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.28);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.6);
+}
+
+/* ─── Print & PDF Optimization ─────────────────────────────────────────── */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print,
+  header,
+  footer,
+  .page-break-guide,
+  #pdf-loading-overlay {
+    display: none !important;
+  }
+  /* Avoid cutting headers or items across page boundaries */
+  section,
+  .print-avoid-break,
+  header h1,
+  ul li {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
+
+/* ─── Resume preview font-scale & margin overrides ─────────────────────── */
 #resume-preview-content {
   --font-scale: 1;
   --lh-scale:   1;

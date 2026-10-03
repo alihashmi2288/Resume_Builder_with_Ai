@@ -1,11 +1,13 @@
 import * as React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
-import { Sparkles, Menu, X } from 'lucide-react';
+import { Sparkles, Menu, X, Key } from 'lucide-react';
 import { Button } from './Button';
+import { ApiKeyDialog } from '../ApiKeyDialog';
 
 export const Header: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const [isKeyDialogOpen, setIsKeyDialogOpen] = React.useState(false);
 
     const navLinkClass = ({ isActive }: { isActive: boolean }) =>
         `relative py-1.5 text-sm font-medium transition-all duration-200 after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:origin-center after:scale-x-0 after:rounded-full after:bg-primary after:transition-transform after:duration-300 hover:after:scale-x-100 ${
@@ -33,7 +35,7 @@ export const Header: React.FC = () => {
                     </span>
                 </NavLink>
  
-                {/* Desktop nav - Home link removed (logo = home), keeps single line */}
+                {/* Desktop nav */}
                 <nav className="hidden md:flex items-center gap-6 text-sm">
                     <NavLink to="/builder" className={navLinkClass}>Builder</NavLink>
                     <NavLink to="/templates" className={navLinkClass}>Templates</NavLink>
@@ -43,6 +45,16 @@ export const Header: React.FC = () => {
                 </nav>
  
                 <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setIsKeyDialogOpen(true)}
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border/60 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors"
+                        title="AI Settings / API Key"
+                        aria-label="AI Settings / API Key"
+                    >
+                        <Key className="size-3.5 text-primary" aria-hidden="true" />
+                        <span className="hidden sm:inline font-medium">API Key</span>
+                    </button>
                     {/* Primary CTA - desktop only */}
                     <Button asChild size="sm" className="hidden md:inline-flex btn-primary-glow h-8 px-4 text-xs">
                         <Link to="/builder">Build Resume</Link>
@@ -58,6 +70,8 @@ export const Header: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            <ApiKeyDialog isOpen={isKeyDialogOpen} onClose={() => setIsKeyDialogOpen(false)} />
 
             {/* Mobile slide-down menu */}
             <div

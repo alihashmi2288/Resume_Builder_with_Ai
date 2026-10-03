@@ -99,37 +99,37 @@ const HomePage: React.FC = () => {
         <div className="absolute bottom-0 inset-x-0 h-24 pointer-events-none"
           style={{ background: 'linear-gradient(to bottom, transparent, hsl(var(--background)))' }} />
 
-        <div className="container mx-auto px-4 pt-20 pb-24 md:pt-28 md:pb-32">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-16 items-center">
+        <div className="container mx-auto px-4 pt-10 pb-12 md:pt-14 md:pb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-12 items-center">
 
             {/* Copy — max 4 text elements: badge, headline, subtext, CTAs */}
             <div className="text-center lg:text-left">
               {/* Element 1: Badge / eyebrow #1 */}
-              <div className="animate-float-up inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/8 px-3.5 py-1.5 text-xs font-semibold text-primary mb-7">
+              <div className="animate-float-up inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/8 px-3.5 py-1.5 text-xs font-semibold text-primary mb-4">
                 <span className="size-1.5 rounded-full bg-primary animate-pulse-ring" />
-                Powered by Google Gemini
+                Powered by Google Gemini 2.5 Flash
               </div>
  
               {/* Element 2: Headline */}
-              <h1 className="animate-float-up delay-100 font-display text-[3rem] md:text-[4.25rem] lg:text-[4.75rem] font-bold leading-[1.0] tracking-tight text-foreground text-balance">
+              <h1 className="animate-float-up delay-100 font-display text-[2.75rem] md:text-[3.75rem] lg:text-[4.25rem] font-bold leading-[1.05] tracking-tight text-foreground text-balance">
                 Build resumes<br />
                 <em className="not-italic text-shimmer">that get hired.</em>
               </h1>
  
               {/* Element 3: Subtext */}
-              <p className="animate-float-up delay-200 mt-6 text-base md:text-lg text-muted-foreground max-w-[480px] mx-auto lg:mx-0 leading-relaxed text-pretty">
-                AI-generated content, ATS scoring, 9 premium templates, and a pixel-perfect PDF.
+              <p className="animate-float-up delay-200 mt-4 text-base md:text-lg text-muted-foreground max-w-[480px] mx-auto lg:mx-0 leading-relaxed text-pretty">
+                AI-generated content, live ATS scoring, 9 premium templates, and pixel-perfect PDF export.
               </p>
  
               {/* Element 4: CTAs */}
-              <div className="animate-float-up delay-300 mt-9 flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
-                <Button asChild size="lg" className="btn-primary-glow px-8 h-11">
+              <div className="animate-float-up delay-300 mt-6 flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
+                <Button asChild size="lg" className="btn-primary-glow px-8 h-11 text-sm font-semibold">
                   <Link to="/builder">
                     Build my resume
                     <ArrowRight className="ml-2 size-4" aria-hidden="true" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="px-6 h-11">
+                <Button asChild variant="outline" size="lg" className="px-6 h-11 text-sm font-semibold">
                   <Link to="/templates">
                     Browse templates
                     <ChevronRight className="ml-1.5 size-4 text-muted-foreground" aria-hidden="true" />
