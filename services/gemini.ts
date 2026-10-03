@@ -163,3 +163,60 @@ export const generateAIResume = async (jobTitle: string): Promise<ResumeData> =>
         throw new Error("The AI returned an invalid format. Please try again.");
     }
 };
+
+export interface ATSAnalysisResult {
+  score: number;
+  suggestions: string[];
+  missingKeywords: string[];
+}
+
+export const analyzeResumeATS = async (resumeText: string, jobDescription: string): Promise<ATSAnalysisResult> => {
+    const prompt = `Act as an expert Applicant Tracking System (ATS) auditor. Analyze the following resume against the job description. Give a match score from 0 to 100, suggest specific, actionable changes to improve the match, and list key missing skills or keywords.
+---
+RESUME:
+${resumeText}
+---
+JOB DESCRIPTION:
+${jobDescription}
+---`;
+
+    const atsSchema = {
+      type: Type.OBJECT,
+      properties: {
+        score: { type: Type.INTEGER, description: "Overall matching percentage from 0 to 100 based on keywords and description match" },
+        suggestions: { 
+          type: Type.ARRAY, 
+          items: { type: Type.STRING }, 
+          description: "4-6 highly specific, actionable content improvement suggestions for the resume" 
+        },
+        missingKeywords: { 
+          type: Type.ARRAY, 
+          items: { type: Type.STRING }, 
+          description: "Top 8-12 keywords or skills from the job description that are missing or underrepresented in the resume" 
+        },
+      },
+      required: ['score', 'suggestions', 'missingKeywords'],
+    };
+
+    try {
+        const ai = getAI();
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: atsSchema,
+            },
+        });
+        
+        const responseText = response.text.trim();
+        return JSON.parse(responseText) as ATSAnalysisResult;
+
+    } catch (e) {
+        console.error("Failed to parse AI ATS audit JSON:", e);
+        if (e instanceof Error) {
+            throw new Error(`Failed to audit resume: ${e.message}`);
+        }
+        throw new Error("An error occurred during AI ATS audit. Please try again.");
+    }
+};

@@ -1,86 +1,48 @@
-/* CSS Variables for Premium Dark/Light Modes */
-:root {
-  --background: 210 40% 98%;
-  --foreground: 222.2 84% 15%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 15%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 55%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 47.4% 11.2%;
-}
+/* index.css — supplemental styles that Tailwind can't handle inline */
 
-.dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 6.5%;
-  --card-foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 22%;
-  --input: 217.2 32.6% 20%;
-  --ring: 212.7 26.8% 83.9%;
+/* ─── Resume preview font-scale overrides (already in index.html too but kept here for build compat) ─ */
+#resume-preview-content {
+  --font-scale: 1;
+  --lh-scale:   1;
 }
+#resume-preview-content.scale-small { --font-scale: 0.85; --lh-scale: 0.85; }
+#resume-preview-content.scale-large { --font-scale: 1.15; --lh-scale: 1.15; }
 
-/* Global Reset & Scrollbars */
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: hsl(var(--background));
-  background-image: radial-gradient(hsl(var(--muted)) 1px, transparent 0);
-  background-size: 24px 24px;
-}
+#resume-preview-content .text-\[9px\]  { font-size: calc(9px   * var(--font-scale)) !important; }
+#resume-preview-content .text-\[10px\] { font-size: calc(10px  * var(--font-scale)) !important; }
+#resume-preview-content .text-\[10pt\] { font-size: calc(10pt  * var(--font-scale)) !important; }
+#resume-preview-content .text-xs   { font-size: calc(0.75rem  * var(--font-scale)) !important; }
+#resume-preview-content .text-sm   { font-size: calc(0.875rem * var(--font-scale)) !important; }
+#resume-preview-content .text-base { font-size: calc(1rem     * var(--font-scale)) !important; }
+#resume-preview-content .text-lg   { font-size: calc(1.125rem * var(--font-scale)) !important; }
+#resume-preview-content .text-xl   { font-size: calc(1.25rem  * var(--font-scale)) !important; }
+#resume-preview-content .text-2xl  { font-size: calc(1.5rem   * var(--font-scale)) !important; }
+#resume-preview-content .text-3xl  { font-size: calc(1.875rem * var(--font-scale)) !important; }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+#resume-preview-content .leading-none    { line-height: calc(1      * var(--lh-scale)) !important; }
+#resume-preview-content .leading-tight   { line-height: calc(1.25   * var(--lh-scale)) !important; }
+#resume-preview-content .leading-snug    { line-height: calc(1.375  * var(--lh-scale)) !important; }
+#resume-preview-content .leading-normal  { line-height: calc(1.5    * var(--lh-scale)) !important; }
+#resume-preview-content .leading-relaxed { line-height: calc(1.625  * var(--lh-scale)) !important; }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+/* Margin overrides */
+#resume-preview-content.margins-narrow .p-8,
+#resume-preview-content.margins-narrow .p-6 { padding: 1.25rem !important; }
+#resume-preview-content.margins-wide   .p-8,
+#resume-preview-content.margins-wide   .p-6 { padding: 3.25rem !important; }
 
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
-  border-radius: 9999px;
-}
+#resume-preview-content.margins-narrow .mb-6 { margin-bottom: 0.75rem  !important; }
+#resume-preview-content.margins-narrow .mb-4 { margin-bottom: 0.5rem   !important; }
+#resume-preview-content.margins-narrow .mb-3 { margin-bottom: 0.35rem  !important; }
+#resume-preview-content.margins-narrow .mb-2 { margin-bottom: 0.25rem  !important; }
+#resume-preview-content.margins-narrow .gap-6 { gap: 0.75rem  !important; }
+#resume-preview-content.margins-narrow .gap-3 { gap: 0.35rem  !important; }
+#resume-preview-content.margins-wide   .mb-6 { margin-bottom: 2rem    !important; }
+#resume-preview-content.margins-wide   .mb-4 { margin-bottom: 1.5rem  !important; }
+#resume-preview-content.margins-wide   .gap-6 { gap: 2rem     !important; }
 
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
-}
-
-/* Micro-interactions & animations */
-@keyframes pulse-ring {
-  0% { transform: scale(0.95); opacity: 0.5; }
-  50% { transform: scale(1.05); opacity: 0.8; }
-  100% { transform: scale(0.95); opacity: 0.5; }
-}
-
-.animate-pulse-ring {
-  animation: pulse-ring 2s infinite ease-in-out;
-}
-
-.hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px -10px hsl(var(--primary) / 0.15);
-}
+/* Custom Template Fonts */
+.font-lora { font-family: 'Lora', serif; }
+.font-merriweather { font-family: 'Merriweather', serif; }
+.font-roboto { font-family: 'Roboto', sans-serif; }
+.font-roboto-mono { font-family: 'Roboto Mono', monospace; }

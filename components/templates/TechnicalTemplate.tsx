@@ -2,22 +2,17 @@ import * as React from 'react';
 import type { ResumeData } from '../../types';
 import { getThemeClasses } from '../../lib/colors';
 
+const SectionHeader: React.FC<{ children: React.ReactNode; theme: any }> = ({ children, theme }) => (
+    <h2 className={`text-xs font-bold uppercase tracking-wider ${theme.text} mb-2`}>
+        {children}
+    </h2>
+);
+
 export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     const theme = getThemeClasses(data.themeColor);
 
-    const SectionHeader: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-        <h2 className={`text-xs font-bold uppercase tracking-wider ${theme.text} mb-2`}>
-            {children}
-        </h2>
-    );
-
     return (
         <div className="p-8 font-sans text-[10pt] leading-normal bg-gray-50 text-gray-900 h-full">
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap');
-                .font-roboto { font-family: 'Roboto', sans-serif; }
-                .font-roboto-mono { font-family: 'Roboto Mono', monospace; }
-            `}</style>
             <div className="font-roboto">
                 <header className="mb-6">
                     <h1 className="text-3xl font-bold">{data.name}</h1>
@@ -37,7 +32,7 @@ export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                 <div className="grid grid-cols-3 gap-6">
                     <div className="col-span-2">
                         <section className="mb-6">
-                            <SectionHeader>Experience</SectionHeader>
+                            <SectionHeader theme={theme}>Experience</SectionHeader>
                             {data.experience.map(exp => (
                                 <div key={exp.id} className="mb-4">
                                     <div className="flex justify-between items-start flex-wrap gap-2">
@@ -56,7 +51,7 @@ export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                     </div>
                     <div className="col-span-1">
                         <section className="mb-6">
-                            <SectionHeader>Skills</SectionHeader>
+                            <SectionHeader theme={theme}>Skills</SectionHeader>
                             <div className="flex flex-wrap gap-1">
                                 {data.skills.split(',').map((skill, index) => (
                                     <span key={index} className={`${theme.bgLight} ${theme.textDark} text-[9pt] px-2 py-1 rounded font-roboto-mono font-medium border ${theme.borderLight}`}>{skill.trim()}</span>
@@ -64,7 +59,7 @@ export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                             </div>
                         </section>
                         <section className="mb-6">
-                            <SectionHeader>Projects</SectionHeader>
+                            <SectionHeader theme={theme}>Projects</SectionHeader>
                             {data.projects.map(proj => (
                                 <div key={proj.id} className="mb-3">
                                     <h3 className="text-sm font-bold text-gray-900">{proj.name}</h3>
@@ -74,7 +69,7 @@ export const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                             ))}
                         </section>
                         <section>
-                            <SectionHeader>Education</SectionHeader>
+                            <SectionHeader theme={theme}>Education</SectionHeader>
                             {data.education.map(edu => (
                                 <div key={edu.id} className="mb-2">
                                     <h3 className="text-sm font-bold text-gray-900">{edu.degree}</h3>

@@ -146,7 +146,11 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, template, is
                 <div
                     ref={contentRef}
                     id="resume-preview-content"
-                    className="absolute bg-white text-black shadow-2xl transition-transform duration-200"
+                    className={`absolute bg-white text-black shadow-2xl transition-transform duration-200 ${
+                        data.margins === 'narrow' ? 'margins-narrow' : data.margins === 'wide' ? 'margins-wide' : ''
+                    } ${
+                        data.fontSize === 'small' ? 'scale-small' : data.fontSize === 'large' ? 'scale-large' : ''
+                    }`}
                     style={{
                         width: '794px',
                         transform: `scale(${scale})`,
@@ -156,6 +160,9 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ data, template, is
                         left: '50%',
                         marginLeft: '-397px', // Exactly half of 794px to center the element
                         top: '0',
+                        // CSS custom properties for font scaling and line spacing
+                        ['--font-scale' as any]: data.fontSize === 'small' ? 0.85 : data.fontSize === 'large' ? 1.15 : 1.0,
+                        ['--lh-scale' as any]: data.lineHeight === 'compact' ? 0.82 : data.lineHeight === 'relaxed' ? 1.25 : 1.0,
                     }}
                 >
                     <div className="bg-white w-full min-h-[1123px] select-text relative">

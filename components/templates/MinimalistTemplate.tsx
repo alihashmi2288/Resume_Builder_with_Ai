@@ -2,14 +2,14 @@ import * as React from 'react';
 import type { ResumeData } from '../../types';
 import { getThemeClasses } from '../../lib/colors';
 
+const SectionHeader: React.FC<{ children: React.ReactNode; theme: any }> = ({ children, theme }) => (
+    <h2 className={`text-xs font-semibold uppercase tracking-[.2em] ${theme.text} mb-4 mt-6 first:mt-0`}>
+        {children}
+    </h2>
+);
+
 export const MinimalistTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     const theme = getThemeClasses(data.themeColor);
-
-    const SectionHeader: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-        <h2 className={`text-xs font-semibold uppercase tracking-[.2em] ${theme.text} mb-4 mt-6 first:mt-0`}>
-            {children}
-        </h2>
-    );
 
     return (
         <div className="p-12 font-light font-sans text-[10pt] leading-relaxed bg-white text-gray-800 h-full">
@@ -27,12 +27,12 @@ export const MinimalistTemplate: React.FC<{ data: ResumeData }> = ({ data }) => 
             <hr className="border-gray-200" />
 
             <section className="mb-4">
-                <SectionHeader>Profile</SectionHeader>
+                <SectionHeader theme={theme}>Profile</SectionHeader>
                 <p className="text-xs text-gray-700 leading-relaxed">{data.summary}</p>
             </section>
 
             <section className="mb-4">
-                <SectionHeader>Experience</SectionHeader>
+                <SectionHeader theme={theme}>Experience</SectionHeader>
                 {data.experience.map(exp => (
                     <div key={exp.id} className="mb-5 last:mb-0 grid grid-cols-4 gap-4">
                         <div className="col-span-1 text-xs text-gray-600">
@@ -50,13 +50,13 @@ export const MinimalistTemplate: React.FC<{ data: ResumeData }> = ({ data }) => 
             </section>
             
             <section className="mb-4">
-                <SectionHeader>Skills</SectionHeader>
+                <SectionHeader theme={theme}>Skills</SectionHeader>
                 <p className="text-xs text-gray-700 leading-relaxed">{data.skills}</p>
             </section>
 
             <div className="grid grid-cols-2 gap-8 mt-6">
                 <section>
-                    <SectionHeader>Education</SectionHeader>
+                    <SectionHeader theme={theme}>Education</SectionHeader>
                     {data.education.map(edu => (
                         <div key={edu.id} className="mb-3 last:mb-0 text-xs">
                              <h3 className="font-semibold text-gray-900">{edu.degree}</h3>
@@ -69,7 +69,7 @@ export const MinimalistTemplate: React.FC<{ data: ResumeData }> = ({ data }) => 
                 </section>
                 
                 <section>
-                    <SectionHeader>Projects</SectionHeader>
+                    <SectionHeader theme={theme}>Projects</SectionHeader>
                      {data.projects.map(proj => (
                         <div key={proj.id} className="mb-3 last:mb-0 text-xs">
                             <div className="flex items-baseline flex-wrap gap-2">

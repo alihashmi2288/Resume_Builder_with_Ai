@@ -2,14 +2,14 @@ import * as React from 'react';
 import type { ResumeData } from '../../types';
 import { getThemeClasses } from '../../lib/colors';
 
+const SectionHeader: React.FC<{ children: React.ReactNode; theme: any }> = ({ children, theme }) => (
+    <h2 className={`text-sm font-bold uppercase tracking-wider ${theme.text} mb-3`}>
+        {children}
+    </h2>
+);
+
 export const StartupTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     const theme = getThemeClasses(data.themeColor);
-
-    const SectionHeader: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-        <h2 className={`text-sm font-bold uppercase tracking-wider ${theme.text} mb-3`}>
-            {children}
-        </h2>
-    );
 
     return (
         <div className="p-8 font-sans text-[10pt] leading-normal bg-white h-full text-black">
@@ -17,8 +17,8 @@ export const StartupTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                 <div className={`absolute top-0 left-0 right-0 h-1.5 ${theme.bg}`} />
                 <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
                     <div>
-                        <h1 className="text-4xl font-extrabold text-gray-800 leading-tight">{data.name}</h1>
-                        <p className="text-base text-gray-600 mt-1">{data.experience[0]?.title || 'Creative Professional'}</p>
+                         <h1 className="text-4xl font-extrabold text-gray-800 leading-tight">{data.name}</h1>
+                         <p className="text-base text-gray-600 mt-1">{data.experience[0]?.title || 'Creative Professional'}</p>
                     </div>
                     <div className="text-right text-xs text-gray-500">
                         <p>{data.email}</p>
@@ -35,13 +35,13 @@ export const StartupTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
             <div className="grid grid-cols-12 gap-8">
                 <div className="col-span-8">
                     <section className="mb-6">
-                        <SectionHeader>Experience</SectionHeader>
+                        <SectionHeader theme={theme}>Experience</SectionHeader>
                         {data.experience.map(exp => (
                             <div key={exp.id} className="mb-4">
                                 <div className="flex justify-between items-start flex-wrap gap-2">
                                     <div>
-                                        <h3 className="text-sm font-semibold text-gray-900">{exp.title}</h3>
-                                        <p className="text-xs text-gray-600">{exp.company}</p>
+                                         <h3 className="text-sm font-semibold text-gray-900">{exp.title}</h3>
+                                         <p className="text-xs text-gray-600">{exp.company}</p>
                                     </div>
                                     <span className="text-xs text-gray-500 whitespace-nowrap">{exp.startDate} - {exp.endDate}</span>
                                 </div>
@@ -53,7 +53,7 @@ export const StartupTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                     </section>
                     
                     <section>
-                        <SectionHeader>Projects</SectionHeader>
+                        <SectionHeader theme={theme}>Projects</SectionHeader>
                         <div className="space-y-3">
                         {data.projects.map(proj => (
                             <div key={proj.id} className="">
@@ -69,12 +69,12 @@ export const StartupTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                 </div>
                 <div className="col-span-4">
                       <section className="mb-6 bg-gray-50 p-4 rounded-lg">
-                        <SectionHeader>Skills</SectionHeader>
+                        <SectionHeader theme={theme}>Skills</SectionHeader>
                         <p className="text-xs text-gray-700 leading-relaxed">{data.skills}</p>
                     </section>
                     
                     <section className="bg-gray-50 p-4 rounded-lg">
-                        <SectionHeader>Education</SectionHeader>
+                        <SectionHeader theme={theme}>Education</SectionHeader>
                         {data.education.map(edu => (
                             <div key={edu.id} className="mb-2 text-xs">
                                 <h3 className="font-semibold text-gray-900">{edu.degree}</h3>

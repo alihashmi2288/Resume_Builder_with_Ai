@@ -34,6 +34,10 @@ export interface ResumeData {
   experience: Experience[];
   projects: Project[];
   themeColor?: ThemeColor;
+  fontSize?: 'small' | 'medium' | 'large';
+  lineHeight?: 'compact' | 'normal' | 'relaxed';
+  margins?: 'narrow' | 'normal' | 'wide';
+  sectionOrder?: string[];
 }
 
 export type ThemeColor = 'slate' | 'indigo' | 'emerald' | 'blue' | 'rose' | 'amber';

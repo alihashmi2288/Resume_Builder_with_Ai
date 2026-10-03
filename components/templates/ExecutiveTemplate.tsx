@@ -2,21 +2,17 @@ import * as React from 'react';
 import type { ResumeData } from '../../types';
 import { getThemeClasses } from '../../lib/colors';
 
+const SectionHeader: React.FC<{ children: React.ReactNode; theme: any }> = ({ children, theme }) => (
+    <h2 className={`text-sm font-semibold uppercase tracking-[.2em] ${theme.text} mt-6 mb-3 pb-1 border-b-2 ${theme.borderLight}`}>
+        {children}
+    </h2>
+);
+
 export const ExecutiveTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     const theme = getThemeClasses(data.themeColor);
 
-    const SectionHeader: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-        <h2 className={`text-sm font-semibold uppercase tracking-[.2em] ${theme.text} mt-6 mb-3 pb-1 border-b-2 ${theme.borderLight}`}>
-            {children}
-        </h2>
-    );
-
     return (
         <div className="p-12 font-serif text-[11pt] leading-relaxed bg-white text-gray-800 h-full">
-             <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap');
-                .font-merriweather { font-family: 'Merriweather', serif; }
-            `}</style>
             <div className="font-merriweather bg-white text-black">
                 <header className={`text-center border-b-2 ${theme.border} pb-4 mb-6`}>
                     <h1 className="text-5xl font-bold tracking-wider">{data.name}</h1>
@@ -34,12 +30,12 @@ export const ExecutiveTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                 </section>
 
                 <section>
-                    <SectionHeader>Core Competencies</SectionHeader>
+                    <SectionHeader theme={theme}>Core Competencies</SectionHeader>
                     <p className="text-xs text-center text-gray-800 leading-relaxed">{data.skills}</p>
                 </section>
 
                 <section>
-                    <SectionHeader>Professional Experience</SectionHeader>
+                    <SectionHeader theme={theme}>Professional Experience</SectionHeader>
                     {data.experience.map(exp => (
                         <div key={exp.id} className="mb-5 last:mb-0">
                             <div className="flex justify-between items-baseline flex-wrap gap-2">
@@ -56,7 +52,7 @@ export const ExecutiveTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
 
                 <div className="grid grid-cols-2 gap-x-12 mt-6">
                     <section>
-                        <SectionHeader>Education</SectionHeader>
+                        <SectionHeader theme={theme}>Education</SectionHeader>
                         {data.education.map(edu => (
                             <div key={edu.id} className="mb-3 last:mb-0 text-xs">
                                 <h3 className="text-sm font-bold text-gray-900">{edu.degree}</h3>
@@ -67,7 +63,7 @@ export const ExecutiveTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
                     </section>
                     
                     <section>
-                        <SectionHeader>Key Projects</SectionHeader>
+                        <SectionHeader theme={theme}>Key Projects</SectionHeader>
                         {data.projects.map(proj => (
                             <div key={proj.id} className="mb-3 last:mb-0 text-xs">
                                 <h3 className="text-sm font-bold text-gray-900">{proj.name}</h3>

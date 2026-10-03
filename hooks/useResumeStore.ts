@@ -1,6 +1,18 @@
 import { useReducer, useEffect } from 'react';
 import { type ResumeData, type Experience, type Education, type Project } from '../types';
 
+export interface DraftProfile {
+  id: string;
+  name: string;
+  data: ResumeData;
+  updatedAt: string;
+}
+
+export interface ResumeStoreState {
+  drafts: DraftProfile[];
+  activeDraftId: string;
+}
+
 const emptyResume: ResumeData = {
   name: 'Your Name',
   email: 'youremail@example.com',
@@ -17,7 +29,11 @@ const emptyResume: ResumeData = {
   projects: [
     { id: crypto.randomUUID(), name: 'Project A', description: 'A cool project I built.', url: 'github.com/yourname/project-a' },
   ],
-  themeColor: 'slate'
+  themeColor: 'slate',
+  fontSize: 'medium',
+  lineHeight: 'normal',
+  margins: 'normal',
+  sectionOrder: ['personal', 'summary', 'skills', 'experience', 'education', 'projects']
 };
 
 const demoResume: ResumeData = {
@@ -62,7 +78,11 @@ const demoResume: ResumeData = {
       url: 'github.com/alexmercer/devflow'
     }
   ],
-  themeColor: 'indigo'
+  themeColor: 'indigo',
+  fontSize: 'medium',
+  lineHeight: 'normal',
+  margins: 'normal',
+  sectionOrder: ['personal', 'summary', 'skills', 'experience', 'education', 'projects']
 };
 
 export type Action =
@@ -74,30 +94,37 @@ export type Action =
   | { type: 'MOVE_ITEM_DOWN'; field: 'experience' | 'education' | 'projects'; id: string }
   | { type: 'LOAD_DRAFT'; data: ResumeData }
   | { type: 'LOAD_DEMO_DATA' }
-  | { type: 'RESET_DATA' };
+  | { type: 'RESET_DATA' }
+  // Draft management actions
+  | { type: 'SWITCH_DRAFT'; id: string }
+  | { type: 'CREATE_DRAFT'; name: string; isDemo?: boolean }
+  | { type: 'DUPLICATE_DRAFT'; id: string; newName: string }
+  | { type: 'RENAME_DRAFT'; id: string; newName: string }
+  | { type: 'DELETE_DRAFT'; id: string };
 
-const reducer = (state: ResumeData, action: Action): ResumeData => {
+const singleResumeReducer = (state: ResumeData, action: Action): ResumeData => {
   switch (action.type) {
     case 'SET_FIELD':
       return { ...state, [action.field]: action.value };
-    case 'ADD_ITEM':
+    case 'ADD_ITEM': {
       const newItem = { id: crypto.randomUUID(), ...getNewItemDefaults(action.field) };
-      return { ...state, [action.field]: [...state[action.field], newItem] };
+      return { ...state, [action.field]: [...(state[action.field] || []), newItem] };
+    }
     case 'UPDATE_ITEM':
       return {
         ...state,
-        [action.field]: state[action.field].map((item: any) =>
+        [action.field]: (state[action.field] || []).map((item: any) =>
           item.id === action.id ? { ...item, ...action.data } : item
         ),
       };
     case 'DELETE_ITEM':
       return {
         ...state,
-        [action.field]: state[action.field].filter((item: any) => item.id !== action.id),
+        [action.field]: (state[action.field] || []).filter((item: any) => item.id !== action.id),
       };
     case 'MOVE_ITEM_UP': {
       const { field, id } = action;
-      const list = [...state[field]];
+      const list = [...(state[field] || [])];
       const index = list.findIndex(item => item.id === id);
       if (index > 0) {
         const temp = list[index];
@@ -108,7 +135,7 @@ const reducer = (state: ResumeData, action: Action): ResumeData => {
     }
     case 'MOVE_ITEM_DOWN': {
       const { field, id } = action;
-      const list = [...state[field]];
+      const list = [...(state[field] || [])];
       const index = list.findIndex(item => item.id === id);
       if (index >= 0 && index < list.length - 1) {
         const temp = list[index];
@@ -118,7 +145,12 @@ const reducer = (state: ResumeData, action: Action): ResumeData => {
       return { ...state, [field]: list as any };
     }
     case 'LOAD_DRAFT':
-      return action.data;
+      // Backwards compatibility check
+      return {
+        ...emptyResume,
+        ...action.data,
+        sectionOrder: action.data.sectionOrder || emptyResume.sectionOrder
+      };
     case 'LOAD_DEMO_DATA':
       return demoResume;
     case 'RESET_DATA':
@@ -136,26 +168,158 @@ const getNewItemDefaults = (field: 'experience' | 'education' | 'projects') => {
   }
 };
 
+const storeReducer = (state: ResumeStoreState, action: Action): ResumeStoreState => {
+  const activeDraft = state.drafts.find(d => d.id === state.activeDraftId);
+  const activeData = activeDraft ? activeDraft.data : emptyResume;
+
+  switch (action.type) {
+    case 'SWITCH_DRAFT':
+      if (state.drafts.some(d => d.id === action.id)) {
+        return { ...state, activeDraftId: action.id };
+      }
+      return state;
+
+    case 'CREATE_DRAFT': {
+      const newId = crypto.randomUUID();
+      const newDraftData = action.isDemo ? demoResume : emptyResume;
+      const newDraft: DraftProfile = {
+        id: newId,
+        name: action.name,
+        data: newDraftData,
+        updatedAt: new Date().toISOString()
+      };
+      return {
+        drafts: [...state.drafts, newDraft],
+        activeDraftId: newId
+      };
+    }
+
+    case 'DUPLICATE_DRAFT': {
+      const targetDraft = state.drafts.find(d => d.id === action.id);
+      if (!targetDraft) return state;
+      const newId = crypto.randomUUID();
+      const newDraft: DraftProfile = {
+        id: newId,
+        name: action.newName,
+        data: JSON.parse(JSON.stringify(targetDraft.data)),
+        updatedAt: new Date().toISOString()
+      };
+      return {
+        drafts: [...state.drafts, newDraft],
+        activeDraftId: newId
+      };
+    }
+
+    case 'RENAME_DRAFT':
+      return {
+        ...state,
+        drafts: state.drafts.map(d =>
+          d.id === action.id ? { ...d, name: action.newName, updatedAt: new Date().toISOString() } : d
+        )
+      };
+
+    case 'DELETE_DRAFT': {
+      if (state.drafts.length <= 1) return state; // Prevent deleting the last draft
+      const newDrafts = state.drafts.filter(d => d.id !== action.id);
+      let newActiveId = state.activeDraftId;
+      if (state.activeDraftId === action.id) {
+        newActiveId = newDrafts[0].id;
+      }
+      return {
+        drafts: newDrafts,
+        activeDraftId: newActiveId
+      };
+    }
+
+    default: {
+      const updatedData = singleResumeReducer(activeData, action);
+      return {
+        ...state,
+        drafts: state.drafts.map(draft =>
+          draft.id === state.activeDraftId
+            ? { ...draft, data: updatedData, updatedAt: new Date().toISOString() }
+            : draft
+        )
+      };
+    }
+  }
+};
+
 export const useResumeStore = () => {
-    const initializer = () => {
-        try {
-            const storedData = localStorage.getItem('resume-draft');
-            return storedData ? JSON.parse(storedData) : emptyResume;
-        } catch (error) {
-            console.error("Error parsing resume draft from localStorage", error);
-            return emptyResume;
+  const initializer = (): ResumeStoreState => {
+    try {
+      const storedDrafts = localStorage.getItem('resume-drafts');
+      if (storedDrafts) {
+        const parsed = JSON.parse(storedDrafts);
+        if (parsed && Array.isArray(parsed.drafts) && parsed.activeDraftId) {
+          return parsed;
         }
-    };
+      }
 
-    const [resumeData, dispatch] = useReducer(reducer, undefined, initializer);
+      // Legacy migration check
+      const storedLegacyDraft = localStorage.getItem('resume-draft');
+      if (storedLegacyDraft) {
+        const legacyData = JSON.parse(storedLegacyDraft);
+        return {
+          drafts: [
+            {
+              id: 'default',
+              name: 'Primary Profile',
+              data: {
+                ...emptyResume,
+                ...legacyData
+              },
+              updatedAt: new Date().toISOString()
+            }
+          ],
+          activeDraftId: 'default'
+        };
+      }
 
-    useEffect(() => {
-        try {
-            localStorage.setItem('resume-draft', JSON.stringify(resumeData));
-        } catch (error) {
-            console.error("Error saving resume draft to localStorage", error);
-        }
-    }, [resumeData]);
+      return {
+        drafts: [
+          {
+            id: 'default',
+            name: 'Primary Profile',
+            data: emptyResume,
+            updatedAt: new Date().toISOString()
+          }
+        ],
+        activeDraftId: 'default'
+      };
+    } catch (error) {
+      console.error('Error initializing resume store', error);
+      return {
+        drafts: [
+          {
+            id: 'default',
+            name: 'Primary Profile',
+            data: emptyResume,
+            updatedAt: new Date().toISOString()
+          }
+        ],
+        activeDraftId: 'default'
+      };
+    }
+  };
 
-    return { resumeData, dispatch };
+  const [state, dispatch] = useReducer(storeReducer, undefined, initializer);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('resume-drafts', JSON.stringify(state));
+    } catch (error) {
+      console.error('Error saving resume drafts to localStorage', error);
+    }
+  }, [state]);
+
+  const activeDraft = state.drafts.find(d => d.id === state.activeDraftId) || state.drafts[0];
+  const resumeData = activeDraft ? activeDraft.data : emptyResume;
+
+  return {
+    resumeData,
+    drafts: state.drafts,
+    activeDraftId: state.activeDraftId,
+    dispatch
+  };
 };

@@ -31,8 +31,14 @@ function App() {
     <AppContext.Provider value={contextValue}>
       <HashRouter>
         <div className="min-h-screen flex flex-col font-sans antialiased">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-background focus:text-primary focus:border-2 focus:border-primary focus:rounded-lg focus:font-semibold focus:outline-none"
+          >
+            Skip to main content
+          </a>
           <Header />
-          <main className="flex-grow container mx-auto px-4 py-8">
+          <main id="main-content" className="flex-grow container mx-auto px-4 py-8 outline-none" tabIndex={-1}>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/builder" element={<BuilderPage />} />
