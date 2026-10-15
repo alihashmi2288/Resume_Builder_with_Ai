@@ -111,29 +111,30 @@ const BuilderPage: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-background">
 
       {/* ─── Sticky Toolbar ──────────────────────────────────────────────── */}
-      <div className="sticky top-14 z-40 border-b border-border/50 bg-background/90 backdrop-blur-xl shadow-sm no-print">
+      <div className="sticky top-0 z-40 border-b border-[#e0e2e8] dark:border-[#2c2c34] bg-white/95 dark:bg-[#141416]/95 backdrop-blur-xl shadow-sm no-print">
 
         {/* Top row: Profile manager + view toggle + download */}
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between gap-3 h-12 border-b border-border/30">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between gap-3 h-14 border-b border-[#eef0f3] dark:border-[#2c2c34]">
 
             {/* Left: title + profile manager */}
             <div className="flex items-center gap-3 min-w-0">
-              <h1 className="hidden sm:block text-sm font-semibold text-foreground whitespace-nowrap">
-                Resume Architect
-              </h1>
-              <div className="flex items-center gap-0.5 border border-border/60 rounded-xl overflow-hidden bg-muted/20 backdrop-blur-md shadow-sm transition-all hover:border-border">
+              <span className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-[#1c1c1e] dark:text-white whitespace-nowrap">
+                <span className="size-2 rounded-full bg-[#ffd02f]" />
+                Resume Workspace
+              </span>
+              <div className="flex items-center gap-0.5 border border-[#c7cad5] dark:border-[#3b3b45] rounded-full overflow-hidden bg-white dark:bg-[#1f1f24] shadow-sm transition-all">
                 <select
                   value={activeDraftId}
                   onChange={(e) => dispatch({ type: 'SWITCH_DRAFT', id: e.target.value })}
-                  className="h-7 px-2.5 bg-transparent border-none text-xs font-semibold focus:outline-none cursor-pointer max-w-[150px] text-foreground"
+                  className="h-8 pl-3 pr-2 bg-transparent border-none text-xs font-semibold focus:outline-none cursor-pointer max-w-[150px] text-[#1c1c1e] dark:text-white"
                   aria-label="Switch resume profile"
                 >
                   {drafts.map((d) => (
-                    <option key={d.id} value={d.id} className="bg-card text-foreground">{d.name}</option>
+                    <option key={d.id} value={d.id} className="bg-white dark:bg-[#1c1c1e] text-[#1c1c1e] dark:text-white">{d.name}</option>
                   ))}
                 </select>
-                <div className="flex items-center border-l border-border/50">
+                <div className="flex items-center border-l border-[#e0e2e8] dark:border-[#3b3b45] pr-1">
                   {/* Rename */}
                   <button
                     onClick={() => {
@@ -141,11 +142,11 @@ const BuilderPage: React.FC = () => {
                       const n = prompt('Rename profile:', name);
                       if (n?.trim()) dispatch({ type: 'RENAME_DRAFT', id: activeDraftId, newName: n.trim() });
                     }}
-                    className="h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent/80 transition-all duration-200 active:scale-90"
+                    className="size-7 flex items-center justify-center text-[#6b6f7e] hover:text-[#1c1c1e] dark:hover:text-white hover:bg-[#f7f8fa] dark:hover:bg-[#2c2c34] rounded-full transition-all"
                     title="Rename Profile"
                     aria-label="Rename Profile"
                   >
-                    <Edit3 className="h-3 w-3" aria-hidden="true" />
+                    <Edit3 className="size-3" aria-hidden="true" />
                   </button>
                   {/* Duplicate */}
                   <button
@@ -154,11 +155,11 @@ const BuilderPage: React.FC = () => {
                       const n = prompt('Duplicate as:', `${name} (Copy)`);
                       if (n?.trim()) dispatch({ type: 'DUPLICATE_DRAFT', id: activeDraftId, newName: n.trim() });
                     }}
-                    className="h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent/80 transition-all duration-200 active:scale-90"
+                    className="size-7 flex items-center justify-center text-[#6b6f7e] hover:text-[#1c1c1e] dark:hover:text-white hover:bg-[#f7f8fa] dark:hover:bg-[#2c2c34] rounded-full transition-all"
                     title="Duplicate Profile"
                     aria-label="Duplicate Profile"
                   >
-                    <Copy className="h-3 w-3" aria-hidden="true" />
+                    <Copy className="size-3" aria-hidden="true" />
                   </button>
                   {/* New profile */}
                   <button
@@ -175,11 +176,11 @@ const BuilderPage: React.FC = () => {
                         showToast(`Created profile "${name.trim()}".`, 'success');
                       }
                     }}
-                    className="h-7 w-7 flex items-center justify-center text-primary hover:bg-primary/10 transition-all duration-200 active:scale-90"
+                    className="size-7 flex items-center justify-center text-[#1c1c1e] dark:text-[#ffd02f] hover:bg-[#ffd02f]/20 rounded-full transition-all"
                     title="New Profile"
                     aria-label="New Profile"
                   >
-                    <PlusCircle className="h-3 w-3" aria-hidden="true" />
+                    <PlusCircle className="size-3.5" aria-hidden="true" />
                   </button>
                   {/* Delete */}
                   <button
@@ -201,11 +202,11 @@ const BuilderPage: React.FC = () => {
                       }
                     }}
                     disabled={drafts.length <= 1}
-                    className="h-7 w-7 flex items-center justify-center text-destructive hover:bg-destructive/10 disabled:opacity-30 disabled:pointer-events-none transition-all duration-200 active:scale-90"
+                    className="size-7 flex items-center justify-center text-[#ff9999] hover:bg-[#ffc6c6]/20 disabled:opacity-30 disabled:pointer-events-none rounded-full transition-all"
                     title="Delete Profile"
                     aria-label="Delete Profile"
                   >
-                    <Trash2 className="h-3 w-3" aria-hidden="true" />
+                    <Trash2 className="size-3" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -213,54 +214,53 @@ const BuilderPage: React.FC = () => {
 
             {/* Right: mobile toggle + download */}
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
+              <button
+                type="button"
                 onClick={() => setViewMode(viewMode === 'form' ? 'preview' : 'form')}
-                className="xl:hidden text-xs gap-1.5"
+                className="xl:hidden text-xs gap-1.5 h-8 px-3 rounded-full border border-[#c7cad5] dark:border-[#3b3b45] font-medium flex items-center"
               >
                 {viewMode === 'form'
-                  ? <><Eye className="h-3.5 w-3.5 text-primary" aria-hidden="true" /> Preview</>
-                  : <><Code className="h-3.5 w-3.5 text-primary" aria-hidden="true" /> Edit</>
+                  ? <><Eye className="size-3.5 text-[#4262ff]" aria-hidden="true" /> Preview</>
+                  : <><Code className="size-3.5 text-[#4262ff]" aria-hidden="true" /> Edit</>
                 }
-              </Button>
+              </button>
 
               {/* Download split menu */}
               <div className="relative">
                 <Button
                   size="sm"
                   onClick={() => setShowDownloadMenu(!showDownloadMenu)}
-                  className="gap-1.5 text-xs btn-primary-glow"
+                  className="btn-miro-primary h-8 px-4 text-xs font-semibold gap-1.5"
                 >
-                  <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                  <Download className="size-3.5" aria-hidden="true" />
                   <span className="hidden sm:inline">Download PDF</span>
                   <span className="sm:hidden">PDF</span>
-                  <ChevronDown className="h-3 w-3 opacity-70" aria-hidden="true" />
+                  <ChevronDown className="size-3 opacity-70" aria-hidden="true" />
                 </Button>
 
                 {showDownloadMenu && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setShowDownloadMenu(false)} aria-hidden="true" />
-                    <div className="absolute right-0 mt-2 w-60 bg-card border border-border/60 rounded-xl shadow-2xl z-50 py-1.5 overflow-hidden animate-slide-down">
+                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#1c1c1e] border border-[#e0e2e8] dark:border-[#2c2c34] rounded-2xl shadow-xl z-50 py-2 overflow-hidden animate-slide-down">
                       <button
                         onClick={() => { setShowDownloadMenu(false); printResume('resume-preview-content'); }}
-                        className="w-full text-left px-4 py-3 text-xs hover:bg-accent transition-colors flex flex-col gap-0.5 group focus-visible:outline-none focus-visible:bg-accent"
+                        className="w-full text-left px-4 py-3 text-xs hover:bg-[#f7f8fa] dark:hover:bg-[#242428] transition-colors flex flex-col gap-0.5"
                       >
-                        <span className="flex items-center gap-2 font-semibold text-foreground">
-                          <span className="h-2 w-2 rounded-full bg-emerald-500 group-hover:shadow-[0_0_6px_2px_rgba(16,185,129,0.4)] transition-shadow" />
+                        <span className="flex items-center gap-2 font-semibold text-[#1c1c1e] dark:text-white">
+                          <span className="size-2 rounded-full bg-[#00b473]" />
                           Print / Save ATS PDF
                         </span>
-                        <span className="text-muted-foreground font-normal pl-4">Fully selectable text and links.</span>
+                        <span className="text-[#6b6f7e] dark:text-[#a5a8b5] font-normal pl-4">Fully selectable text & links (Standard).</span>
                       </button>
                       <button
                         onClick={() => { setShowDownloadMenu(false); downloadAsPdf('resume-preview-content', `${(resumeData.name || 'resume').replace(/\s+/g, '_')}_resume.pdf`); }}
-                        className="w-full text-left px-4 py-3 text-xs hover:bg-accent transition-colors flex flex-col gap-0.5 group focus-visible:outline-none focus-visible:bg-accent"
+                        className="w-full text-left px-4 py-3 text-xs hover:bg-[#f7f8fa] dark:hover:bg-[#242428] transition-colors flex flex-col gap-0.5"
                       >
-                        <span className="flex items-center gap-2 font-semibold text-foreground">
-                          <span className="h-2 w-2 rounded-full bg-sky-500 group-hover:shadow-[0_0_6px_2px_rgba(14,165,233,0.4)] transition-shadow" />
+                        <span className="flex items-center gap-2 font-semibold text-[#1c1c1e] dark:text-white">
+                          <span className="size-2 rounded-full bg-[#4262ff]" />
                           Download Visual PDF
                         </span>
-                        <span className="text-muted-foreground font-normal pl-4">High-fidelity image canvas.</span>
+                        <span className="text-[#6b6f7e] dark:text-[#a5a8b5] font-normal pl-4">High-fidelity 300 DPI canvas.</span>
                       </button>
                     </div>
                   </>
@@ -339,39 +339,39 @@ const BuilderPage: React.FC = () => {
             <div className="flex items-center gap-1.5 ml-auto">
               <button
                 onClick={handleLoadDemo}
-                className="flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border/70 text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="flex items-center gap-1.5 h-7 px-3 rounded-full border border-[#ffd02f] bg-[#fff8e0] dark:bg-[#242428] text-[#746019] dark:text-[#ffd02f] hover:bg-[#ffd02f]/30 transition-colors text-xs font-semibold"
                 title="Load demo data"
                 aria-label="Load demo data"
               >
-                <Sparkles className="h-3 w-3 text-[hsl(var(--ai-accent))]" aria-hidden="true" />
+                <Sparkles className="size-3 text-[#fcb900]" aria-hidden="true" />
                 <span className="hidden sm:inline">Demo</span>
               </button>
               <button
                 onClick={handleExportJson}
-                className="flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border/70 text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="flex items-center gap-1.5 h-7 px-3 rounded-full border border-[#c7cad5] dark:border-[#3b3b45] text-[#555a6a] dark:text-[#a5a8b5] hover:text-[#1c1c1e] dark:hover:text-white hover:bg-[#f7f8fa] dark:hover:bg-[#242428] transition-colors text-xs font-medium"
                 title="Export as JSON"
                 aria-label="Export profile as JSON"
               >
-                <FileJson className="h-3 w-3 text-indigo-400" aria-hidden="true" />
+                <FileJson className="size-3 text-[#4262ff]" aria-hidden="true" />
                 <span className="hidden sm:inline">Export</span>
               </button>
               <input type="file" ref={fileInputRef} onChange={handleImportJson} accept=".json" className="hidden" />
               <button
                 onClick={handleImportJsonClick}
-                className="flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border/70 text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="flex items-center gap-1.5 h-7 px-3 rounded-full border border-[#c7cad5] dark:border-[#3b3b45] text-[#555a6a] dark:text-[#a5a8b5] hover:text-[#1c1c1e] dark:hover:text-white hover:bg-[#f7f8fa] dark:hover:bg-[#242428] transition-colors text-xs font-medium"
                 title="Import JSON"
                 aria-label="Import profile from JSON file"
               >
-                <Upload className="h-3 w-3 text-sky-400" aria-hidden="true" />
+                <Upload className="size-3 text-[#0fbcb0]" aria-hidden="true" />
                 <span className="hidden sm:inline">Import</span>
               </button>
               <button
                 onClick={handleReset}
-                className="flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border/70 text-destructive hover:bg-destructive/10 transition-colors text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="flex items-center gap-1.5 h-7 px-3 rounded-full border border-[#ff9999]/60 text-[#600000] dark:text-[#ff9999] hover:bg-[#ffc6c6]/20 transition-colors text-xs font-medium"
                 title="Reset data"
                 aria-label="Reset profile data"
               >
-                <Trash2 className="h-3 w-3" aria-hidden="true" />
+                <Trash2 className="size-3" aria-hidden="true" />
                 <span className="hidden sm:inline">Reset</span>
               </button>
             </div>

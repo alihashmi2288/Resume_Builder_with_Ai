@@ -7,16 +7,16 @@ const SocialRow: React.FC<{ href: string; icon: React.ReactNode; label: string; 
     href={href}
     target="_blank"
     rel="noopener noreferrer"
-    className="group flex items-center gap-4 p-4 rounded-xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-md hover:shadow-primary/8 transition-all duration-300"
+    className="group flex items-center gap-4 p-4 rounded-xl border border-[#e0e2e8] dark:border-[#2c2c34] bg-white dark:bg-[#1a1a1e] hover:border-[#1c1c1e] dark:hover:border-white transition-all"
   >
-    <div className="flex size-10 items-center justify-center rounded-xl bg-primary/8 text-primary group-hover:bg-primary/15 transition-colors flex-shrink-0">
+    <div className="flex size-10 items-center justify-center rounded-xl bg-[#f7f8fa] dark:bg-[#242428] text-[#1c1c1e] dark:text-white group-hover:bg-[#ffd02f] group-hover:text-[#1c1c1e] transition-colors flex-shrink-0">
       {icon}
     </div>
     <div>
-      <p className="text-sm font-semibold text-foreground">{label}</p>
-      <p className="text-xs text-muted-foreground">{sub}</p>
+      <p className="text-sm font-semibold text-[#1c1c1e] dark:text-white">{label}</p>
+      <p className="text-xs text-[#6b6f7e] dark:text-[#a5a8b5]">{sub}</p>
     </div>
-    <Send className="ml-auto size-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors rotate-45 flex-shrink-0" aria-hidden="true" />
+    <Send className="ml-auto size-3.5 text-[#a5a8b5] group-hover:text-[#1c1c1e] dark:group-hover:text-white transition-colors rotate-45 flex-shrink-0" aria-hidden="true" />
   </a>
 );
 
@@ -53,83 +53,93 @@ const ContactPage: React.FC = () => {
     }
   };
 
-  const inputClass = 'w-full h-10 px-3 py-2 bg-card border border-border/60 rounded-lg text-sm text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all disabled:opacity-50';
-  const textareaClass = 'w-full min-h-[120px] px-3 py-2 bg-card border border-border/60 rounded-lg text-sm text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all disabled:opacity-50 resize-none';
+  const inputClass = 'w-full h-11 px-4 py-2.5 bg-white dark:bg-[#1a1a1e] border border-[#c7cad5] dark:border-[#3b3b45] rounded-lg text-sm text-[#1c1c1e] dark:text-white placeholder:text-[#a5a8b5] focus-visible:outline-none focus-visible:border-[#4262ff] focus-visible:ring-2 focus-visible:ring-[#4262ff]/20 transition-all disabled:opacity-50';
+  const textareaClass = 'w-full min-h-[140px] px-4 py-3 bg-white dark:bg-[#1a1a1e] border border-[#c7cad5] dark:border-[#3b3b45] rounded-lg text-sm text-[#1c1c1e] dark:text-white placeholder:text-[#a5a8b5] focus-visible:outline-none focus-visible:border-[#4262ff] focus-visible:ring-2 focus-visible:ring-[#4262ff]/20 transition-all disabled:opacity-50 resize-none';
 
   return (
-    <div className="flex flex-col items-center">
-      {/* Page header */}
-      <div className="w-full text-center py-16 md:py-20 relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `linear-gradient(hsl(var(--primary) / 0.05) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary) / 0.05) 1px, transparent 1px)`,
-            backgroundSize: '48px 48px',
-          }} />
-        <div className="absolute pointer-events-none rounded-full"
-          style={{ width: 360, height: 360, background: 'hsl(var(--primary) / 0.09)', filter: 'blur(80px)', top: -100, right: -60 }} />
-        <div className="container mx-auto px-4 relative">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-4">Say hello</p>
-          <h1 className="font-display text-4xl md:text-5xl font-normal tracking-tight text-foreground mb-4 text-balance">Get in touch</h1>
-          <p className="text-muted-foreground text-sm max-w-sm mx-auto text-pretty">Have a question or want to connect? Fill out the form or find me on socials.</p>
-        </div>
+    <div className="w-full flex flex-col items-center bg-white dark:bg-[#141416] text-[#1c1c1e] dark:text-white transition-colors">
+      
+      {/* Header */}
+      <div className="w-full text-center py-16 md:py-20 px-6 max-w-[1280px] mx-auto">
+        <span className="bg-[#fff8e0] text-[#746019] text-[13px] font-semibold rounded-full px-4 py-1.5 mb-4 inline-block">
+          REACH OUT
+        </span>
+        <h1 className="font-display-lg text-[#1c1c1e] dark:text-white mb-4 text-balance">
+          Get in touch with us.
+        </h1>
+        <p className="font-subtitle text-[#555a6a] dark:text-[#a5a8b5] max-w-sm mx-auto">
+          Have feedback, need assistance, or want to discuss enterprise features? We’d love to hear from you.
+        </p>
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 max-w-4xl pb-20">
+      {/* Main Content */}
+      <div className="w-full max-w-4xl mx-auto px-6 pb-24">
         <div className="grid md:grid-cols-[1fr_320px] gap-10 items-start">
 
-          {/* Left — form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Contact Form */}
+          <form onSubmit={handleSubmit} className="space-y-5 bg-[#f7f8fa] dark:bg-[#16161a] p-8 rounded-2xl border border-[#e0e2e8] dark:border-[#2c2c34]">
             <div className="grid sm:grid-cols-2 gap-5">
-              <div className="space-y-1.5">
-                <label htmlFor="name" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Your Name</label>
-                <input id="name" type="text" name="name" placeholder="Jane Smith" className={inputClass} required autocomplete="name" disabled={status === 'submitting'} />
+              <div className="space-y-2">
+                <label htmlFor="name" className="text-xs font-semibold text-[#555a6a] dark:text-[#a5a8b5] uppercase tracking-wider">Your Name</label>
+                <input id="name" type="text" name="name" placeholder="Syed Ali" className={inputClass} required autoComplete="name" disabled={status === 'submitting'} />
               </div>
-              <div className="space-y-1.5">
-                <label htmlFor="email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email Address</label>
-                <input id="email" type="email" name="_replyto" placeholder="jane@example.com" className={inputClass} required autocomplete="email" spellCheck={false} disabled={status === 'submitting'} />
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-xs font-semibold text-[#555a6a] dark:text-[#a5a8b5] uppercase tracking-wider">Email Address</label>
+                <input id="email" type="email" name="_replyto" placeholder="syed@example.com" className={inputClass} required autoComplete="email" spellCheck={false} disabled={status === 'submitting'} />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <label htmlFor="message" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Message</label>
-              <textarea id="message" name="message" placeholder="Your message here…" className={textareaClass} required disabled={status === 'submitting'} />
+            <div className="space-y-2">
+              <label htmlFor="message" className="text-xs font-semibold text-[#555a6a] dark:text-[#a5a8b5] uppercase tracking-wider">Message</label>
+              <textarea id="message" name="message" placeholder="How can we help your job hunt or company?" className={textareaClass} required disabled={status === 'submitting'} />
             </div>
 
-            <Button type="submit" disabled={status === 'submitting' || status === 'success'} className="w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+            <Button type="submit" disabled={status === 'submitting' || status === 'success'} className="btn-miro-primary w-full sm:w-auto h-[46px] px-8 text-sm">
               {status === 'submitting' && <Loader2 className="size-4 mr-2 animate-spin" aria-hidden="true" />}
               {status === 'success' && <CheckCircle className="size-4 mr-2" aria-hidden="true" />}
-              {status === 'idle' && <Send className="size-4 mr-2" aria-hidden="true" />}
-              {status === 'submitting' ? 'Sending…' : status === 'success' ? 'Message sent!' : 'Send message'}
+              {status === 'submitting' ? 'Sending Message…' : status === 'success' ? 'Message Sent!' : 'Send Message'}
             </Button>
- 
-            {status === 'success' && (
-              <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40" role="alert">
-                <CheckCircle className="size-4 flex-shrink-0" aria-hidden="true" />
-                <p className="text-pretty">{feedbackMessage}</p>
-              </div>
-            )}
-            {status === 'error' && (
-              <div className="flex items-center gap-2 text-xs text-destructive p-3 rounded-lg bg-destructive/8 border border-destructive/20" role="alert">
-                <AlertCircle className="size-4 flex-shrink-0" aria-hidden="true" />
-                <p className="text-pretty">{feedbackMessage}</p>
+
+            {feedbackMessage && (
+              <div className={`p-4 rounded-xl text-xs font-medium flex items-center gap-2 ${
+                status === 'success'
+                  ? 'bg-[#c3faf5] text-[#187574]'
+                  : 'bg-[#ffc6c6] text-[#600000]'
+              }`}>
+                {status === 'success' ? <CheckCircle className="size-4" /> : <AlertCircle className="size-4" />}
+                <span>{feedbackMessage}</span>
               </div>
             )}
           </form>
 
-          {/* Right — social links */}
+          {/* Social and Info Sidebar */}
           <div className="space-y-4">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-5">Connect</p>
-            <SocialRow href="https://www.linkedin.com/in/alihashmi2288" icon={<Linkedin className="size-4" aria-hidden="true" />} label="LinkedIn" sub="alihashmi2288" />
-            <SocialRow href="https://www.github.com/alihashmi2288" icon={<Github className="size-4" aria-hidden="true" />} label="GitHub" sub="alihashmi2288" />
-            <SocialRow href="https://www.instagram.com/hashmi.ali_1/" icon={<Instagram className="size-4" aria-hidden="true" />} label="Instagram" sub="@hashmi.ali_1" />
- 
-            <div className="flex items-start gap-3 pt-2">
-              <Mail className="size-4 text-muted-foreground mt-0.5 flex-shrink-0" aria-hidden="true" />
-              <p className="text-xs text-muted-foreground leading-relaxed text-pretty">
-                Form submissions are handled securely by Formspree. I'll get back to you as soon as possible.
+            <SocialRow
+              href="https://www.linkedin.com/in/alihashmi2288"
+              icon={<Linkedin className="size-5" />}
+              label="LinkedIn"
+              sub="Professional Profile"
+            />
+            <SocialRow
+              href="https://www.github.com/alihashmi2288"
+              icon={<Github className="size-5" />}
+              label="GitHub"
+              sub="Open Source Projects"
+            />
+            <SocialRow
+              href="https://www.instagram.com/hashmi.ali_1/"
+              icon={<Instagram className="size-5" />}
+              label="Instagram"
+              sub="Personal Updates"
+            />
+
+            <div className="p-6 rounded-2xl bg-[#fff8e0] text-[#746019] border border-[#fcb900]/30 mt-6">
+              <span className="font-bold text-xs uppercase tracking-wider block mb-1">Direct Developer Note</span>
+              <p className="text-xs leading-relaxed">
+                Created by Syed Ali Hashmi. Feel free to connect for software engineering collaborations, feedback, or custom resume architecture features!
               </p>
             </div>
           </div>
+
         </div>
       </div>
     </div>

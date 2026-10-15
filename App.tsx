@@ -41,7 +41,7 @@ function App() {
               Skip to main content
             </a>
             <Header />
-            <main id="main-content" className="flex-grow container mx-auto px-4 py-8 outline-none" tabIndex={-1}>
+            <main id="main-content" className="flex-grow w-full outline-none" tabIndex={-1}>
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/builder" element={<BuilderPage />} />

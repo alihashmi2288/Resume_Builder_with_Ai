@@ -24,22 +24,22 @@ interface ResumeFormProps {
 const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
     <input 
       {...props} 
-      className="w-full h-10 px-3 py-2 bg-background border border-border rounded-xl text-sm transition-all duration-200 hover:border-muted-foreground/30 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50" 
+      className="w-full h-11 px-4 py-2 bg-white dark:bg-[#1a1a1e] border border-[#c7cad5] dark:border-[#3b3b45] rounded-lg text-sm text-[#1c1c1e] dark:text-white transition-all focus-visible:border-[#4262ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4262ff]/20 disabled:cursor-not-allowed disabled:opacity-50" 
     />
 );
 
 const Textarea = (props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
     <textarea 
       {...props} 
-      className="w-full min-h-[90px] px-3 py-2 bg-background border border-border rounded-xl text-sm transition-all duration-200 hover:border-muted-foreground/30 focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50" 
+      className="w-full min-h-[95px] px-4 py-2.5 bg-white dark:bg-[#1a1a1e] border border-[#c7cad5] dark:border-[#3b3b45] rounded-lg text-sm text-[#1c1c1e] dark:text-white transition-all focus-visible:border-[#4262ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4262ff]/20 disabled:cursor-not-allowed disabled:opacity-50" 
     />
 );
 
 const FieldGroup: React.FC<{ label: string; children: React.ReactNode; hint?: string }> = ({ label, children, hint }) => (
     <label className="flex flex-col gap-1.5 cursor-pointer">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</span>
-          {hint && <span className="text-[10px] text-muted-foreground/70">{hint}</span>}
+          <span className="text-xs font-semibold text-[#555a6a] dark:text-[#a5a8b5] uppercase tracking-wider">{label}</span>
+          {hint && <span className="text-[10px] text-[#8e91a0]">{hint}</span>}
         </div>
         {children}
     </label>
@@ -55,7 +55,7 @@ const AIButton: React.FC<{ onClick: () => void; isLoading: boolean; children: Re
         type="button"
         onClick={onClick}
         disabled={isLoading}
-        className={`btn-ai inline-flex items-center gap-2 h-8 px-3.5 rounded-lg text-xs font-semibold disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${className}`}
+        className={`bg-[#ffd02f] hover:bg-[#fcb900] active:scale-[0.98] text-[#1c1c1e] inline-flex items-center gap-2 h-8 px-4 rounded-full text-xs font-semibold disabled:opacity-50 disabled:pointer-events-none transition-all shadow-none ${className}`}
     >
         {isLoading
             ? <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
@@ -354,17 +354,16 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
                 </div>
             </div>
 
-            {/* AI Assistant Generator Card */}
-            <div className="relative p-5 rounded-2xl glass-card overflow-hidden shadow-xl shadow-primary/5 border border-primary/30">
-                <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
+            {/* AI Assistant Generator Card - Miro Style */}
+            <div className="relative p-5 rounded-2xl bg-[#fff8e0] dark:bg-[#1a1a1e] border border-[#ffd02f]/40 dark:border-[#2c2c34] shadow-sm">
                 <div className="relative">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="flex size-9 items-center justify-center rounded-xl bg-primary/15">
-                            <Bot className="size-5 text-primary" aria-hidden="true" />
+                        <div className="flex size-9 items-center justify-center rounded-xl bg-[#ffd02f]">
+                            <Bot className="size-5 text-[#1c1c1e]" aria-hidden="true" />
                         </div>
                         <div>
-                            <h3 className="text-sm font-bold text-foreground tracking-tight text-balance">AI Resume Copilot</h3>
-                            <p className="text-[11px] text-muted-foreground text-pretty">Generate a full, tailored draft in seconds</p>
+                            <h3 className="text-sm font-bold text-[#1c1c1e] dark:text-white tracking-tight text-balance">AI Resume Copilot</h3>
+                            <p className="text-[11px] text-[#746019] dark:text-[#a5a8b5] text-pretty">Generate a full, tailored draft in seconds with Gemini</p>
                         </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2 mt-3">
@@ -404,7 +403,7 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
                             type="button"
                             onClick={handleAnalyzeKeywords}
                             disabled={loadingStates.ats}
-                            className="btn-ai inline-flex items-center gap-2 h-9 px-4 rounded-xl text-xs font-semibold disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                            className="btn-miro-primary inline-flex items-center gap-2 h-9 px-5 rounded-full text-xs font-semibold disabled:opacity-50 disabled:pointer-events-none"
                         >
                             {loadingStates.ats ? <Loader2 className="size-3.5 animate-spin" aria-hidden="true" /> : <SearchCheck className="size-3.5" aria-hidden="true" />}
                             Audit Resume Match

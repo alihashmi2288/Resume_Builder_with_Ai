@@ -1,39 +1,530 @@
-/* index.css — Supplemental design tokens & Modern Web Standards */
+/* index.css — Miro Design System implementation per DESIGN.md */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:wght@400;700&family=Roboto+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap');
 
 :root {
   color-scheme: light dark;
+
+  /* DESIGN.md Color Tokens */
+  --miro-primary: #1c1c1e;
+  --miro-on-primary: #ffffff;
+  --miro-brand-yellow: #ffd02f;
+  --miro-brand-yellow-deep: #fcb900;
+  --miro-yellow-light: #fff4c4;
+  --miro-yellow-dark: #746019;
+  --miro-brand-blue: #4262ff;
+  --miro-blue-450: #5b76fe;
+  --miro-blue-pressed: #2a41b6;
+  --miro-brand-coral: #ff9999;
+  --miro-coral-light: #ffc6c6;
+  --miro-coral-dark: #600000;
+  --miro-brand-rose: #ffd8f4;
+  --miro-rose-light: #fde0f0;
+  --miro-brand-pink: #fde0f0;
+  --miro-brand-teal: #0fbcb0;
+  --miro-teal-light: #c3faf5;
+  --miro-moss-dark: #187574;
+  --miro-brand-orange-light: #ffe6cd;
+  --miro-brand-red: #fbd4d4;
+  --miro-brand-red-dark: #e3c5c5;
+  --miro-success-accent: #00b473;
+  --miro-canvas: #ffffff;
+  --miro-surface: #f7f8fa;
+  --miro-surface-soft: #fafbfc;
+  --miro-surface-yellow: #fff8e0;
+  --miro-surface-pricing-featured: #f5f3ff;
+  --miro-hairline: #e0e2e8;
+  --miro-hairline-soft: #eef0f3;
+  --miro-hairline-strong: #c7cad5;
+  --miro-ink-deep: #050038;
+  --miro-ink: #1c1c1e;
+  --miro-charcoal: #2c2c34;
+  --miro-slate: #555a6a;
+  --miro-steel: #6b6f7e;
+  --miro-stone: #8e91a0;
+  --miro-muted: #a5a8b5;
+  --miro-on-dark: #ffffff;
+  --miro-on-dark-muted: #a5a8b5;
+  --miro-footer-bg: #1c1c1e;
+
+  /* Semantic mappings */
+  --background: #ffffff;
+  --foreground: #1c1c1e;
+  --card: #ffffff;
+  --card-foreground: #1c1c1e;
+  --primary: #1c1c1e;
+  --primary-foreground: #ffffff;
+  --secondary: #f7f8fa;
+  --secondary-foreground: #1c1c1e;
+  --muted: #f7f8fa;
+  --muted-foreground: #6b6f7e;
+  --border: #e0e2e8;
+  --input: #e0e2e8;
+  --ring: #4262ff;
 }
 
-/* ─── Modern Web Guidance: Typographic Legibility ───────────────────────── */
-/* Short text blocks: evenly balance line-breaks across lines */
+.dark {
+  --background: #141416;
+  --foreground: #f7f8fa;
+  --card: #1c1c1e;
+  --card-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #1c1c1e;
+  --secondary: #2c2c34;
+  --secondary-foreground: #ffffff;
+  --muted: #242428;
+  --muted-foreground: #a5a8b5;
+  --border: #2c2c34;
+  --input: #2c2c34;
+  --ring: #4262ff;
+}
+
+/* ─── Typography & Base ────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roobert PRO', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 h1, h2, h3, h4, h5, h6, .text-balance {
   text-wrap: balance;
 }
 
-/* Multi-line blocks: avoid orphaned words / runts at paragraph ends */
 p, li, blockquote, .text-pretty {
   text-wrap: pretty;
 }
 
-/* ─── Modern Web Guidance: Form Feedback & Focus ───────────────────────── */
-input:user-invalid,
-textarea:user-invalid {
-  border-color: hsl(var(--destructive) / 0.7);
+/* ─── DESIGN.md Specific Typography Classes ────────────────────── */
+.font-hero-display {
+  font-family: 'Roobert PRO', 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(36px, 6vw, 80px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -2px;
 }
 
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: 1px;
+.font-display-lg {
+  font-family: 'Roobert PRO', 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(32px, 4.5vw, 60px);
+  font-weight: 500;
+  line-height: 1.10;
+  letter-spacing: -1.5px;
 }
 
-/* ─── Modern Web Guidance: Standard Custom Scrollbars ──────────────────── */
+.font-heading-1 {
+  font-family: 'Roobert PRO', 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(28px, 3.5vw, 48px);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -1px;
+}
+
+.font-heading-2 {
+  font-family: 'Roobert PRO', 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(24px, 2.8vw, 36px);
+  font-weight: 500;
+  line-height: 1.20;
+  letter-spacing: -0.5px;
+}
+
+.font-heading-3 {
+  font-family: 'Roobert PRO', 'Plus Jakarta Sans', sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.font-heading-4 {
+  font-family: 'Roobert PRO', 'Plus Jakarta Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.30;
+}
+
+.font-heading-5 {
+  font-family: 'Roobert PRO', 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.40;
+}
+
+.font-subtitle {
+  font-family: 'Roobert PRO', 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.50;
+}
+
+.font-stat-display {
+  font-family: 'Roobert PRO', 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 500;
+  line-height: 1.10;
+  letter-spacing: -1.5px;
+}
+
+.font-micro-uppercase {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.40;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ─── DESIGN.md Buttons ────────────────────────────────────────── */
+.btn-miro-primary {
+  background-color: var(--miro-primary);
+  color: var(--miro-on-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.30;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 150ms ease;
+  border: 1px solid transparent;
+}
+.btn-miro-primary:hover {
+  background-color: var(--miro-charcoal);
+  color: var(--miro-on-primary);
+}
+.btn-miro-primary:active {
+  background-color: var(--miro-charcoal);
+  transform: scale(0.98);
+}
+.btn-miro-primary:disabled {
+  background-color: var(--miro-hairline);
+  color: var(--miro-muted);
+  cursor: not-allowed;
+}
+
+.btn-miro-yellow {
+  background-color: var(--miro-brand-yellow);
+  color: var(--miro-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.30;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 150ms ease;
+  border: 1px solid transparent;
+}
+.btn-miro-yellow:hover {
+  background-color: var(--miro-brand-yellow-deep);
+}
+.btn-miro-yellow:active {
+  transform: scale(0.98);
+}
+
+.btn-miro-blue {
+  background-color: var(--miro-brand-blue);
+  color: var(--miro-on-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.30;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 150ms ease;
+}
+.btn-miro-blue:hover {
+  background-color: var(--miro-blue-450);
+}
+.btn-miro-blue:active {
+  background-color: var(--miro-blue-pressed);
+}
+
+.btn-miro-secondary {
+  background-color: transparent;
+  color: var(--miro-ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.30;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  border: 1px solid var(--miro-hairline-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 150ms ease;
+}
+.dark .btn-miro-secondary {
+  color: #ffffff;
+  border-color: #3b3b45;
+}
+.btn-miro-secondary:hover {
+  background-color: var(--miro-surface);
+}
+.dark .btn-miro-secondary:hover {
+  background-color: #242428;
+}
+
+.btn-miro-on-dark {
+  background-color: var(--miro-on-dark);
+  color: var(--miro-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.30;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 150ms ease;
+}
+.btn-miro-on-dark:hover {
+  background-color: #f0f0f3;
+}
+
+.btn-miro-ghost {
+  background-color: transparent;
+  color: var(--miro-ink);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 150ms ease;
+}
+.dark .btn-miro-ghost {
+  color: #ffffff;
+}
+.btn-miro-ghost:hover {
+  background-color: var(--miro-surface);
+}
+
+/* ─── DESIGN.md Cards & Pastels ────────────────────────────────── */
+.card-base {
+  background-color: var(--miro-canvas);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--miro-hairline-soft);
+}
+.dark .card-base {
+  background-color: #1c1c1e;
+  border-color: #2c2c34;
+}
+
+.card-feature {
+  background-color: var(--miro-canvas);
+  border-radius: 28px;
+  padding: 32px;
+  border: 1px solid var(--miro-hairline-soft);
+}
+.dark .card-feature {
+  background-color: #1c1c1e;
+  border-color: #2c2c34;
+}
+
+.card-feature-yellow {
+  background-color: var(--miro-brand-yellow);
+  color: var(--miro-primary);
+  border-radius: 28px;
+  padding: 32px;
+}
+
+.card-feature-coral {
+  background-color: var(--miro-coral-light);
+  color: var(--miro-primary);
+  border-radius: 28px;
+  padding: 32px;
+}
+
+.card-feature-teal {
+  background-color: var(--miro-teal-light);
+  color: var(--miro-primary);
+  border-radius: 28px;
+  padding: 32px;
+}
+
+.card-feature-rose {
+  background-color: var(--miro-rose-light);
+  color: var(--miro-primary);
+  border-radius: 28px;
+  padding: 32px;
+}
+
+.whiteboard-mockup {
+  background-color: var(--miro-canvas);
+  border-radius: 16px;
+  border: 1px solid var(--miro-hairline-soft);
+  box-shadow: rgba(5, 0, 56, 0.08) 0px 12px 32px -4px;
+}
+.dark .whiteboard-mockup {
+  background-color: #1c1c1e;
+  border-color: #2c2c34;
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 12px 32px -4px;
+}
+
+/* ─── Badges & Tags ────────────────────────────────────────────── */
+.badge-promo {
+  background-color: var(--miro-brand-yellow);
+  color: var(--miro-primary);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-tag-yellow {
+  background-color: var(--miro-surface-yellow);
+  color: var(--miro-yellow-dark);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-tag-purple {
+  background-color: var(--miro-surface-pricing-featured);
+  color: var(--miro-brand-blue);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-tag-coral {
+  background-color: var(--miro-coral-light);
+  color: var(--miro-coral-dark);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-success {
+  background-color: var(--miro-success-accent);
+  color: var(--miro-on-primary);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-discount {
+  background-color: var(--miro-brand-yellow);
+  color: var(--miro-primary);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+/* ─── Pricing & Tables ─────────────────────────────────────────── */
+.pricing-card {
+  background-color: var(--miro-canvas);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--miro-hairline);
+}
+.dark .pricing-card {
+  background-color: #1c1c1e;
+  border-color: #2c2c34;
+}
+
+.pricing-card-featured {
+  background-color: var(--miro-surface-pricing-featured);
+  border-radius: 16px;
+  padding: 32px;
+  border: 2px solid var(--miro-brand-blue);
+  position: relative;
+}
+.dark .pricing-card-featured {
+  background-color: #1e1e2d;
+}
+
+.pricing-card-enterprise {
+  background-color: var(--miro-primary);
+  color: var(--miro-on-primary);
+  border-radius: 16px;
+  padding: 32px;
+}
+
+.comparison-table {
+  background-color: var(--miro-canvas);
+  color: var(--miro-ink);
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--miro-hairline);
+  overflow: hidden;
+}
+.dark .comparison-table {
+  background-color: #1c1c1e;
+  color: #ffffff;
+  border-color: #2c2c34;
+}
+
+.comparison-row {
+  background-color: var(--miro-canvas);
+  color: var(--miro-ink);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--miro-hairline-soft);
+}
+.dark .comparison-row {
+  background-color: #1c1c1e;
+  color: #ffffff;
+  border-color: #2c2c34;
+}
+
+/* ─── Promo Banner & Top Nav ───────────────────────────────────── */
+.promo-banner {
+  background-color: var(--miro-primary);
+  color: var(--miro-on-primary);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 16px;
+  text-align: center;
+}
+
+.cta-banner-dark {
+  background-color: var(--miro-primary);
+  color: var(--miro-on-primary);
+  border-radius: 32px;
+  padding: 64px 32px;
+}
+
+/* ─── Modern Scrollbar ─────────────────────────────────────────── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  scrollbar-color: var(--miro-hairline-strong) transparent;
 }
-
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -42,14 +533,11 @@ select:focus-visible {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.28);
+  background: var(--miro-hairline-strong);
   border-radius: 9999px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--primary) / 0.6);
-}
 
-/* ─── Print & PDF Optimization ─────────────────────────────────────────── */
+/* ─── Print & PDF Optimization ─────────────────────────────────── */
 @media print {
   body {
     background: #ffffff !important;
@@ -58,11 +546,11 @@ select:focus-visible {
   .no-print,
   header,
   footer,
+  .promo-banner,
   .page-break-guide,
   #pdf-loading-overlay {
     display: none !important;
   }
-  /* Avoid cutting headers or items across page boundaries */
   section,
   .print-avoid-break,
   header h1,
@@ -72,10 +560,10 @@ select:focus-visible {
   }
 }
 
-/* ─── Resume preview font-scale & margin overrides ─────────────────────── */
+/* ─── Resume preview font-scale & margin overrides ─────────────── */
 #resume-preview-content {
   --font-scale: 1;
-  --lh-scale:   1;
+  --lh-scale: 1;
 }
 #resume-preview-content.scale-small { --font-scale: 0.85; --lh-scale: 0.85; }
 #resume-preview-content.scale-large { --font-scale: 1.15; --lh-scale: 1.15; }
@@ -97,7 +585,6 @@ select:focus-visible {
 #resume-preview-content .leading-normal  { line-height: calc(1.5    * var(--lh-scale)) !important; }
 #resume-preview-content .leading-relaxed { line-height: calc(1.625  * var(--lh-scale)) !important; }
 
-/* Margin overrides */
 #resume-preview-content.margins-narrow .p-8,
 #resume-preview-content.margins-narrow .p-6 { padding: 1.25rem !important; }
 #resume-preview-content.margins-wide   .p-8,
