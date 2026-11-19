@@ -1,78 +1,116 @@
 import * as React from 'react';
 import type { ResumeData } from '../../types';
 import { getThemeClasses } from '../../lib/colors';
+import {
+    cleanBulletLine,
+    getHeadingCaseClass,
+    getVisibleContactItems,
+    normalizeSectionOrder,
+    shouldRenderSection,
+} from '../../lib/resumeUtils';
 
-const SectionHeader: React.FC<{ children: React.ReactNode; theme: any }> = ({ children, theme }) => (
-    <h2 className={`text-sm font-semibold uppercase tracking-[.2em] ${theme.text} mt-6 mb-3 pb-1 border-b-2 ${theme.borderLight}`}>
+const SectionHeader: React.FC<{ children: React.ReactNode; theme: any; headingCaseClass: string }> = ({ children, theme, headingCaseClass }) => (
+    <h2 className={`text-sm font-semibold ${headingCaseClass} tracking-[.2em] ${theme.text} mt-6 mb-3 pb-1 border-b-2 ${theme.borderLight}`}>
         {children}
     </h2>
 );
 
 export const ExecutiveTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     const theme = getThemeClasses(data.themeColor);
+    const headingCaseClass = getHeadingCaseClass(data.headingCase);
+    const contactItems = getVisibleContactItems(data);
+    const sectionOrder = normalizeSectionOrder(data.sectionOrder);
+
+    const renderSection = (sectionId: string) => {
+        switch (sectionId) {
+            case 'summary':
+                return shouldRenderSection(data, 'summary') ? (
+                    <section key="summary" className="mt-4">
+                        <p className="text-xs text-center italic text-gray-800 leading-relaxed">{data.summary}</p>
+                    </section>
+                ) : null;
+            case 'skills':
+                return shouldRenderSection(data, 'skills') ? (
+                    <section key="skills">
+                        <SectionHeader theme={theme} headingCaseClass={headingCaseClass}>Core Competencies</SectionHeader>
+                        <p className="text-xs text-center text-gray-800 leading-relaxed">{data.skills}</p>
+                    </section>
+                ) : null;
+            case 'experience':
+                return shouldRenderSection(data, 'experience') ? (
+                    <section key="experience">
+                        <SectionHeader theme={theme} headingCaseClass={headingCaseClass}>Professional Experience</SectionHeader>
+                        {data.experience.map(exp => (
+                            <div key={exp.id} className="mb-5 last:mb-0">
+                                <div className="flex justify-between items-baseline flex-wrap gap-2">
+                                    <h3 className="text-sm font-bold text-gray-900">{exp.title}</h3>
+                                    <span className="text-xs font-normal text-gray-500">{exp.startDate}{exp.startDate && exp.endDate ? ' - ' : ''}{exp.endDate}</span>
+                                </div>
+                                {exp.company && <p className="text-xs italic text-gray-700 mb-1">{exp.company}</p>}
+                                <ul className="list-disc list-outside ml-5 text-xs text-gray-700 space-y-1">
+                                    {exp.description.split('\n').map(cleanBulletLine).filter(Boolean).map((line, i) => <li key={i}>{line}</li>)}
+                                </ul>
+                            </div>
+                        ))}
+                    </section>
+                ) : null;
+            case 'education':
+                return shouldRenderSection(data, 'education') ? (
+                    <section key="education">
+                        <SectionHeader theme={theme} headingCaseClass={headingCaseClass}>Education</SectionHeader>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+                            {data.education.map(edu => (
+                                <div key={edu.id} className="text-xs">
+                                    <h3 className="text-sm font-bold text-gray-900">{edu.degree}</h3>
+                                    <p className="italic text-gray-700">{edu.university}</p>
+                                    {(edu.startDate || edu.endDate) && (
+                                        <p className="text-gray-500">{edu.startDate}{edu.startDate && edu.endDate ? ' - ' : ''}{edu.endDate}</p>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                ) : null;
+            case 'projects':
+                return shouldRenderSection(data, 'projects') ? (
+                    <section key="projects">
+                        <SectionHeader theme={theme} headingCaseClass={headingCaseClass}>Key Projects</SectionHeader>
+                        <div className="space-y-3">
+                            {data.projects.map(proj => (
+                                <div key={proj.id} className="text-xs">
+                                    <div className="flex items-baseline flex-wrap gap-2">
+                                        <h3 className="text-sm font-bold text-gray-900">{proj.name}</h3>
+                                        {proj.url && <a href={`https://${proj.url.replace(/^https?:\/\//, '')}`} className={`text-xs ${theme.text} hover:underline`}>View Project</a>}
+                                    </div>
+                                    <p className="text-gray-700 leading-relaxed">{proj.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                ) : null;
+            default:
+                return null;
+        }
+    };
 
     return (
         <div className="p-12 font-serif text-[11pt] leading-relaxed bg-white text-gray-800 h-full">
             <div className="font-merriweather bg-white text-black">
                 <header className={`text-center border-b-2 ${theme.border} pb-4 mb-6`}>
                     <h1 className="text-5xl font-bold tracking-wider">{data.name}</h1>
-                    <div className="flex justify-center items-center flex-wrap gap-x-3 gap-y-1 text-xs mt-3 text-gray-600">
-                        <span>{data.email}</span>
-                        <span>&bull;</span>
-                        <span>{data.phone}</span>
-                        <span>&bull;</span>
-                        <span>{data.website}</span>
-                    </div>
+                    {contactItems.length > 0 && (
+                        <div className="flex justify-center items-center flex-wrap gap-x-3 gap-y-1 text-xs mt-3 text-gray-600">
+                            {contactItems.map((item, idx) => (
+                                <React.Fragment key={idx}>
+                                    {idx > 0 && <span>&bull;</span>}
+                                    <span>{item}</span>
+                                </React.Fragment>
+                            ))}
+                        </div>
+                    )}
                 </header>
 
-                <section>
-                    <p className="text-xs text-center italic text-gray-800 leading-relaxed">{data.summary}</p>
-                </section>
-
-                <section>
-                    <SectionHeader theme={theme}>Core Competencies</SectionHeader>
-                    <p className="text-xs text-center text-gray-800 leading-relaxed">{data.skills}</p>
-                </section>
-
-                <section>
-                    <SectionHeader theme={theme}>Professional Experience</SectionHeader>
-                    {data.experience.map(exp => (
-                        <div key={exp.id} className="mb-5 last:mb-0">
-                            <div className="flex justify-between items-baseline flex-wrap gap-2">
-                                <h3 className="text-sm font-bold text-gray-900">{exp.title}</h3>
-                                <span className="text-xs font-normal text-gray-500">{exp.startDate} - {exp.endDate}</span>
-                            </div>
-                            <p className="text-xs italic text-gray-700 mb-1">{exp.company}</p>
-                            <ul className="list-disc list-outside ml-5 text-xs text-gray-700 space-y-1">
-                                {exp.description.split('\n').map((line, i) => line && <li key={i}>{line.replace(/^- /, '')}</li>)}
-                            </ul>
-                        </div>
-                    ))}
-                </section>
-
-                <div className="grid grid-cols-2 gap-x-12 mt-6">
-                    <section>
-                        <SectionHeader theme={theme}>Education</SectionHeader>
-                        {data.education.map(edu => (
-                            <div key={edu.id} className="mb-3 last:mb-0 text-xs">
-                                <h3 className="text-sm font-bold text-gray-900">{edu.degree}</h3>
-                                <p className="italic text-gray-700">{edu.university}</p>
-                                <p className="text-gray-500">{edu.startDate} - {edu.endDate}</p>
-                            </div>
-                        ))}
-                    </section>
-                    
-                    <section>
-                        <SectionHeader theme={theme}>Key Projects</SectionHeader>
-                        {data.projects.map(proj => (
-                            <div key={proj.id} className="mb-3 last:mb-0 text-xs">
-                                <h3 className="text-sm font-bold text-gray-900">{proj.name}</h3>
-                                <p className="text-gray-700 leading-relaxed">{proj.description}</p>
-                                {proj.url && <a href={`https://${proj.url.replace(/^https?:\/\//, '')}`} className={`text-xs ${theme.text} hover:underline mt-1 inline-block`}>View Project</a>}
-                            </div>
-                        ))}
-                    </section>
-                </div>
+                {sectionOrder.map(renderSection)}
             </div>
         </div>
     );

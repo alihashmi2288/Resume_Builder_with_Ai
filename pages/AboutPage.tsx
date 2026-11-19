@@ -7,19 +7,19 @@ const beliefs = [
   {
     icon: <Accessibility className="size-5 text-[#1c1c1e]" aria-hidden="true" />,
     title: 'Accessibility for Everyone',
-    body: 'Everyone deserves access to cutting-edge career tools. That’s why core features run on the free tier of the Google Gemini API with zero subscription lock-in.',
+    body: 'Everyone deserves access to modern career tools. Core resume building, smart import, and AI Assistance run cleanly with zero paywalls or manual API key setup.',
     colorClass: 'bg-[#fff4c4] text-[#746019] border border-[#ffd02f]/40',
   },
   {
     icon: <ShieldCheck className="size-5 text-[#187574]" aria-hidden="true" />,
-    title: '100% Client-Side Privacy',
-    body: 'Your data belongs entirely to you. All resume information, work history, and API keys remain stored locally in your browser and are never transmitted to external databases.',
+    title: 'Local Drafts & Secure AI',
+    body: 'Your resume profiles stay stored locally in your browser (LocalStorage), while AI parsing and optimization run through secure server-side AI Assistance endpoints.',
     colorClass: 'bg-[#c3faf5] text-[#187574] border border-[#0fbcb0]/40',
   },
   {
     icon: <Feather className="size-5 text-[#600000]" aria-hidden="true" />,
     title: 'Visual Simplicity & Power',
-    body: 'Building a resume shouldn’t feel like wrestling with broken Word formatting. We offer an intuitive visual canvas with live previews and immediate feedback.',
+    body: 'Building a resume shouldn’t feel like wrestling with broken Word formatting. Import your existing resume or build from scratch on an intuitive visual canvas.',
     colorClass: 'bg-[#ffc6c6] text-[#600000] border border-[#ff9999]/40',
   },
 ];
@@ -37,7 +37,7 @@ const AboutPage: React.FC = () => {
           About AI Resume Architect.
         </h1>
         <p className="font-subtitle text-[#555a6a] dark:text-[#a5a8b5] max-w-md mx-auto">
-          Empowering job seekers worldwide with visual design and cutting-edge Gemini AI.
+          Empowering job seekers worldwide with visual design and AI Assistance.
         </p>
       </div>
 
@@ -61,7 +61,7 @@ const AboutPage: React.FC = () => {
             In today’s fast-moving job market, modern hiring combines automated Applicant Tracking Systems with demanding recruiter expectations. We believe job candidates shouldn’t have to choose between machine-readability and beautiful design.
           </p>
           <p>
-            By combining Google’s Gemini AI engine with a Miro-inspired visual canvas, AI Resume Architect acts as your personal career copilot—polishing metrics, auditing keyword compliance, and generating vector-sharp PDFs in seconds.
+            By combining AI Assistance with an intuitive visual canvas, AI Resume Architect acts as your personal career assistant—parsing existing resumes into structured profiles, polishing metrics, auditing keyword compliance, and generating crisp PDFs in seconds.
           </p>
         </div>
 

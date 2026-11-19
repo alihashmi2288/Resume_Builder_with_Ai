@@ -6,19 +6,38 @@ import { Button } from '../ui/Button';
 import { useToast } from '../../context/ToastContext';
 import { 
   Bot, Plus, Trash2, Sparkles, Loader2, SearchCheck, ChevronUp, ChevronDown, 
-  CheckCircle2, AlertCircle, Check, Copy, Wand2, ShieldCheck, Zap
+  CheckCircle2, AlertCircle, Check, ShieldCheck, FileUp, Wand2, Eye, EyeOff, X,
+  GripVertical, RotateCcw
 } from 'lucide-react';
 import { 
   generateAISummary, 
   enhanceAIBulletPoint, 
   suggestAISkills, 
   generateAIResume, 
-  analyzeResumeATS 
+  analyzeResumeATS,
+  tailorAISummary
 } from '../../services/gemini';
+import {
+  DEFAULT_SECTION_ORDER,
+  evaluateResumeReadiness,
+  getSkillList,
+  isSectionEnabled,
+  normalizeSectionOrder,
+  reorderSectionList,
+  type SectionId,
+} from '../../lib/resumeUtils';
+import {
+  SortableDndList,
+  SortableEntryCard,
+  SortableSectionChip,
+  SortableSectionWrapper,
+} from './SortableResumeBlocks';
 
 interface ResumeFormProps {
   resumeData: ResumeData;
   dispatch: React.Dispatch<Action>;
+  onOpenImport?: () => void;
+  initialOpenAts?: boolean;
 }
 
 const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
@@ -55,11 +74,11 @@ const AIButton: React.FC<{ onClick: () => void; isLoading: boolean; children: Re
         type="button"
         onClick={onClick}
         disabled={isLoading}
-        className={`bg-[#ffd02f] hover:bg-[#fcb900] active:scale-[0.98] text-[#1c1c1e] inline-flex items-center gap-2 h-8 px-4 rounded-full text-xs font-semibold disabled:opacity-50 disabled:pointer-events-none transition-all shadow-none ${className}`}
+        className={`bg-[#ffd02f] hover:bg-[#fcb900] active:scale-[0.98] text-[#1c1c1e] inline-flex items-center justify-center gap-2 h-9 px-4 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 disabled:opacity-50 disabled:pointer-events-none transition-all shadow-none ${className}`}
     >
         {isLoading
-            ? <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
-            : <Sparkles className="size-3.5" aria-hidden="true" />
+            ? <Loader2 className="size-3.5 animate-spin shrink-0" aria-hidden="true" />
+            : <Sparkles className="size-3.5 shrink-0" aria-hidden="true" />
         }
         {children}
     </button>
@@ -67,10 +86,22 @@ const AIButton: React.FC<{ onClick: () => void; isLoading: boolean; children: Re
 
 const ACTION_VERBS = ["Spearheaded", "Architected", "Engineered", "Accelerated", "Optimized", "Orchestrated", "Formulated", "Scaled", "Streamlined"];
 
-export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) => {
+export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch, onOpenImport, initialOpenAts = false }) => {
     const { showToast } = useToast();
+    const [openSections, setOpenSections] = React.useState<string[]>(() =>
+        initialOpenAts
+            ? ['ats-optimizer', 'personal', 'summary', 'experience']
+            : ['personal', 'summary', 'skills', 'experience']
+    );
+
+    React.useEffect(() => {
+        if (initialOpenAts) {
+            setOpenSections((prev) => (prev.includes('ats-optimizer') ? prev : ['ats-optimizer', ...prev]));
+        }
+    }, [initialOpenAts]);
     const [loadingStates, setLoadingStates] = React.useState({
         summary: false,
+        tailorSummary: false,
         skills: false,
         fullResume: false,
         ats: false,
@@ -78,33 +109,19 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
     });
     const [jobTitle, setJobTitle] = React.useState('Software Engineer');
     const [jobDescription, setJobDescription] = React.useState('');
+    const [skillInput, setSkillInput] = React.useState('');
+    const [showRawSkills, setShowRawSkills] = React.useState(false);
     
     // ATS Audit State
     const [atsScore, setAtsScore] = React.useState<number | null>(null);
     const [atsSuggestions, setAtsSuggestions] = React.useState<string[]>([]);
     const [atsKeywords, setAtsKeywords] = React.useState<string[]>([]);
 
-    // Calculate Resume Completeness Score
-    const completeness = React.useMemo(() => {
-        let score = 0;
-        const checks = {
-            hasName: Boolean(resumeData.name?.trim()),
-            hasEmail: Boolean(resumeData.email?.trim()),
-            hasSummary: Boolean(resumeData.summary?.trim() && resumeData.summary.length > 30),
-            hasSkills: Boolean(resumeData.skills?.trim() && resumeData.skills.length > 5),
-            hasExp: Boolean(resumeData.experience?.length > 0 && resumeData.experience[0].title?.trim()),
-            hasEdu: Boolean(resumeData.education?.length > 0 && resumeData.education[0].degree?.trim()),
-        };
-
-        if (checks.hasName) score += 20;
-        if (checks.hasEmail) score += 15;
-        if (checks.hasSummary) score += 20;
-        if (checks.hasSkills) score += 15;
-        if (checks.hasExp) score += 20;
-        if (checks.hasEdu) score += 10;
-
-        return { score: Math.min(100, score), checks };
-    }, [resumeData]);
+    // Calculate Real Resume Readiness Score
+    const readiness = React.useMemo(() => evaluateResumeReadiness(resumeData), [resumeData]);
+    const orderedSections = React.useMemo(() => normalizeSectionOrder(resumeData.sectionOrder), [resumeData.sectionOrder]);
+    const isCustomOrder = orderedSections.join(',') !== DEFAULT_SECTION_ORDER.join(',');
+    const skillTags = React.useMemo(() => getSkillList(resumeData.skills), [resumeData.skills]);
 
     const handleFieldChange = (field: keyof Omit<ResumeData, 'experience' | 'education' | 'projects'>, value: string) => {
         dispatch({ type: 'SET_FIELD', field, value });
@@ -214,6 +231,24 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
         }
     };
 
+    const handleTailorSummary = async () => {
+        if (!jobDescription.trim()) {
+            showToast("Please paste a target job description first.", "warning");
+            return;
+        }
+        setLoadingStates(prev => ({ ...prev, tailorSummary: true }));
+        try {
+            const tailored = await tailorAISummary(resumeData, jobDescription);
+            handleFieldChange('summary', tailored);
+            showToast("Professional summary tailored to target job!", "success");
+        } catch (e) {
+            console.error(e);
+            showToast("Failed to tailor summary.", "error");
+        } finally {
+            setLoadingStates(prev => ({ ...prev, tailorSummary: false }));
+        }
+    };
+
     // 1-Click Keyword Insertion
     const handleAddKeywordToSkills = (keyword: string) => {
         const currentSkills = resumeData.skills ? resumeData.skills.trim() : '';
@@ -233,11 +268,65 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
         handleItemChange('experience', expId, { description: line });
     };
 
-    // Reordering handler
+    // Reordering & visibility handlers
+    const SECTION_LABELS: Record<SectionId, string> = {
+        summary: 'Summary',
+        skills: 'Skills',
+        experience: 'Work Experience',
+        education: 'Education',
+        projects: 'Projects',
+    };
+
+    const handleToggleSection = (sectionId: SectionId, e?: React.MouseEvent) => {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        const currentlyEnabled = isSectionEnabled(resumeData, sectionId);
+        dispatch({ type: 'TOGGLE_SECTION_VISIBILITY', sectionId, visible: !currentlyEnabled });
+        if (currentlyEnabled) {
+            setOpenSections((prev) => prev.filter((id) => id !== sectionId));
+            showToast(`${SECTION_LABELS[sectionId]} hidden from resume.`, 'info');
+        } else {
+            setOpenSections((prev) => (prev.includes(sectionId) ? prev : [...prev, sectionId]));
+            showToast(`${SECTION_LABELS[sectionId]} shown on resume.`, 'success');
+        }
+    };
+
+    const handleAddSkillTag = (rawValue: string) => {
+        const candidates = rawValue
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
+        if (candidates.length === 0) return;
+
+        const existingLower = new Set(skillTags.map((s) => s.toLowerCase()));
+        const additions: string[] = [];
+        for (const item of candidates) {
+            if (!existingLower.has(item.toLowerCase())) {
+                existingLower.add(item.toLowerCase());
+                additions.push(item);
+            }
+        }
+        if (additions.length === 0) {
+            setSkillInput('');
+            showToast('Skill is already listed.', 'info');
+            return;
+        }
+        const nextSkills = [...skillTags, ...additions].join(', ');
+        handleFieldChange('skills', nextSkills);
+        setSkillInput('');
+    };
+
+    const handleRemoveSkillTag = (indexToRemove: number) => {
+        const nextSkills = skillTags.filter((_, idx) => idx !== indexToRemove).join(', ');
+        handleFieldChange('skills', nextSkills);
+    };
+
     const handleMoveSection = (sectionId: string, direction: 'up' | 'down', e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        const currentOrder = [...(resumeData.sectionOrder || ['summary', 'skills', 'experience', 'education', 'projects'])];
+        const currentOrder = [...orderedSections];
         const index = currentOrder.indexOf(sectionId);
         if (index === -1) return;
 
@@ -251,21 +340,67 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
         dispatch({ type: 'SET_FIELD', field: 'sectionOrder', value: currentOrder });
     };
 
-    const renderReorderControls = (sectionId: string) => {
-        const order = resumeData.sectionOrder || ['summary', 'skills', 'experience', 'education', 'projects'];
-        const index = order.indexOf(sectionId);
+    const handleSectionReorder = (activeId: string, overId: string) => {
+        if (!activeId || !overId || activeId === overId) return;
+        const nextOrder = reorderSectionList(orderedSections, activeId, overId);
+        if (nextOrder.join(',') !== orderedSections.join(',')) {
+            dispatch({ type: 'SET_FIELD', field: 'sectionOrder', value: nextOrder });
+            const movedLabel = SECTION_LABELS[activeId as SectionId] || activeId;
+            const targetLabel = SECTION_LABELS[overId as SectionId] || overId;
+            showToast(`Moved ${movedLabel} to ${targetLabel}'s position.`, 'success');
+        }
+    };
+
+    const handleEntriesReorder = (
+        field: 'experience' | 'education' | 'projects',
+        activeId: string,
+        overId: string
+    ) => {
+        if (!activeId || !overId || activeId === overId) return;
+        dispatch({ type: 'REORDER_ITEMS', field, activeId, overId });
+        const label = field === 'experience' ? 'experience' : field === 'education' ? 'education' : 'project';
+        showToast(`Reordered ${label} entry.`, 'success');
+    };
+
+    const handleResetSectionOrder = () => {
+        dispatch({ type: 'SET_FIELD', field: 'sectionOrder', value: [...DEFAULT_SECTION_ORDER] });
+        showToast('Section order reset to default.', 'info');
+    };
+
+    const renderSectionControls = (sectionId: SectionId) => {
+        const index = orderedSections.indexOf(sectionId);
+        const enabled = isSectionEnabled(resumeData, sectionId);
+        const label = SECTION_LABELS[sectionId];
         
         return (
             <div className="flex items-center gap-1 ml-auto no-print">
+                {!enabled && (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground mr-1">
+                        Hidden
+                    </span>
+                )}
+                <button
+                    type="button"
+                    onClick={(e) => handleToggleSection(sectionId, e)}
+                    className={`size-6 flex items-center justify-center rounded transition-colors cursor-pointer ${
+                        enabled
+                            ? 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                            : 'text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20'
+                    }`}
+                    title={enabled ? `Hide ${label} from resume` : `Show ${label} on resume`}
+                    aria-label={enabled ? `Hide ${label} section` : `Show ${label} section`}
+                >
+                    {enabled ? <Eye className="size-3.5" aria-hidden="true" /> : <EyeOff className="size-3.5" aria-hidden="true" />}
+                </button>
                 <button
                     type="button"
                     onClick={(e) => handleMoveSection(sectionId, 'up', e)}
                     className={`size-6 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary rounded transition-colors ${
-                        index === 0 ? 'opacity-30 cursor-not-allowed pointer-events-none' : 'cursor-pointer'
+                        index <= 0 ? 'opacity-30 cursor-not-allowed pointer-events-none' : 'cursor-pointer'
                     }`}
                     title="Move Section Up"
-                    aria-label={`Move ${sectionId} Section Up`}
-                    disabled={index === 0}
+                    aria-label={`Move ${label} section up`}
+                    disabled={index <= 0}
                 >
                     <ChevronUp className="size-4" aria-hidden="true" />
                 </button>
@@ -273,11 +408,11 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
                     type="button"
                     onClick={(e) => handleMoveSection(sectionId, 'down', e)}
                     className={`size-6 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary rounded transition-colors ${
-                        index === order.length - 1 ? 'opacity-30 cursor-not-allowed pointer-events-none' : 'cursor-pointer'
+                        index >= orderedSections.length - 1 ? 'opacity-30 cursor-not-allowed pointer-events-none' : 'cursor-pointer'
                     }`}
                     title="Move Section Down"
-                    aria-label={`Move ${sectionId} Section Down`}
-                    disabled={index === order.length - 1}
+                    aria-label={`Move ${label} section down`}
+                    disabled={index >= orderedSections.length - 1}
                 >
                     <ChevronDown className="size-4" aria-hidden="true" />
                 </button>
@@ -285,25 +420,54 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
         );
     };
 
+    const renderSectionHeaderRow = (
+        sectionId: SectionId,
+        title: string,
+        handleProps: {
+            setActivatorNodeRef: (element: HTMLElement | null) => void;
+            attributes: Record<string, any>;
+            listeners: Record<string, any> | undefined;
+        }
+    ) => (
+        <div data-section-header={sectionId} className="flex items-center w-full rounded-lg">
+            <button
+                type="button"
+                ref={handleProps.setActivatorNodeRef}
+                data-section-drag-handle={sectionId}
+                {...handleProps.attributes}
+                {...handleProps.listeners}
+                className="inline-flex items-center justify-center px-1.5 py-2 -ml-1.5 mr-1 rounded-md text-muted-foreground/70 hover:text-foreground hover:bg-secondary cursor-grab active:cursor-grabbing shrink-0 select-none touch-none"
+                title={`Drag to reorder ${SECTION_LABELS[sectionId]}`}
+                aria-label={`Drag handle for ${SECTION_LABELS[sectionId]}`}
+            >
+                <GripVertical className="size-4" aria-hidden="true" />
+            </button>
+            <AccordionTrigger className="font-bold text-sm flex-grow cursor-pointer">
+                {title}
+            </AccordionTrigger>
+            {renderSectionControls(sectionId)}
+        </div>
+    );
+
     return (
         <div className="space-y-6">
-            {/* Resume Completeness & Health Widget */}
-            <div className="p-4 rounded-2xl bg-card border border-border/70 shadow-sm space-y-3">
+            {/* Resume Readiness & Health Widget */}
+            <div className="p-4 rounded-2xl bg-card border border-border shadow-sm space-y-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                         <div className="p-2 rounded-xl bg-primary/10 text-primary">
                             <ShieldCheck className="size-4" aria-hidden="true" />
                         </div>
                         <div>
-                            <h3 className="text-xs font-bold text-foreground">Resume Completeness</h3>
-                            <p className="text-[11px] text-muted-foreground">Recruiter and ATS readiness</p>
+                            <h3 className="text-xs font-bold text-foreground">Resume Readiness Score</h3>
+                            <p className="text-[11px] text-muted-foreground">Recruiter impact & ATS structural check</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
                         <span className={`text-sm font-black tabular-nums ${
-                            completeness.score >= 80 ? 'text-emerald-500' : completeness.score >= 50 ? 'text-amber-500' : 'text-primary'
+                            readiness.score >= 80 ? 'text-emerald-500' : readiness.score >= 50 ? 'text-amber-500' : 'text-rose-500'
                         }`}>
-                            {completeness.score}%
+                            {readiness.score}%
                         </span>
                     </div>
                 </div>
@@ -311,76 +475,122 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
                 {/* Progress bar */}
                 <div 
                     role="progressbar" 
-                    aria-valuenow={completeness.score} 
+                    aria-valuenow={readiness.score} 
                     aria-valuemin={0} 
                     aria-valuemax={100}
                     className="w-full h-2 rounded-full bg-muted overflow-hidden"
                 >
                     <div 
                         className={`h-full rounded-full transition-all duration-500 ${
-                            completeness.score >= 80 ? 'bg-emerald-500' : completeness.score >= 50 ? 'bg-amber-500' : 'bg-primary'
+                            readiness.score >= 80 ? 'bg-emerald-500' : readiness.score >= 50 ? 'bg-amber-500' : 'bg-rose-500'
                         }`}
-                        style={{ width: `${completeness.score}%` }}
+                        style={{ width: `${readiness.score}%` }}
                     />
                 </div>
 
-                {/* Checklist pills */}
+                {/* Checklist pills (only enabled sections) */}
                 <div className="flex flex-wrap gap-1.5 pt-1 text-[10px]">
-                    <span className={`px-2 py-0.5 rounded-full border flex items-center gap-1 ${
-                        completeness.checks.hasName ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-muted text-muted-foreground border-border'
-                    }`}>
-                        {completeness.checks.hasName && <Check className="size-2.5" />} Name & Title
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-full border flex items-center gap-1 ${
-                        completeness.checks.hasSummary ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-muted text-muted-foreground border-border'
-                    }`}>
-                        {completeness.checks.hasSummary && <Check className="size-2.5" />} Summary
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-full border flex items-center gap-1 ${
-                        completeness.checks.hasSkills ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-muted text-muted-foreground border-border'
-                    }`}>
-                        {completeness.checks.hasSkills && <Check className="size-2.5" />} Skills
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-full border flex items-center gap-1 ${
-                        completeness.checks.hasExp ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-muted text-muted-foreground border-border'
-                    }`}>
-                        {completeness.checks.hasExp && <Check className="size-2.5" />} Experience
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-full border flex items-center gap-1 ${
-                        completeness.checks.hasEdu ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-muted text-muted-foreground border-border'
-                    }`}>
-                        {completeness.checks.hasEdu && <Check className="size-2.5" />} Education
-                    </span>
+                    {([
+                        ['Identity', readiness.checks.hasIdentity, true],
+                        ['Summary', readiness.checks.hasSummary, isSectionEnabled(resumeData, 'summary')],
+                        ['Skills', readiness.checks.hasSkills, isSectionEnabled(resumeData, 'skills')],
+                        ['Experience', readiness.checks.hasExperience, isSectionEnabled(resumeData, 'experience')],
+                        ['Metrics', readiness.checks.hasMetrics, isSectionEnabled(resumeData, 'experience') || (isSectionEnabled(resumeData, 'projects') && resumeData.projects.length > 0)],
+                        ['Education', readiness.checks.hasEducation, isSectionEnabled(resumeData, 'education')],
+                    ] as const)
+                        .filter(([, , visible]) => visible)
+                        .map(([label, ok]) => (
+                            <span
+                                key={label}
+                                className={`px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+                                    ok ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-muted text-muted-foreground border-border'
+                                }`}
+                            >
+                                {ok && <Check className="size-2.5" />} {label}
+                            </span>
+                        ))}
                 </div>
+
+                {readiness.tips.length > 0 && (
+                    <p className="text-[11px] text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-lg">
+                        <span className="font-semibold text-foreground">Next boost:</span> {readiness.tips[0]}
+                    </p>
+                )}
             </div>
 
-            {/* AI Assistant Generator Card - Miro Style */}
-            <div className="relative p-5 rounded-2xl bg-[#fff8e0] dark:bg-[#1a1a1e] border border-[#ffd02f]/40 dark:border-[#2c2c34] shadow-sm">
-                <div className="relative">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="flex size-9 items-center justify-center rounded-xl bg-[#ffd02f]">
+            {/* AI Assistant Generator & Smart Import Card */}
+            <div className="relative p-5 rounded-2xl bg-[#fff8e0] dark:bg-[#1a1a1e] border border-[#ffd02f]/40 dark:border-[#2c2c34] shadow-sm space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-3">
+                        <div className="flex size-9 items-center justify-center rounded-xl bg-[#ffd02f] shrink-0">
                             <Bot className="size-5 text-[#1c1c1e]" aria-hidden="true" />
                         </div>
                         <div>
-                            <h3 className="text-sm font-bold text-[#1c1c1e] dark:text-white tracking-tight text-balance">AI Resume Copilot</h3>
-                            <p className="text-[11px] text-[#746019] dark:text-[#a5a8b5] text-pretty">Generate a full, tailored draft in seconds with Gemini</p>
+                            <h3 className="text-sm font-bold text-[#1c1c1e] dark:text-white tracking-tight text-balance">AI Assistance</h3>
+                            <p className="text-[11px] text-[#746019] dark:text-[#a5a8b5] text-pretty">Draft, import, or tailor your resume in seconds</p>
                         </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-2 mt-3">
-                        <Input 
-                            value={jobTitle} 
-                            onChange={e => setJobTitle(e.target.value)} 
-                            placeholder="Target Role (e.g. Senior Frontend Engineer)" 
-                            autoComplete="off" 
-                        />
-                        <AIButton onClick={handleGenerateFullResume} isLoading={loadingStates.fullResume}>
-                            Generate Draft
-                        </AIButton>
-                    </div>
+                    {onOpenImport && (
+                        <button
+                            type="button"
+                            onClick={onOpenImport}
+                            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-white dark:bg-[#242428] border border-[#c7cad5] dark:border-[#3b3b45] text-[11px] font-semibold text-[#1c1c1e] dark:text-white hover:border-[#4262ff] transition-colors whitespace-nowrap shrink-0"
+                        >
+                            <FileUp className="size-3.5 text-[#0fbcb0]" />
+                            Import Existing Resume
+                        </button>
+                    )}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <Input 
+                        value={jobTitle} 
+                        onChange={e => setJobTitle(e.target.value)} 
+                        placeholder="Target Role (e.g. Senior Frontend Engineer)" 
+                        autoComplete="off" 
+                    />
+                    <AIButton onClick={handleGenerateFullResume} isLoading={loadingStates.fullResume} className="h-11 px-5">
+                        Generate Draft
+                    </AIButton>
                 </div>
             </div>
 
-            <Accordion type="multiple" defaultValue={['ats-optimizer', 'personal', 'summary', 'experience']} className="w-full border rounded-2xl bg-card overflow-hidden divide-y">
+            {/* Quick Section Order & Visibility Strip (dnd-kit Sortable) */}
+            <div className="p-3.5 rounded-2xl bg-card border border-border shadow-sm space-y-2">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="text-xs font-bold text-foreground">Included Sections &amp; Order</span>
+                    <div className="flex items-center gap-2.5">
+                        <span className="text-[11px] text-muted-foreground">Drag to reorder &middot; Click eye to hide</span>
+                        {isCustomOrder && (
+                            <button
+                                type="button"
+                                onClick={handleResetSectionOrder}
+                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#4262ff] hover:underline whitespace-nowrap shrink-0"
+                            >
+                                <RotateCcw className="size-3" aria-hidden="true" />
+                                Reset order
+                            </button>
+                        )}
+                    </div>
+                </div>
+                <SortableDndList items={orderedSections} strategy="rect" onReorder={handleSectionReorder}>
+                    <div className="flex flex-wrap gap-1.5" role="list" aria-label="Reorder and toggle included resume sections">
+                        {orderedSections.map((id) => {
+                            const typedId = id as SectionId;
+                            return (
+                                <SortableSectionChip
+                                    key={typedId}
+                                    id={typedId}
+                                    label={SECTION_LABELS[typedId]}
+                                    enabled={isSectionEnabled(resumeData, typedId)}
+                                    onToggle={(e) => handleToggleSection(typedId, e)}
+                                />
+                            );
+                        })}
+                    </div>
+                </SortableDndList>
+            </div>
+
+            <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full border border-border rounded-2xl bg-card overflow-hidden divide-y divide-border">
                 
                 {/* ATS Audit Dashboard */}
                 <AccordionItem value="ats-optimizer" className="border-b-0 px-4 py-1">
@@ -399,15 +609,26 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
                                 placeholder="Paste the job requirements description to get your match rating and keyword checklist…" 
                             />
                         </FieldGroup>
-                        <button
-                            type="button"
-                            onClick={handleAnalyzeKeywords}
-                            disabled={loadingStates.ats}
-                            className="btn-miro-primary inline-flex items-center gap-2 h-9 px-5 rounded-full text-xs font-semibold disabled:opacity-50 disabled:pointer-events-none"
-                        >
-                            {loadingStates.ats ? <Loader2 className="size-3.5 animate-spin" aria-hidden="true" /> : <SearchCheck className="size-3.5" aria-hidden="true" />}
-                            Audit Resume Match
-                        </button>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={handleAnalyzeKeywords}
+                                disabled={loadingStates.ats}
+                                className="btn-miro-primary inline-flex items-center gap-2 h-9 px-5 rounded-full text-xs font-semibold disabled:opacity-50 disabled:pointer-events-none"
+                            >
+                                {loadingStates.ats ? <Loader2 className="size-3.5 animate-spin" aria-hidden="true" /> : <SearchCheck className="size-3.5" aria-hidden="true" />}
+                                Audit Resume Match
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleTailorSummary}
+                                disabled={loadingStates.tailorSummary}
+                                className="inline-flex items-center gap-2 h-9 px-4 rounded-full border border-border bg-secondary hover:bg-muted text-foreground text-xs font-semibold transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                            >
+                                {loadingStates.tailorSummary ? <Loader2 className="size-3.5 animate-spin" aria-hidden="true" /> : <Wand2 className="size-3.5 text-[#4262ff]" aria-hidden="true" />}
+                                Tailor Summary to Job
+                            </button>
+                        </div>
                         
                         {/* Audit score & detailed suggestions feedback */}
                         {atsScore !== null && (
@@ -560,383 +781,587 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch }) 
                     </AccordionContent>
                 </AccordionItem>
 
-                {/* Dynamically Ordered Accordion Sections */}
-                {(resumeData.sectionOrder || ['summary', 'skills', 'experience', 'education', 'projects']).map((sectionId) => {
-                    if (sectionId === 'summary') {
-                        return (
-                            <AccordionItem key="summary" value="summary" className="border-b-0 px-4 py-1">
-                                <div className="flex items-center w-full">
-                                    <AccordionTrigger className="font-bold text-sm flex-grow">Professional Summary</AccordionTrigger>
-                                    {renderReorderControls('summary')}
-                                </div>
-                                <AccordionContent className="space-y-3 pb-4">
-                                    <FieldGroup label="Summary Pitch" hint="2-3 impactful sentences highlighting your value">
-                                        <Textarea 
-                                            value={resumeData.summary} 
-                                            onChange={e => handleFieldChange('summary', e.target.value)} 
-                                            rows={4} 
-                                            placeholder="Results-oriented engineer with 4+ years of experience leading projects..." 
-                                        />
-                                    </FieldGroup>
-                                    <AIButton onClick={handleGenerateSummary} isLoading={loadingStates.summary}>
-                                        Generate AI Summary
-                                    </AIButton>
-                                </AccordionContent>
-                            </AccordionItem>
-                        );
-                    }
-                    if (sectionId === 'skills') {
-                        return (
-                            <AccordionItem key="skills" value="skills" className="border-b-0 px-4 py-1">
-                                <div className="flex items-center w-full">
-                                    <AccordionTrigger className="font-bold text-sm flex-grow">Skills</AccordionTrigger>
-                                    {renderReorderControls('skills')}
-                                </div>
-                                <AccordionContent className="space-y-3 pb-4">
-                                     <FieldGroup label="Core Skills (comma-separated)">
-                                        <Textarea 
-                                            value={resumeData.skills} 
-                                            onChange={e => handleFieldChange('skills', e.target.value)} 
-                                            rows={3} 
-                                            placeholder="React, TypeScript, Node.js, Python, AWS, System Architecture, Agile Delivery..." 
-                                        />
-                                    </FieldGroup>
-                                     <AIButton onClick={handleSuggestSkills} isLoading={loadingStates.skills}>
-                                        Suggest Role Skills
-                                     </AIButton>
-                                </AccordionContent>
-                            </AccordionItem>
-                        );
-                    }
-                    if (sectionId === 'experience') {
-                        return (
-                            <AccordionItem key="experience" value="experience" className="border-b-0 px-4 py-1">
-                                <div className="flex items-center w-full">
-                                    <AccordionTrigger className="font-bold text-sm flex-grow">Work Experience</AccordionTrigger>
-                                    {renderReorderControls('experience')}
-                                </div>
-                                <AccordionContent className="space-y-6 pb-4">
-                                    {resumeData.experience.map((exp, idx) => (
-                                        <div key={exp.id} className="p-4 border border-border/80 rounded-2xl relative bg-card space-y-4 hover:border-primary/40 transition-colors">
-                                            <div className="absolute top-3 right-3 flex items-center gap-1">
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    className="size-7" 
-                                                    onClick={() => dispatch({ type: 'MOVE_ITEM_UP', field: 'experience', id: exp.id })}
-                                                    disabled={idx === 0}
-                                                    title="Move Up"
-                                                    aria-label="Move Experience Entry Up"
-                                                >
-                                                    <ChevronUp className="size-4" aria-hidden="true" />
-                                                </Button>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    className="size-7" 
-                                                    onClick={() => dispatch({ type: 'MOVE_ITEM_DOWN', field: 'experience', id: exp.id })}
-                                                    disabled={idx === resumeData.experience.length - 1}
-                                                    title="Move Down"
-                                                    aria-label="Move Experience Entry Down"
-                                                >
-                                                    <ChevronDown className="size-4" aria-hidden="true" />
-                                                </Button>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
-                                                    onClick={() => handleDeleteItem('experience', exp.id)}
-                                                    title="Delete Entry"
-                                                    aria-label="Delete Experience Entry"
-                                                >
-                                                    <Trash2 className="size-4" aria-hidden="true" />
-                                                </Button>
-                                            </div>
-
-                                            <div className="space-y-3 pt-2">
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                    <FieldGroup label="Company">
-                                                        <Input 
-                                                            value={exp.company} 
-                                                            onChange={e => handleItemChange('experience', exp.id, { company: e.target.value })} 
-                                                            placeholder="Google, Stripe, Acme Corp..." 
-                                                            autoComplete="off" 
-                                                        />
-                                                    </FieldGroup>
-                                                    <FieldGroup label="Job Title">
-                                                        <Input 
-                                                            value={exp.title} 
-                                                            onChange={e => handleItemChange('experience', exp.id, { title: e.target.value })} 
-                                                            placeholder="Senior Software Engineer" 
-                                                            autoComplete="off" 
-                                                        />
-                                                    </FieldGroup>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                    <FieldGroup label="Start Date">
-                                                        <Input 
-                                                            value={exp.startDate} 
-                                                            onChange={e => handleItemChange('experience', exp.id, { startDate: e.target.value })} 
-                                                            placeholder="e.g. 2021 or Jan 2021" 
-                                                            autoComplete="off" 
-                                                        />
-                                                    </FieldGroup>
-                                                    <div className="flex flex-col gap-1.5">
-                                                        <div className="flex items-center justify-between">
-                                                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">End Date</span>
-                                                            <label className="flex items-center gap-1.5 cursor-pointer text-[11px] font-semibold text-primary">
-                                                                <input 
-                                                                    type="checkbox"
-                                                                    checked={exp.endDate.toLowerCase() === 'present'}
-                                                                    onChange={(e) => {
-                                                                        handleItemChange('experience', exp.id, { 
-                                                                            endDate: e.target.checked ? 'Present' : '' 
-                                                                        });
-                                                                    }}
-                                                                    className="rounded accent-primary cursor-pointer"
-                                                                />
-                                                                <span>Current Role</span>
-                                                            </label>
+                {/* Dynamically Ordered Accordion Sections (dnd-kit Sortable) */}
+                <SortableDndList items={orderedSections} strategy="vertical" onReorder={handleSectionReorder}>
+                    <div className="divide-y divide-border">
+                        {orderedSections.map((sectionId) => {
+                            if (sectionId === 'summary') {
+                                const enabled = isSectionEnabled(resumeData, 'summary');
+                                return (
+                                    <SortableSectionWrapper key="summary" id="summary">
+                                        {(handleProps) => (
+                                            <AccordionItem value="summary" className={`border-b-0 px-4 py-1 ${!enabled ? 'opacity-65' : ''}`}>
+                                                {renderSectionHeaderRow('summary', 'Professional Summary', handleProps)}
+                                                <AccordionContent className="space-y-3 pb-4">
+                                                    {!enabled && (
+                                                        <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/50 border border-border text-xs text-muted-foreground">
+                                                            <span>Hidden from your resume preview.</span>
+                                                            <button type="button" onClick={() => handleToggleSection('summary')} className="font-semibold text-primary hover:underline whitespace-nowrap">Show Section</button>
                                                         </div>
-                                                        <Input 
-                                                            value={exp.endDate} 
-                                                            onChange={e => handleItemChange('experience', exp.id, { endDate: e.target.value })} 
-                                                            placeholder="e.g. Present or Dec 2023" 
-                                                            autoComplete="off" 
+                                                    )}
+                                                    <FieldGroup label="Summary Pitch" hint="2-3 impactful sentences highlighting your value">
+                                                        <Textarea 
+                                                            value={resumeData.summary} 
+                                                            onChange={e => handleFieldChange('summary', e.target.value)} 
+                                                            rows={4} 
+                                                            placeholder="Results-oriented engineer with 4+ years of experience leading projects..." 
                                                         />
+                                                    </FieldGroup>
+                                                    <AIButton onClick={handleGenerateSummary} isLoading={loadingStates.summary}>
+                                                        Generate AI Summary
+                                                    </AIButton>
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        )}
+                                    </SortableSectionWrapper>
+                                );
+                            }
+                            if (sectionId === 'skills') {
+                                const enabled = isSectionEnabled(resumeData, 'skills');
+                                return (
+                                    <SortableSectionWrapper key="skills" id="skills">
+                                        {(handleProps) => (
+                                            <AccordionItem value="skills" className={`border-b-0 px-4 py-1 ${!enabled ? 'opacity-65' : ''}`}>
+                                                {renderSectionHeaderRow('skills', 'Skills', handleProps)}
+                                                <AccordionContent className="space-y-3 pb-4">
+                                                    {!enabled && (
+                                                        <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/50 border border-border text-xs text-muted-foreground">
+                                                            <span>Hidden from your resume preview.</span>
+                                                            <button type="button" onClick={() => handleToggleSection('skills')} className="font-semibold text-primary hover:underline whitespace-nowrap">Show Section</button>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Interactive Skill Tag Editor */}
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-xs font-semibold text-[#555a6a] dark:text-[#a5a8b5] uppercase tracking-wider">Skills</span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowRawSkills((prev) => !prev)}
+                                                                className="text-[11px] font-medium text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                                                            >
+                                                                {showRawSkills ? 'Use tag editor' : 'Edit as text list'}
+                                                            </button>
+                                                        </div>
+
+                                                        {showRawSkills ? (
+                                                            <Textarea 
+                                                                value={resumeData.skills} 
+                                                                onChange={e => handleFieldChange('skills', e.target.value)} 
+                                                                rows={3} 
+                                                                placeholder="React, TypeScript, Node.js, Python, AWS..." 
+                                                                aria-label="Core skills comma-separated"
+                                                            />
+                                                        ) : (
+                                                            <>
+                                                                <div className="flex gap-2">
+                                                                    <Input
+                                                                        value={skillInput}
+                                                                        onChange={(e) => {
+                                                                            const val = e.target.value;
+                                                                            if (val.includes(',')) {
+                                                                                handleAddSkillTag(val);
+                                                                            } else {
+                                                                                setSkillInput(val);
+                                                                            }
+                                                                        }}
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === 'Enter') {
+                                                                                e.preventDefault();
+                                                                                handleAddSkillTag(skillInput);
+                                                                            }
+                                                                        }}
+                                                                        placeholder="Type a skill and press Enter…"
+                                                                        aria-label="Add a skill"
+                                                                    />
+                                                                    <Button
+                                                                        type="button"
+                                                                        variant="outline"
+                                                                        onClick={() => handleAddSkillTag(skillInput)}
+                                                                        className="h-11 px-4 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0"
+                                                                    >
+                                                                        <Plus className="size-3.5 mr-1" aria-hidden="true" />
+                                                                        Add
+                                                                    </Button>
+                                                                </div>
+
+                                                                {skillTags.length > 0 ? (
+                                                                    <div className="flex flex-wrap gap-1.5 pt-1">
+                                                                        {skillTags.map((skill, idx) => (
+                                                                            <span
+                                                                                key={`${skill}-${idx}`}
+                                                                                className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-full bg-secondary border border-border text-xs font-medium text-foreground"
+                                                                            >
+                                                                                <span>{skill}</span>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => handleRemoveSkillTag(idx)}
+                                                                                    className="size-4 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                                                                                    aria-label={`Remove skill ${skill}`}
+                                                                                >
+                                                                                    <X className="size-3" aria-hidden="true" />
+                                                                                </button>
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                ) : (
+                                                                    <p className="text-xs text-muted-foreground">No skills added yet.</p>
+                                                                )}
+                                                            </>
+                                                        )}
                                                     </div>
-                                                </div>
 
-                                                {/* Action verb quick inserters */}
-                                                <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                                                    <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Action Verbs:</span>
-                                                    {ACTION_VERBS.slice(0, 6).map((verb) => (
-                                                        <button
-                                                            key={verb}
-                                                            type="button"
-                                                            onClick={() => handleAppendActionVerb(exp.id, exp.description, verb)}
-                                                            className="text-[10px] bg-muted/60 hover:bg-primary/10 hover:text-primary px-2 py-0.5 rounded-md font-medium border border-border/50 transition-colors"
-                                                            title={`Start bullet with "${verb}"`}
-                                                        >
-                                                            +{verb}
-                                                        </button>
-                                                    ))}
-                                                </div>
+                                                    <AIButton onClick={handleSuggestSkills} isLoading={loadingStates.skills}>
+                                                        Suggest Role Skills
+                                                    </AIButton>
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        )}
+                                    </SortableSectionWrapper>
+                                );
+                            }
+                            if (sectionId === 'experience') {
+                                const enabled = isSectionEnabled(resumeData, 'experience');
+                                return (
+                                    <SortableSectionWrapper key="experience" id="experience">
+                                        {(handleProps) => (
+                                            <AccordionItem value="experience" className={`border-b-0 px-4 py-1 ${!enabled ? 'opacity-65' : ''}`}>
+                                                {renderSectionHeaderRow('experience', 'Work Experience', handleProps)}
+                                                <AccordionContent className="space-y-4 pb-4">
+                                                    {!enabled && (
+                                                        <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/50 border border-border text-xs text-muted-foreground">
+                                                            <span>Hidden from your resume preview.</span>
+                                                            <button type="button" onClick={() => handleToggleSection('experience')} className="font-semibold text-primary hover:underline whitespace-nowrap">Show Section</button>
+                                                        </div>
+                                                    )}
+                                                    {resumeData.experience.length === 0 && (
+                                                        <div className="p-4 rounded-xl border border-dashed border-border bg-muted/30 text-center space-y-2">
+                                                            <p className="text-xs text-muted-foreground">No work experience added. If you don&apos;t need this section, you can hide it cleanly.</p>
+                                                            {enabled && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleToggleSection('experience')}
+                                                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                                                                >
+                                                                    <EyeOff className="size-3.5" aria-hidden="true" />
+                                                                    Hide Work Experience from Resume
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                    <SortableDndList
+                                                        items={resumeData.experience.map((e) => e.id)}
+                                                        strategy="vertical"
+                                                        onReorder={(activeId, overId) => handleEntriesReorder('experience', activeId, overId)}
+                                                    >
+                                                        <div className="space-y-4">
+                                                            {resumeData.experience.map((exp, idx) => (
+                                                                <SortableEntryCard
+                                                                    key={exp.id}
+                                                                    id={exp.id}
+                                                                    title={[exp.title, exp.company].filter(Boolean).join(' · ') || `Role #${idx + 1}`}
+                                                                    kindLabel="Work Experience"
+                                                                    actions={
+                                                                        <>
+                                                                            <Button 
+                                                                                variant="ghost" 
+                                                                                size="icon" 
+                                                                                className="size-7" 
+                                                                                onClick={() => dispatch({ type: 'MOVE_ITEM_UP', field: 'experience', id: exp.id })}
+                                                                                disabled={idx === 0}
+                                                                                title="Move Up"
+                                                                                aria-label="Move Experience Entry Up"
+                                                                            >
+                                                                                <ChevronUp className="size-4" aria-hidden="true" />
+                                                                            </Button>
+                                                                            <Button 
+                                                                                variant="ghost" 
+                                                                                size="icon" 
+                                                                                className="size-7" 
+                                                                                onClick={() => dispatch({ type: 'MOVE_ITEM_DOWN', field: 'experience', id: exp.id })}
+                                                                                disabled={idx === resumeData.experience.length - 1}
+                                                                                title="Move Down"
+                                                                                aria-label="Move Experience Entry Down"
+                                                                            >
+                                                                                <ChevronDown className="size-4" aria-hidden="true" />
+                                                                            </Button>
+                                                                            <Button 
+                                                                                variant="ghost" 
+                                                                                size="icon" 
+                                                                                className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                                                                                onClick={() => handleDeleteItem('experience', exp.id)}
+                                                                                title="Delete Entry"
+                                                                                aria-label="Delete Experience Entry"
+                                                                            >
+                                                                                <Trash2 className="size-4" aria-hidden="true" />
+                                                                            </Button>
+                                                                        </>
+                                                                    }
+                                                                >
+                                                                    <div className="space-y-3">
+                                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                            <FieldGroup label="Company">
+                                                                                <Input 
+                                                                                    value={exp.company} 
+                                                                                    onChange={e => handleItemChange('experience', exp.id, { company: e.target.value })} 
+                                                                                    placeholder="Google, Stripe, Acme Corp..." 
+                                                                                    autoComplete="off" 
+                                                                                />
+                                                                            </FieldGroup>
+                                                                            <FieldGroup label="Job Title">
+                                                                                <Input 
+                                                                                    value={exp.title} 
+                                                                                    onChange={e => handleItemChange('experience', exp.id, { title: e.target.value })} 
+                                                                                    placeholder="Senior Software Engineer" 
+                                                                                    autoComplete="off" 
+                                                                                />
+                                                                            </FieldGroup>
+                                                                        </div>
 
-                                                <FieldGroup label="Bullet Points Description (One per line)" hint="Highlight metrics, tech, & impact">
-                                                    <Textarea 
-                                                        value={exp.description} 
-                                                        onChange={e => handleItemChange('experience', exp.id, { description: e.target.value })} 
-                                                        rows={5} 
-                                                        placeholder="• Spearheaded development of core web application, improving latency by 35%&#10;• Orchestrated cloud migration saving $40,000 annually&#10;• Mentored 4 engineers and established automated CI/CD pipelines" 
-                                                    />
-                                                </FieldGroup>
+                                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                            <FieldGroup label="Start Date">
+                                                                                <Input 
+                                                                                    value={exp.startDate} 
+                                                                                    onChange={e => handleItemChange('experience', exp.id, { startDate: e.target.value })} 
+                                                                                    placeholder="e.g. 2021 or Jan 2021" 
+                                                                                    autoComplete="off" 
+                                                                                />
+                                                                            </FieldGroup>
+                                                                            <div className="flex flex-col gap-1.5">
+                                                                                <div className="flex items-center justify-between">
+                                                                                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">End Date</span>
+                                                                                    <label className="flex items-center gap-1.5 cursor-pointer text-[11px] font-semibold text-primary">
+                                                                                        <input 
+                                                                                            type="checkbox"
+                                                                                            checked={exp.endDate.toLowerCase() === 'present'}
+                                                                                            onChange={(e) => {
+                                                                                                handleItemChange('experience', exp.id, { 
+                                                                                                    endDate: e.target.checked ? 'Present' : '' 
+                                                                                                });
+                                                                                            }}
+                                                                                            className="rounded accent-primary cursor-pointer"
+                                                                                        />
+                                                                                        <span>Current Role</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                <Input 
+                                                                                    value={exp.endDate} 
+                                                                                    onChange={e => handleItemChange('experience', exp.id, { endDate: e.target.value })} 
+                                                                                    placeholder="e.g. Present or Dec 2023" 
+                                                                                    autoComplete="off" 
+                                                                                />
+                                                                            </div>
+                                                                        </div>
 
-                                                <AIButton 
-                                                    onClick={() => handleEnhanceDescription(exp.id, exp.description)} 
-                                                    isLoading={loadingStates.experience[exp.id]}
-                                                >
-                                                    Enhance with STAR Method
-                                                </AIButton>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <Button 
-                                        variant="outline" 
-                                        onClick={() => handleAddItem('experience')} 
-                                        className="w-full flex items-center justify-center gap-2 border-dashed py-5 hover:bg-secondary/40 rounded-xl"
-                                    >
-                                        <Plus className="size-4" aria-hidden="true"/> Add Experience
-                                    </Button>
-                                </AccordionContent>
-                            </AccordionItem>
-                        );
-                    }
-                    if (sectionId === 'education') {
-                        return (
-                            <AccordionItem key="education" value="education" className="border-b-0 px-4 py-1">
-                                <div className="flex items-center w-full">
-                                    <AccordionTrigger className="font-bold text-sm flex-grow">Education & Degrees</AccordionTrigger>
-                                    {renderReorderControls('education')}
-                                </div>
-                                <AccordionContent className="space-y-6 pb-4">
-                                    {resumeData.education.map((edu, idx) => (
-                                        <div key={edu.id} className="p-4 border border-border/80 rounded-2xl relative bg-card space-y-3 hover:border-primary/40 transition-colors">
-                                            <div className="absolute top-3 right-3 flex items-center gap-1">
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    className="size-7" 
-                                                    onClick={() => dispatch({ type: 'MOVE_ITEM_UP', field: 'education', id: edu.id })}
-                                                    disabled={idx === 0}
-                                                    title="Move Up"
-                                                    aria-label="Move Education Entry Up"
-                                                >
-                                                    <ChevronUp className="size-4" aria-hidden="true" />
-                                                </Button>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    className="size-7" 
-                                                    onClick={() => dispatch({ type: 'MOVE_ITEM_DOWN', field: 'education', id: edu.id })}
-                                                    disabled={idx === resumeData.education.length - 1}
-                                                    title="Move Down"
-                                                    aria-label="Move Education Entry Down"
-                                                >
-                                                    <ChevronDown className="size-4" aria-hidden="true" />
-                                                </Button>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
-                                                    onClick={() => handleDeleteItem('education', edu.id)}
-                                                    title="Delete Entry"
-                                                    aria-label="Delete Education Entry"
-                                                >
-                                                    <Trash2 className="size-4" aria-hidden="true" />
-                                                </Button>
-                                            </div>
+                                                                        {/* Action verb quick inserters */}
+                                                                        <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                                                                            <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Action Verbs:</span>
+                                                                            {ACTION_VERBS.slice(0, 6).map((verb) => (
+                                                                                <button
+                                                                                    key={verb}
+                                                                                    type="button"
+                                                                                    onClick={() => handleAppendActionVerb(exp.id, exp.description, verb)}
+                                                                                    className="text-[10px] bg-muted/60 hover:bg-primary/10 hover:text-primary px-2 py-0.5 rounded-md font-medium border border-border/50 transition-colors"
+                                                                                    title={`Start bullet with "${verb}"`}
+                                                                                >
+                                                                                    +{verb}
+                                                                                </button>
+                                                                            ))}
+                                                                        </div>
 
-                                            <div className="space-y-3 pt-2">
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                    <FieldGroup label="University / College">
-                                                        <Input 
-                                                            value={edu.university} 
-                                                            onChange={e => handleItemChange('education', edu.id, { university: e.target.value })} 
-                                                            placeholder="State University" 
-                                                            autoComplete="off" 
-                                                        />
-                                                    </FieldGroup>
-                                                    <FieldGroup label="Degree / Major">
-                                                        <Input 
-                                                            value={edu.degree} 
-                                                            onChange={e => handleItemChange('education', edu.id, { degree: e.target.value })} 
-                                                            placeholder="B.S. in Computer Science" 
-                                                            autoComplete="off" 
-                                                        />
-                                                    </FieldGroup>
-                                                </div>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                    <FieldGroup label="Start Year">
-                                                        <Input 
-                                                            value={edu.startDate} 
-                                                            onChange={e => handleItemChange('education', edu.id, { startDate: e.target.value })} 
-                                                            placeholder="2018" 
-                                                            autoComplete="off" 
-                                                        />
-                                                    </FieldGroup>
-                                                    <FieldGroup label="End Year">
-                                                        <Input 
-                                                            value={edu.endDate} 
-                                                            onChange={e => handleItemChange('education', edu.id, { endDate: e.target.value })} 
-                                                            placeholder="2022 or Present" 
-                                                            autoComplete="off" 
-                                                        />
-                                                    </FieldGroup>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <Button 
-                                        variant="outline" 
-                                        onClick={() => handleAddItem('education')} 
-                                        className="w-full flex items-center justify-center gap-2 border-dashed py-5 hover:bg-secondary/40 rounded-xl"
-                                    >
-                                        <Plus className="size-4" aria-hidden="true"/> Add Education
-                                    </Button>
-                                </AccordionContent>
-                            </AccordionItem>
-                        );
-                    }
-                    if (sectionId === 'projects') {
-                        return (
-                            <AccordionItem key="projects" value="projects" className="border-b-0 px-4 py-1">
-                                <div className="flex items-center w-full">
-                                    <AccordionTrigger className="font-bold text-sm flex-grow">Key Projects</AccordionTrigger>
-                                    {renderReorderControls('projects')}
-                                </div>
-                                <AccordionContent className="space-y-6 pb-4">
-                                    {resumeData.projects.map((proj, idx) => (
-                                        <div key={proj.id} className="p-4 border border-border/80 rounded-2xl relative bg-card space-y-3 hover:border-primary/40 transition-colors">
-                                            <div className="absolute top-3 right-3 flex items-center gap-1">
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    className="size-7" 
-                                                    onClick={() => dispatch({ type: 'MOVE_ITEM_UP', field: 'projects', id: proj.id })}
-                                                    disabled={idx === 0}
-                                                    title="Move Up"
-                                                    aria-label="Move Project Entry Up"
-                                                >
-                                                    <ChevronUp className="size-4" aria-hidden="true" />
-                                                </Button>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    className="size-7" 
-                                                    onClick={() => dispatch({ type: 'MOVE_ITEM_DOWN', field: 'projects', id: proj.id })}
-                                                    disabled={idx === resumeData.projects.length - 1}
-                                                    title="Move Down"
-                                                    aria-label="Move Project Entry Down"
-                                                >
-                                                    <ChevronDown className="size-4" aria-hidden="true" />
-                                                </Button>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
-                                                    onClick={() => handleDeleteItem('projects', proj.id)}
-                                                    title="Delete Entry"
-                                                    aria-label="Delete Project Entry"
-                                                >
-                                                    <Trash2 className="size-4" aria-hidden="true" />
-                                                </Button>
-                                            </div>
+                                                                        <FieldGroup label="Bullet Points Description (One per line)" hint="Highlight metrics, tech, & impact">
+                                                                            <Textarea 
+                                                                                value={exp.description} 
+                                                                                onChange={e => handleItemChange('experience', exp.id, { description: e.target.value })} 
+                                                                                rows={5} 
+                                                                                placeholder="• Spearheaded development of core web application, improving latency by 35%&#10;• Orchestrated cloud migration saving $40,000 annually&#10;• Mentored 4 engineers and established automated CI/CD pipelines" 
+                                                                            />
+                                                                        </FieldGroup>
 
-                                            <div className="space-y-3 pt-2">
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                    <FieldGroup label="Project Name">
-                                                        <Input 
-                                                            value={proj.name} 
-                                                            onChange={e => handleItemChange('projects', proj.id, { name: e.target.value })} 
-                                                            placeholder="AI Portfolio Platform" 
-                                                            autoComplete="off" 
-                                                        />
-                                                    </FieldGroup>
-                                                    <FieldGroup label="URL / Repository (Optional)">
-                                                        <Input 
-                                                            value={proj.url || ''} 
-                                                            onChange={e => handleItemChange('projects', proj.id, { url: e.target.value })} 
-                                                            placeholder="github.com/alihashmi/project" 
-                                                            autoComplete="off" 
-                                                        />
-                                                    </FieldGroup>
-                                                </div>
-                                                <FieldGroup label="Description & Stack">
-                                                    <Textarea 
-                                                        value={proj.description} 
-                                                        onChange={e => handleItemChange('projects', proj.id, { description: e.target.value })} 
-                                                        rows={3} 
-                                                        placeholder="Engineered high-performance real-time analytics app using React, TypeScript, and TailwindCSS…" 
-                                                    />
-                                                </FieldGroup>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <Button 
-                                        variant="outline" 
-                                        onClick={() => handleAddItem('projects')} 
-                                        className="w-full flex items-center justify-center gap-2 border-dashed py-5 hover:bg-secondary/40 rounded-xl"
-                                    >
-                                        <Plus className="size-4" aria-hidden="true"/> Add Project
-                                    </Button>
-                                </AccordionContent>
-                            </AccordionItem>
-                        );
-                    }
-                    return null;
-                })}
+                                                                        <AIButton 
+                                                                            onClick={() => handleEnhanceDescription(exp.id, exp.description)} 
+                                                                            isLoading={loadingStates.experience[exp.id]}
+                                                                        >
+                                                                            Enhance with STAR Method
+                                                                        </AIButton>
+                                                                    </div>
+                                                                </SortableEntryCard>
+                                                            ))}
+                                                        </div>
+                                                    </SortableDndList>
+                                                    <Button 
+                                                        variant="outline" 
+                                                        onClick={() => handleAddItem('experience')} 
+                                                        className="w-full flex items-center justify-center gap-2 border-dashed py-5 hover:bg-secondary/40 rounded-xl"
+                                                    >
+                                                        <Plus className="size-4" aria-hidden="true"/> Add Experience
+                                                    </Button>
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        )}
+                                    </SortableSectionWrapper>
+                                );
+                            }
+                            if (sectionId === 'education') {
+                                const enabled = isSectionEnabled(resumeData, 'education');
+                                return (
+                                    <SortableSectionWrapper key="education" id="education">
+                                        {(handleProps) => (
+                                            <AccordionItem value="education" className={`border-b-0 px-4 py-1 ${!enabled ? 'opacity-65' : ''}`}>
+                                                {renderSectionHeaderRow('education', 'Education & Degrees', handleProps)}
+                                                <AccordionContent className="space-y-4 pb-4">
+                                                    {!enabled && (
+                                                        <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/50 border border-border text-xs text-muted-foreground">
+                                                            <span>Hidden from your resume preview.</span>
+                                                            <button type="button" onClick={() => handleToggleSection('education')} className="font-semibold text-primary hover:underline whitespace-nowrap">Show Section</button>
+                                                        </div>
+                                                    )}
+                                                    {resumeData.education.length === 0 && (
+                                                        <div className="p-4 rounded-xl border border-dashed border-border bg-muted/30 text-center space-y-2">
+                                                            <p className="text-xs text-muted-foreground">No education entries added.</p>
+                                                            {enabled && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleToggleSection('education')}
+                                                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                                                                >
+                                                                    <EyeOff className="size-3.5" aria-hidden="true" />
+                                                                    Hide Education from Resume
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                    <SortableDndList
+                                                        items={resumeData.education.map((e) => e.id)}
+                                                        strategy="vertical"
+                                                        onReorder={(activeId, overId) => handleEntriesReorder('education', activeId, overId)}
+                                                    >
+                                                        <div className="space-y-4">
+                                                            {resumeData.education.map((edu, idx) => (
+                                                                <SortableEntryCard
+                                                                    key={edu.id}
+                                                                    id={edu.id}
+                                                                    title={[edu.degree, edu.university].filter(Boolean).join(' · ') || `Education #${idx + 1}`}
+                                                                    kindLabel="Education"
+                                                                    actions={
+                                                                        <>
+                                                                            <Button 
+                                                                                variant="ghost" 
+                                                                                size="icon" 
+                                                                                className="size-7" 
+                                                                                onClick={() => dispatch({ type: 'MOVE_ITEM_UP', field: 'education', id: edu.id })}
+                                                                                disabled={idx === 0}
+                                                                                title="Move Up"
+                                                                                aria-label="Move Education Entry Up"
+                                                                            >
+                                                                                <ChevronUp className="size-4" aria-hidden="true" />
+                                                                            </Button>
+                                                                            <Button 
+                                                                                variant="ghost" 
+                                                                                size="icon" 
+                                                                                className="size-7" 
+                                                                                onClick={() => dispatch({ type: 'MOVE_ITEM_DOWN', field: 'education', id: edu.id })}
+                                                                                disabled={idx === resumeData.education.length - 1}
+                                                                                title="Move Down"
+                                                                                aria-label="Move Education Entry Down"
+                                                                            >
+                                                                                <ChevronDown className="size-4" aria-hidden="true" />
+                                                                            </Button>
+                                                                            <Button 
+                                                                                variant="ghost" 
+                                                                                size="icon" 
+                                                                                className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                                                                                onClick={() => handleDeleteItem('education', edu.id)}
+                                                                                title="Delete Entry"
+                                                                                aria-label="Delete Education Entry"
+                                                                            >
+                                                                                <Trash2 className="size-4" aria-hidden="true" />
+                                                                            </Button>
+                                                                        </>
+                                                                    }
+                                                                >
+                                                                    <div className="space-y-3">
+                                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                            <FieldGroup label="University / College">
+                                                                                <Input 
+                                                                                    value={edu.university} 
+                                                                                    onChange={e => handleItemChange('education', edu.id, { university: e.target.value })} 
+                                                                                    placeholder="State University" 
+                                                                                    autoComplete="off" 
+                                                                                />
+                                                                            </FieldGroup>
+                                                                            <FieldGroup label="Degree / Major">
+                                                                                <Input 
+                                                                                    value={edu.degree} 
+                                                                                    onChange={e => handleItemChange('education', edu.id, { degree: e.target.value })} 
+                                                                                    placeholder="B.S. in Computer Science" 
+                                                                                    autoComplete="off" 
+                                                                                />
+                                                                            </FieldGroup>
+                                                                        </div>
+                                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                            <FieldGroup label="Start Year">
+                                                                                <Input 
+                                                                                    value={edu.startDate} 
+                                                                                    onChange={e => handleItemChange('education', edu.id, { startDate: e.target.value })} 
+                                                                                    placeholder="2018" 
+                                                                                    autoComplete="off" 
+                                                                                />
+                                                                            </FieldGroup>
+                                                                            <FieldGroup label="End Year">
+                                                                                <Input 
+                                                                                    value={edu.endDate} 
+                                                                                    onChange={e => handleItemChange('education', edu.id, { endDate: e.target.value })} 
+                                                                                    placeholder="2022 or Present" 
+                                                                                    autoComplete="off" 
+                                                                                />
+                                                                            </FieldGroup>
+                                                                        </div>
+                                                                    </div>
+                                                                </SortableEntryCard>
+                                                            ))}
+                                                        </div>
+                                                    </SortableDndList>
+                                                    <Button 
+                                                        variant="outline" 
+                                                        onClick={() => handleAddItem('education')} 
+                                                        className="w-full flex items-center justify-center gap-2 border-dashed py-5 hover:bg-secondary/40 rounded-xl"
+                                                    >
+                                                        <Plus className="size-4" aria-hidden="true"/> Add Education
+                                                    </Button>
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        )}
+                                    </SortableSectionWrapper>
+                                );
+                            }
+                            if (sectionId === 'projects') {
+                                const enabled = isSectionEnabled(resumeData, 'projects');
+                                return (
+                                    <SortableSectionWrapper key="projects" id="projects">
+                                        {(handleProps) => (
+                                            <AccordionItem value="projects" className={`border-b-0 px-4 py-1 ${!enabled ? 'opacity-65' : ''}`}>
+                                                {renderSectionHeaderRow('projects', 'Key Projects', handleProps)}
+                                                <AccordionContent className="space-y-4 pb-4">
+                                                    {!enabled && (
+                                                        <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-muted/50 border border-border text-xs text-muted-foreground">
+                                                            <span>Hidden from your resume preview.</span>
+                                                            <button type="button" onClick={() => handleToggleSection('projects')} className="font-semibold text-primary hover:underline whitespace-nowrap">Show Section</button>
+                                                        </div>
+                                                    )}
+                                                    {resumeData.projects.length === 0 && (
+                                                        <div className="p-4 rounded-xl border border-dashed border-border bg-muted/30 text-center space-y-2">
+                                                            <p className="text-xs text-muted-foreground">No projects added. If you don&apos;t have projects to list, you can hide this section.</p>
+                                                            {enabled && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleToggleSection('projects')}
+                                                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                                                                >
+                                                                    <EyeOff className="size-3.5" aria-hidden="true" />
+                                                                    Hide Projects from Resume
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                    <SortableDndList
+                                                        items={resumeData.projects.map((p) => p.id)}
+                                                        strategy="vertical"
+                                                        onReorder={(activeId, overId) => handleEntriesReorder('projects', activeId, overId)}
+                                                    >
+                                                        <div className="space-y-4">
+                                                            {resumeData.projects.map((proj, idx) => (
+                                                                <SortableEntryCard
+                                                                    key={proj.id}
+                                                                    id={proj.id}
+                                                                    title={proj.name || `Project #${idx + 1}`}
+                                                                    kindLabel="Project"
+                                                                    actions={
+                                                                        <>
+                                                                            <Button 
+                                                                                variant="ghost" 
+                                                                                size="icon" 
+                                                                                className="size-7" 
+                                                                                onClick={() => dispatch({ type: 'MOVE_ITEM_UP', field: 'projects', id: proj.id })}
+                                                                                disabled={idx === 0}
+                                                                                title="Move Up"
+                                                                                aria-label="Move Project Entry Up"
+                                                                            >
+                                                                                <ChevronUp className="size-4" aria-hidden="true" />
+                                                                            </Button>
+                                                                            <Button 
+                                                                                variant="ghost" 
+                                                                                size="icon" 
+                                                                                className="size-7" 
+                                                                                onClick={() => dispatch({ type: 'MOVE_ITEM_DOWN', field: 'projects', id: proj.id })}
+                                                                                disabled={idx === resumeData.projects.length - 1}
+                                                                                title="Move Down"
+                                                                                aria-label="Move Project Entry Down"
+                                                                            >
+                                                                                <ChevronDown className="size-4" aria-hidden="true" />
+                                                                            </Button>
+                                                                            <Button 
+                                                                                variant="ghost" 
+                                                                                size="icon" 
+                                                                                className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                                                                                onClick={() => handleDeleteItem('projects', proj.id)}
+                                                                                title="Delete Entry"
+                                                                                aria-label="Delete Project Entry"
+                                                                            >
+                                                                                <Trash2 className="size-4" aria-hidden="true" />
+                                                                            </Button>
+                                                                        </>
+                                                                    }
+                                                                >
+                                                                    <div className="space-y-3">
+                                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                            <FieldGroup label="Project Name">
+                                                                                <Input 
+                                                                                    value={proj.name} 
+                                                                                    onChange={e => handleItemChange('projects', proj.id, { name: e.target.value })} 
+                                                                                    placeholder="AI Portfolio Platform" 
+                                                                                    autoComplete="off" 
+                                                                                />
+                                                                            </FieldGroup>
+                                                                            <FieldGroup label="URL / Repository (Optional)">
+                                                                                <Input 
+                                                                                    value={proj.url || ''} 
+                                                                                    onChange={e => handleItemChange('projects', proj.id, { url: e.target.value })} 
+                                                                                    placeholder="github.com/alihashmi/project" 
+                                                                                    autoComplete="off" 
+                                                                                />
+                                                                            </FieldGroup>
+                                                                        </div>
+                                                                        <FieldGroup label="Description & Stack">
+                                                                            <Textarea 
+                                                                                value={proj.description} 
+                                                                                onChange={e => handleItemChange('projects', proj.id, { description: e.target.value })} 
+                                                                                rows={3} 
+                                                                                placeholder="Engineered high-performance real-time analytics app using React, TypeScript, and TailwindCSS…" 
+                                                                            />
+                                                                        </FieldGroup>
+                                                                    </div>
+                                                                </SortableEntryCard>
+                                                            ))}
+                                                        </div>
+                                                    </SortableDndList>
+                                                    <Button 
+                                                        variant="outline" 
+                                                        onClick={() => handleAddItem('projects')} 
+                                                        className="w-full flex items-center justify-center gap-2 border-dashed py-5 hover:bg-secondary/40 rounded-xl"
+                                                    >
+                                                        <Plus className="size-4" aria-hidden="true"/> Add Project
+                                                    </Button>
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        )}
+                                    </SortableSectionWrapper>
+                                );
+                            }
+                            return null;
+                        })}
+                    </div>
+                </SortableDndList>
             </Accordion>
         </div>
     );

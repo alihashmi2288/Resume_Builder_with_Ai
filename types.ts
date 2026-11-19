@@ -23,6 +23,8 @@ export interface Project {
   url?: string;
 }
 
+export type HeadingCase = 'uppercase' | 'titlecase' | 'lowercase';
+
 export interface ResumeData {
   name: string;
   email: string;
@@ -37,7 +39,9 @@ export interface ResumeData {
   fontSize?: 'small' | 'medium' | 'large';
   lineHeight?: 'compact' | 'normal' | 'relaxed';
   margins?: 'narrow' | 'normal' | 'wide';
+  headingCase?: HeadingCase;
   sectionOrder?: string[];
+  hiddenSections?: string[];
 }
 
 export type ThemeColor = 'slate' | 'indigo' | 'emerald' | 'blue' | 'rose' | 'amber';

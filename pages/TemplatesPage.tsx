@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Palette, Check } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Palette } from 'lucide-react';
 import { ResumePreview } from '../components/builder/ResumePreview';
 import { type ResumeData, type TemplateId, type ThemeColor } from '../types';
 import { Button } from '../components/ui/Button';
@@ -62,6 +62,7 @@ const CATEGORIES = [
 ] as const;
 
 const TemplatesPage: React.FC = () => {
+  const navigate = useNavigate();
   const [hoveredId, setHoveredId] = React.useState<string | null>(null);
   const [selectedColor, setSelectedColor] = React.useState<ThemeColor>('indigo');
   const [activeCategory, setActiveCategory] = React.useState<string>('all');
@@ -125,8 +126,8 @@ const TemplatesPage: React.FC = () => {
               onClick={() => setActiveCategory(cat.id)}
               className={`px-5 py-2 text-xs font-semibold rounded-full transition-all ${
                 activeCategory === cat.id
-                  ? 'bg-[#1c1c1e] text-white shadow-sm'
-                  : 'bg-[#f7f8fa] dark:bg-[#1f1f24] text-[#555a6a] dark:text-[#a5a8b5] border border-[#e0e2e8] dark:border-[#2c2c34] hover:bg-[#eef0f3]'
+                  ? 'bg-[#1c1c1e] dark:bg-[#ffd02f] text-white dark:text-[#1c1c1e] shadow-sm'
+                  : 'bg-[#f7f8fa] dark:bg-[#1f1f24] text-[#555a6a] dark:text-[#a5a8b5] border border-[#e0e2e8] dark:border-[#2c2c34] hover:bg-[#eef0f3] dark:hover:bg-[#2c2c34]'
               }`}
             >
               {cat.label}
@@ -139,10 +140,18 @@ const TemplatesPage: React.FC = () => {
       <div className="w-full max-w-[1280px] mx-auto px-6 pb-24">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredTemplates.map((template) => (
-            <Link
+            <div
               key={template.id}
-              to={`/builder?template=${template.id}`}
-              className="group flex flex-col relative text-left"
+              role="link"
+              tabIndex={0}
+              onClick={() => navigate(`/builder?template=${template.id}`)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate(`/builder?template=${template.id}`);
+                }
+              }}
+              className="group flex flex-col relative text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4262ff] rounded-2xl"
               onMouseEnter={() => setHoveredId(template.id)}
               onMouseLeave={() => setHoveredId(null)}
               aria-label={`Use ${template.name} template`}
@@ -192,7 +201,7 @@ const TemplatesPage: React.FC = () => {
                   Select <ArrowRight className="size-3.5" />
                 </span>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
 

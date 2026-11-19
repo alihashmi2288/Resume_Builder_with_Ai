@@ -1,40 +1,36 @@
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    const geminiApiKey = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY || env.VITE_GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || env.API_KEY || process.env.API_KEY || '';
-
-    return {
-      server: {
-        port: 3000,
-        host: '0.0.0.0',
-      },
-      plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(geminiApiKey),
-        'process.env.GEMINI_API_KEY': JSON.stringify(geminiApiKey),
-        'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(geminiApiKey),
-        'import.meta.env.GEMINI_API_KEY': JSON.stringify(geminiApiKey)
-      },
-      build: {
-        rollupOptions: {
-          output: {
-            manualChunks: {
-              'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-              'vendor-pdf': ['jspdf', 'html2canvas'],
-              'vendor-ai': ['@google/genai'],
-              'vendor-icons': ['lucide-react']
-            }
+export default defineConfig({
+  server: {
+    port: 3000,
+    host: '0.0.0.0',
+    allowedHosts: true,
+  },
+  plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router')) {
+            return 'vendor-react';
           }
-        },
-        chunkSizeWarningLimit: 600
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, '.'),
+          if (id.includes('node_modules/jspdf') || id.includes('node_modules/html2canvas')) {
+            return 'vendor-pdf';
+          }
+          if (id.includes('node_modules/lucide-react')) {
+            return 'vendor-icons';
+          }
         }
       }
-    };
+    },
+    chunkSizeWarningLimit: 600
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(import.meta.dirname, '.'),
+    }
+  }
 });

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Linkedin, Github, Instagram, Star, Award, Smartphone, Globe } from 'lucide-react';
+import { Star, Award, Globe } from 'lucide-react';
+import { LinkedinIcon, GithubIcon, InstagramIcon } from './SocialIcons';
 
 export const Footer: React.FC = () => {
   const year = new Date().getFullYear();
@@ -53,7 +54,7 @@ export const Footer: React.FC = () => {
               aria-label="LinkedIn"
               className="size-8 rounded-full bg-[#2c2c34] hover:bg-[#ffd02f] hover:text-[#1c1c1e] text-[#a5a8b5] flex items-center justify-center transition-colors"
             >
-              <Linkedin className="size-4" />
+              <LinkedinIcon className="size-4" />
             </a>
             <a
               href="https://www.github.com/alihashmi2288"
@@ -62,7 +63,7 @@ export const Footer: React.FC = () => {
               aria-label="GitHub"
               className="size-8 rounded-full bg-[#2c2c34] hover:bg-[#ffd02f] hover:text-[#1c1c1e] text-[#a5a8b5] flex items-center justify-center transition-colors"
             >
-              <Github className="size-4" />
+              <GithubIcon className="size-4" />
             </a>
             <a
               href="https://www.instagram.com/hashmi.ali_1/"
@@ -71,7 +72,7 @@ export const Footer: React.FC = () => {
               aria-label="Instagram"
               className="size-8 rounded-full bg-[#2c2c34] hover:bg-[#ffd02f] hover:text-[#1c1c1e] text-[#a5a8b5] flex items-center justify-center transition-colors"
             >
-              <Instagram className="size-4" />
+              <InstagramIcon className="size-4" />
             </a>
           </div>
         </div>
@@ -121,7 +122,7 @@ export const Footer: React.FC = () => {
             <Link to="/contact" className="text-[#a5a8b5] hover:text-white transition-colors">Contact Support</Link>
             <a href="https://github.com/alihashmi2288" target="_blank" rel="noopener noreferrer" className="text-[#a5a8b5] hover:text-white transition-colors">GitHub Repository</a>
             <span className="text-[#ffd02f] text-xs font-semibold inline-flex items-center gap-1.5 mt-1">
-              <span className="size-1.5 rounded-full bg-[#00b473]"></span> Gemini 2.5 API
+              Powered by AI Assistance
             </span>
           </nav>
         </div>
@@ -132,7 +133,7 @@ export const Footer: React.FC = () => {
       <div className="border-t border-[#2c2c34] bg-[#141416]">
         <div className="max-w-[1280px] mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#a5a8b5]">
           <div className="flex items-center gap-2">
-            <span>&copy; {year} AI Resume Architect. Built with Miro design system by</span>
+            <span>&copy; {year} AI Resume Architect. Built by</span>
             <a
               href="https://www.linkedin.com/in/alihashmi2288"
               target="_blank"

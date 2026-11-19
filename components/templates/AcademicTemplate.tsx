@@ -1,40 +1,50 @@
 import * as React from 'react';
 import type { ResumeData } from '../../types';
 import { getThemeClasses } from '../../lib/colors';
+import {
+    cleanBulletLine,
+    getHeadingCaseClass,
+    getVisibleContactItems,
+    normalizeSectionOrder,
+    shouldRenderSection,
+    type SectionId,
+} from '../../lib/resumeUtils';
 
-const SectionHeader: React.FC<{ children: React.ReactNode; theme: any }> = ({ children, theme }) => (
-    <h2 className={`text-base font-semibold tracking-wider border-b-2 ${theme.border} ${theme.text} pb-1 my-4`}>
+const SectionHeader: React.FC<{ children: React.ReactNode; theme: any; headingCaseClass: string }> = ({ children, theme, headingCaseClass }) => (
+    <h2 className={`text-base font-semibold ${headingCaseClass} tracking-wider border-b-2 ${theme.border} ${theme.text} pb-1 my-4`}>
         {children}
     </h2>
 );
 
 export const AcademicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     const theme = getThemeClasses(data.themeColor);
+    const headingCaseClass = getHeadingCaseClass(data.headingCase);
+    const contactItems = getVisibleContactItems(data);
 
-    const sectionMap: Record<string, () => React.ReactNode> = {
+    const sectionMap: Record<SectionId, () => React.ReactNode> = {
         summary: () => (
             <section>
-                <SectionHeader theme={theme}>Professional Summary</SectionHeader>
+                <SectionHeader theme={theme} headingCaseClass={headingCaseClass}>Professional Summary</SectionHeader>
                 <p className="text-xs leading-relaxed text-gray-800">{data.summary}</p>
             </section>
         ),
         skills: () => (
             <section>
-                <SectionHeader theme={theme}>Skills</SectionHeader>
+                <SectionHeader theme={theme} headingCaseClass={headingCaseClass}>Skills</SectionHeader>
                 <p className="text-xs leading-relaxed text-gray-800">{data.skills}</p>
             </section>
         ),
         experience: () => (
             <section>
-                <SectionHeader theme={theme}>Professional Experience</SectionHeader>
+                <SectionHeader theme={theme} headingCaseClass={headingCaseClass}>Professional Experience</SectionHeader>
                 {data.experience.map(exp => (
                     <div key={exp.id} className="mb-4">
                         <div className="flex justify-between items-baseline flex-wrap gap-2">
-                            <h3 className="text-sm font-semibold text-gray-900">{exp.title}, <span className="italic font-normal text-gray-700">{exp.company}</span></h3>
-                            <span className="text-xs text-gray-500">{exp.startDate} – {exp.endDate}</span>
+                            <h3 className="text-sm font-semibold text-gray-900">{exp.title}{exp.company ? <>, <span className="italic font-normal text-gray-700">{exp.company}</span></> : null}</h3>
+                            <span className="text-xs text-gray-500">{exp.startDate}{exp.startDate && exp.endDate ? ' – ' : ''}{exp.endDate}</span>
                         </div>
                         <ul className="list-disc list-outside ml-5 mt-1 text-xs text-gray-700 space-y-1">
-                            {exp.description.split('\n').map((line, i) => line && <li key={i}>{line.replace(/^- /, '')}</li>)}
+                            {exp.description.split('\n').map(cleanBulletLine).filter(Boolean).map((line, i) => <li key={i}>{line}</li>)}
                         </ul>
                     </div>
                 ))}
@@ -42,12 +52,12 @@ export const AcademicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
         ),
         education: () => (
             <section>
-                <SectionHeader theme={theme}>Education</SectionHeader>
+                <SectionHeader theme={theme} headingCaseClass={headingCaseClass}>Education</SectionHeader>
                 {data.education.map(edu => (
                     <div key={edu.id} className="mb-3">
                         <div className="flex justify-between items-baseline flex-wrap gap-2">
                             <h3 className="text-sm font-semibold text-gray-900">{edu.degree}</h3>
-                            <span className="text-xs text-gray-500">{edu.startDate} – {edu.endDate}</span>
+                            <span className="text-xs text-gray-500">{edu.startDate}{edu.startDate && edu.endDate ? ' – ' : ''}{edu.endDate}</span>
                         </div>
                         <p className="italic text-xs text-gray-700">{edu.university}</p>
                     </div>
@@ -56,7 +66,7 @@ export const AcademicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
         ),
         projects: () => (
             <section>
-                <SectionHeader theme={theme}>Selected Projects</SectionHeader>
+                <SectionHeader theme={theme} headingCaseClass={headingCaseClass}>Selected Projects</SectionHeader>
                 {data.projects.map(proj => (
                     <div key={proj.id} className="mb-3">
                         <div className="flex items-baseline flex-wrap gap-2">
@@ -70,20 +80,24 @@ export const AcademicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
         )
     };
 
-    const order = data.sectionOrder || ['summary', 'skills', 'experience', 'education', 'projects'];
+    const order = normalizeSectionOrder(data.sectionOrder);
 
     return (
         <div className="p-10 font-serif text-[11pt] leading-relaxed text-gray-900 h-full bg-white text-black animate-fade-in">
             <div className="font-lora">
                 <header className="text-center mb-6">
                     <h1 className="text-3xl font-bold">{data.name}</h1>
-                    <div className="text-sm mt-2 text-gray-600">
-                        {data.email} | {data.phone} | {data.website}
-                    </div>
+                    {contactItems.length > 0 && (
+                        <div className="text-sm mt-2 text-gray-600">
+                            {contactItems.join(' | ')}
+                        </div>
+                    )}
                 </header>
 
                 {order.map(sectionId => {
-                    const renderFn = sectionMap[sectionId];
+                    const typedId = sectionId as SectionId;
+                    if (!shouldRenderSection(data, typedId)) return null;
+                    const renderFn = sectionMap[typedId];
                     return renderFn ? <React.Fragment key={sectionId}>{renderFn()}</React.Fragment> : null;
                 })}
             </div>

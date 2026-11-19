@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
-import { Menu, X, Key, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from './Button';
-import { ApiKeyDialog } from '../ApiKeyDialog';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [isKeyDialogOpen, setIsKeyDialogOpen] = React.useState(false);
   const [showPromo, setShowPromo] = React.useState(true);
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -28,7 +26,7 @@ export const Header: React.FC = () => {
             NEW
           </span>
           <span className="truncate">
-            AI Workflows 2.0 is live — Generate ATS-optimized resumes with real-time scoring.
+            AI Assistance is live — Import your current resume & score ATS match in seconds.
           </span>
           <Link
             to="/builder"
@@ -85,17 +83,6 @@ export const Header: React.FC = () => {
 
           {/* Right-side Action CTAs */}
           <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => setIsKeyDialogOpen(true)}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#c7cad5] dark:border-[#3b3b45] text-xs font-medium text-[#1c1c1e] dark:text-white hover:bg-[#f7f8fa] dark:hover:bg-[#242428] transition-colors"
-              title="Configure Gemini API Key"
-              aria-label="API Key Settings"
-            >
-              <Key className="size-3.5 text-[#746019] dark:text-[#ffd02f]" aria-hidden="true" />
-              <span>API Key</span>
-            </button>
-
             {/* Miro Black Pill Primary CTA */}
             <Button
               asChild
@@ -117,8 +104,6 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        <ApiKeyDialog isOpen={isKeyDialogOpen} onClose={() => setIsKeyDialogOpen(false)} />
-
         {/* Mobile menu dropdown */}
         {isMenuOpen && (
           <div className="lg:hidden border-t border-[#e0e2e8] dark:border-[#2c2c34] bg-white dark:bg-[#141416] px-4 py-6 shadow-lg">
@@ -131,14 +116,6 @@ export const Header: React.FC = () => {
               <NavLink to="/contact" className={navLinkClass} onClick={closeMenu}>Contact</NavLink>
 
               <div className="pt-4 border-t border-[#e0e2e8] dark:border-[#2c2c34] flex flex-col gap-3">
-                <button
-                  type="button"
-                  onClick={() => { setIsKeyDialogOpen(true); closeMenu(); }}
-                  className="flex items-center justify-center gap-2 py-2.5 rounded-full border border-[#c7cad5] dark:border-[#3b3b45] text-sm font-medium"
-                >
-                  <Key className="size-4 text-[#ffd02f]" />
-                  <span>Configure Gemini API Key</span>
-                </button>
                 <Button asChild className="btn-miro-primary w-full py-3">
                   <Link to="/builder" onClick={closeMenu}>Get started free</Link>
                 </Button>

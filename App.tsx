@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { HashRouter, Routes, Route, NavLink } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AppContext, type Theme } from './context/AppContext';
 import HomePage from './pages/HomePage';
 import BuilderPage from './pages/BuilderPage';
@@ -11,6 +11,14 @@ import { Header } from './components/ui/Header';
 import { Footer } from './components/ui/Footer';
 
 import { ToastProvider } from './context/ToastContext';
+
+const ScrollToTop: React.FC = () => {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [pathname]);
+  return null;
+};
 
 function App() {
   const [theme, setTheme] = React.useState<Theme>(() => {
@@ -33,6 +41,7 @@ function App() {
     <AppContext.Provider value={contextValue}>
       <ToastProvider>
         <HashRouter>
+          <ScrollToTop />
           <div className="min-h-screen flex flex-col font-sans antialiased">
             <a
               href="#main-content"

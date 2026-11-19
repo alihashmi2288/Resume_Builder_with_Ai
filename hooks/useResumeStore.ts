@@ -1,5 +1,21 @@
-import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect, useCallback } from 'react';
 import { type ResumeData, type Experience, type Education, type Project } from '../types';
+import {
+  DEFAULT_SECTION_ORDER,
+  normalizeImportedResumeData,
+  normalizeSectionOrder,
+  reorderItemList,
+} from '../lib/resumeUtils';
+import {
+  applyRedo,
+  applyUndo,
+  EMPTY_DRAFT_HISTORY,
+  getHistoryGroupKey,
+  isSameResumeData,
+  recordHistoryChange,
+  type DraftHistory,
+  type HistoryActionMeta,
+} from '../lib/resumeHistory';
 
 export interface DraftProfile {
   id: string;
@@ -11,6 +27,7 @@ export interface DraftProfile {
 export interface ResumeStoreState {
   drafts: DraftProfile[];
   activeDraftId: string;
+  historyByDraft: Record<string, DraftHistory>;
 }
 
 const emptyResume: ResumeData = {
@@ -33,7 +50,9 @@ const emptyResume: ResumeData = {
   fontSize: 'medium',
   lineHeight: 'normal',
   margins: 'normal',
-  sectionOrder: ['personal', 'summary', 'skills', 'experience', 'education', 'projects']
+  headingCase: 'uppercase',
+  sectionOrder: [...DEFAULT_SECTION_ORDER],
+  hiddenSections: []
 };
 
 const demoResume: ResumeData = {
@@ -82,19 +101,26 @@ const demoResume: ResumeData = {
   fontSize: 'medium',
   lineHeight: 'normal',
   margins: 'normal',
-  sectionOrder: ['personal', 'summary', 'skills', 'experience', 'education', 'projects']
+  headingCase: 'uppercase',
+  sectionOrder: [...DEFAULT_SECTION_ORDER],
+  hiddenSections: []
 };
 
 export type Action =
   | { type: 'SET_FIELD'; field: keyof ResumeData; value: any }
+  | { type: 'TOGGLE_SECTION_VISIBILITY'; sectionId: string; visible?: boolean }
   | { type: 'ADD_ITEM'; field: 'experience' | 'education' | 'projects' }
   | { type: 'UPDATE_ITEM'; field: 'experience' | 'education' | 'projects'; id: string; data: Partial<Experience | Education | Project> }
   | { type: 'DELETE_ITEM'; field: 'experience' | 'education' | 'projects'; id: string }
   | { type: 'MOVE_ITEM_UP'; field: 'experience' | 'education' | 'projects'; id: string }
   | { type: 'MOVE_ITEM_DOWN'; field: 'experience' | 'education' | 'projects'; id: string }
+  | { type: 'REORDER_ITEMS'; field: 'experience' | 'education' | 'projects'; activeId: string; overId: string }
   | { type: 'LOAD_DRAFT'; data: ResumeData }
   | { type: 'LOAD_DEMO_DATA' }
   | { type: 'RESET_DATA' }
+  // Undo / Redo history actions
+  | { type: 'UNDO' }
+  | { type: 'REDO' }
   // Draft management actions
   | { type: 'SWITCH_DRAFT'; id: string }
   | { type: 'CREATE_DRAFT'; name: string; isDemo?: boolean }
@@ -106,9 +132,25 @@ const singleResumeReducer = (state: ResumeData, action: Action): ResumeData => {
   switch (action.type) {
     case 'SET_FIELD':
       return { ...state, [action.field]: action.value };
+    case 'TOGGLE_SECTION_VISIBILITY': {
+      const current = Array.isArray(state.hiddenSections) ? state.hiddenSections : [];
+      const isCurrentlyHidden = current.includes(action.sectionId);
+      const shouldBeVisible = action.visible !== undefined ? action.visible : isCurrentlyHidden;
+      const nextHidden = shouldBeVisible
+        ? current.filter((id) => id !== action.sectionId)
+        : isCurrentlyHidden
+          ? current
+          : [...current, action.sectionId];
+      return { ...state, hiddenSections: nextHidden };
+    }
     case 'ADD_ITEM': {
       const newItem = { id: crypto.randomUUID(), ...getNewItemDefaults(action.field) };
-      return { ...state, [action.field]: [...(state[action.field] || []), newItem] };
+      const currentHidden = Array.isArray(state.hiddenSections) ? state.hiddenSections : [];
+      return {
+        ...state,
+        [action.field]: [...(state[action.field] || []), newItem],
+        hiddenSections: currentHidden.filter((id) => id !== action.field),
+      };
     }
     case 'UPDATE_ITEM':
       return {
@@ -144,13 +186,28 @@ const singleResumeReducer = (state: ResumeData, action: Action): ResumeData => {
       }
       return { ...state, [field]: list as any };
     }
-    case 'LOAD_DRAFT':
-      // Backwards compatibility check
+    case 'REORDER_ITEMS':
+      return {
+        ...state,
+        [action.field]: reorderItemList(state[action.field] as any, action.activeId, action.overId) as any,
+      };
+    case 'LOAD_DRAFT': {
+      const normalized = normalizeImportedResumeData(
+        action.data as unknown as Record<string, unknown>,
+        () => crypto.randomUUID()
+      );
       return {
         ...emptyResume,
-        ...action.data,
-        sectionOrder: action.data.sectionOrder || emptyResume.sectionOrder
+        ...normalized,
+        themeColor: action.data.themeColor || state.themeColor || emptyResume.themeColor,
+        fontSize: action.data.fontSize || state.fontSize || emptyResume.fontSize,
+        lineHeight: action.data.lineHeight || state.lineHeight || emptyResume.lineHeight,
+        margins: action.data.margins || state.margins || emptyResume.margins,
+        headingCase: action.data.headingCase || state.headingCase || emptyResume.headingCase,
+        sectionOrder: normalizeSectionOrder(action.data.sectionOrder),
+        hiddenSections: Array.isArray(action.data.hiddenSections) ? action.data.hiddenSections : [],
       };
+    }
     case 'LOAD_DEMO_DATA':
       return demoResume;
     case 'RESET_DATA':
@@ -173,6 +230,40 @@ const storeReducer = (state: ResumeStoreState, action: Action): ResumeStoreState
   const activeData = activeDraft ? activeDraft.data : emptyResume;
 
   switch (action.type) {
+    case 'UNDO': {
+      const result = applyUndo(state.historyByDraft[state.activeDraftId], activeData);
+      if (!result) return state;
+      return {
+        ...state,
+        drafts: state.drafts.map(draft =>
+          draft.id === state.activeDraftId
+            ? { ...draft, data: result.data, updatedAt: new Date().toISOString() }
+            : draft
+        ),
+        historyByDraft: {
+          ...state.historyByDraft,
+          [state.activeDraftId]: result.history,
+        },
+      };
+    }
+
+    case 'REDO': {
+      const result = applyRedo(state.historyByDraft[state.activeDraftId], activeData);
+      if (!result) return state;
+      return {
+        ...state,
+        drafts: state.drafts.map(draft =>
+          draft.id === state.activeDraftId
+            ? { ...draft, data: result.data, updatedAt: new Date().toISOString() }
+            : draft
+        ),
+        historyByDraft: {
+          ...state.historyByDraft,
+          [state.activeDraftId]: result.history,
+        },
+      };
+    }
+
     case 'SWITCH_DRAFT':
       if (state.drafts.some(d => d.id === action.id)) {
         return { ...state, activeDraftId: action.id };
@@ -189,8 +280,13 @@ const storeReducer = (state: ResumeStoreState, action: Action): ResumeStoreState
         updatedAt: new Date().toISOString()
       };
       return {
+        ...state,
         drafts: [...state.drafts, newDraft],
-        activeDraftId: newId
+        activeDraftId: newId,
+        historyByDraft: {
+          ...state.historyByDraft,
+          [newId]: EMPTY_DRAFT_HISTORY,
+        },
       };
     }
 
@@ -205,8 +301,13 @@ const storeReducer = (state: ResumeStoreState, action: Action): ResumeStoreState
         updatedAt: new Date().toISOString()
       };
       return {
+        ...state,
         drafts: [...state.drafts, newDraft],
-        activeDraftId: newId
+        activeDraftId: newId,
+        historyByDraft: {
+          ...state.historyByDraft,
+          [newId]: EMPTY_DRAFT_HISTORY,
+        },
       };
     }
 
@@ -225,21 +326,38 @@ const storeReducer = (state: ResumeStoreState, action: Action): ResumeStoreState
       if (state.activeDraftId === action.id) {
         newActiveId = newDrafts[0].id;
       }
+      const nextHistory = { ...state.historyByDraft };
+      delete nextHistory[action.id];
       return {
         drafts: newDrafts,
-        activeDraftId: newActiveId
+        activeDraftId: newActiveId,
+        historyByDraft: nextHistory,
       };
     }
 
     default: {
       const updatedData = singleResumeReducer(activeData, action);
+      if (isSameResumeData(activeData, updatedData)) {
+        return state;
+      }
+      const groupKey = getHistoryGroupKey(action as HistoryActionMeta, activeData, updatedData);
+      const nextDraftHistory = recordHistoryChange(
+        state.historyByDraft[state.activeDraftId],
+        activeData,
+        updatedData,
+        groupKey
+      );
       return {
         ...state,
         drafts: state.drafts.map(draft =>
           draft.id === state.activeDraftId
             ? { ...draft, data: updatedData, updatedAt: new Date().toISOString() }
             : draft
-        )
+        ),
+        historyByDraft: {
+          ...state.historyByDraft,
+          [state.activeDraftId]: nextDraftHistory,
+        },
       };
     }
   }
@@ -252,7 +370,11 @@ export const useResumeStore = () => {
       if (storedDrafts) {
         const parsed = JSON.parse(storedDrafts);
         if (parsed && Array.isArray(parsed.drafts) && parsed.activeDraftId) {
-          return parsed;
+          return {
+            drafts: parsed.drafts,
+            activeDraftId: parsed.activeDraftId,
+            historyByDraft: {},
+          };
         }
       }
 
@@ -272,7 +394,8 @@ export const useResumeStore = () => {
               updatedAt: new Date().toISOString()
             }
           ],
-          activeDraftId: 'default'
+          activeDraftId: 'default',
+          historyByDraft: {},
         };
       }
 
@@ -285,7 +408,8 @@ export const useResumeStore = () => {
             updatedAt: new Date().toISOString()
           }
         ],
-        activeDraftId: 'default'
+        activeDraftId: 'default',
+        historyByDraft: {},
       };
     } catch (error) {
       console.error('Error initializing resume store', error);
@@ -298,7 +422,8 @@ export const useResumeStore = () => {
             updatedAt: new Date().toISOString()
           }
         ],
-        activeDraftId: 'default'
+        activeDraftId: 'default',
+        historyByDraft: {},
       };
     }
   };
@@ -307,19 +432,34 @@ export const useResumeStore = () => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('resume-drafts', JSON.stringify(state));
+      localStorage.setItem(
+        'resume-drafts',
+        JSON.stringify({ drafts: state.drafts, activeDraftId: state.activeDraftId })
+      );
     } catch (error) {
       console.error('Error saving resume drafts to localStorage', error);
     }
-  }, [state]);
+  }, [state.drafts, state.activeDraftId]);
 
   const activeDraft = state.drafts.find(d => d.id === state.activeDraftId) || state.drafts[0];
   const resumeData = activeDraft ? activeDraft.data : emptyResume;
+  const activeHistory = state.historyByDraft[state.activeDraftId] || EMPTY_DRAFT_HISTORY;
+
+  const canUndo = activeHistory.past.length > 0;
+  const canRedo = activeHistory.future.length > 0;
+  const undo = useCallback(() => dispatch({ type: 'UNDO' }), []);
+  const redo = useCallback(() => dispatch({ type: 'REDO' }), []);
 
   return {
     resumeData,
     drafts: state.drafts,
     activeDraftId: state.activeDraftId,
+    canUndo,
+    canRedo,
+    undoCount: activeHistory.past.length,
+    redoCount: activeHistory.future.length,
+    undo,
+    redo,
     dispatch
   };
 };

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Button } from '../components/ui/Button';
-import { Linkedin, Github, Instagram, Send, Loader2, CheckCircle, AlertCircle, Mail, MapPin } from 'lucide-react';
+import { Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { LinkedinIcon, GithubIcon, InstagramIcon } from '../components/ui/SocialIcons';
 
 const SocialRow: React.FC<{ href: string; icon: React.ReactNode; label: string; sub: string }> = ({ href, icon, label, sub }) => (
   <a
@@ -115,19 +116,19 @@ const ContactPage: React.FC = () => {
           <div className="space-y-4">
             <SocialRow
               href="https://www.linkedin.com/in/alihashmi2288"
-              icon={<Linkedin className="size-5" />}
+              icon={<LinkedinIcon className="size-5" />}
               label="LinkedIn"
               sub="Professional Profile"
             />
             <SocialRow
               href="https://www.github.com/alihashmi2288"
-              icon={<Github className="size-5" />}
+              icon={<GithubIcon className="size-5" />}
               label="GitHub"
               sub="Open Source Projects"
             />
             <SocialRow
               href="https://www.instagram.com/hashmi.ali_1/"
-              icon={<Instagram className="size-5" />}
+              icon={<InstagramIcon className="size-5" />}
               label="Instagram"
               sub="Personal Updates"
             />

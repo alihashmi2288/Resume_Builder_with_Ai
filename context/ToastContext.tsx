@@ -19,9 +19,19 @@ interface ConfirmOptions {
   destructive?: boolean;
 }
 
+interface PromptOptions {
+  title: string;
+  message?: string;
+  defaultValue?: string;
+  placeholder?: string;
+  confirmText?: string;
+  cancelText?: string;
+}
+
 interface ToastContextValue {
   showToast: (message: string, type?: ToastType, title?: string, duration?: number) => void;
   confirm: (options: ConfirmOptions) => Promise<boolean>;
+  promptInput: (options: PromptOptions) => Promise<string | null>;
 }
 
 const ToastContext = React.createContext<ToastContextValue | null>(null);
@@ -32,6 +42,12 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     isOpen: boolean;
     options: ConfirmOptions;
     resolve: (val: boolean) => void;
+  } | null>(null);
+  const [promptDialog, setPromptDialog] = React.useState<{
+    isOpen: boolean;
+    options: PromptOptions;
+    value: string;
+    resolve: (val: string | null) => void;
   } | null>(null);
 
   const showToast = React.useCallback(
@@ -67,10 +83,24 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   }, []);
 
+  const promptInput = React.useCallback((options: PromptOptions): Promise<string | null> => {
+    return new Promise((resolve) => {
+      setPromptDialog({
+        isOpen: true,
+        options,
+        value: options.defaultValue || '',
+        resolve: (result: string | null) => {
+          setPromptDialog(null);
+          resolve(result);
+        },
+      });
+    });
+  }, []);
+
   React.useEffect(() => {
     const handleRateLimit = () => {
       showToast(
-        "Default Gemini API rate limit reached. You can add your own free API key from the 'API Key' button in the header!",
+        "Gemini API rate limit reached. Please try again shortly or check your key quota in Settings > Secrets.",
         "warning",
         "Rate Limit Warning",
         7000
@@ -81,20 +111,20 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [showToast]);
 
   return (
-    <ToastContext.Provider value={{ showToast, confirm }}>
+    <ToastContext.Provider value={{ showToast, confirm, promptInput }}>
       {children}
 
-      {/* Floating Toasts Stack (Fixed bottom-right, modern accessible banner) */}
+      {/* Floating Toasts Stack */}
       <div
         aria-live="polite"
         className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"
       >
         {toasts.map((toast) => {
           const typeStyles = {
-            success: 'bg-emerald-950/90 border-emerald-500/30 text-emerald-200 shadow-emerald-950/40',
-            error: 'bg-rose-950/90 border-rose-500/30 text-rose-200 shadow-rose-950/40',
-            warning: 'bg-amber-950/90 border-amber-500/30 text-amber-200 shadow-amber-950/40',
-            info: 'bg-slate-900/90 border-primary/30 text-slate-200 shadow-black/40',
+            success: 'bg-white dark:bg-[#1c1c1e] border-emerald-500/40 text-[#1c1c1e] dark:text-white',
+            error: 'bg-white dark:bg-[#1c1c1e] border-rose-500/40 text-[#1c1c1e] dark:text-white',
+            warning: 'bg-white dark:bg-[#1c1c1e] border-amber-500/40 text-[#1c1c1e] dark:text-white',
+            info: 'bg-white dark:bg-[#1c1c1e] border-[#e0e2e8] dark:border-[#3b3b45] text-[#1c1c1e] dark:text-white',
           }[toast.type];
 
           const IconComponent = {
@@ -105,27 +135,27 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           }[toast.type];
 
           const iconColor = {
-            success: 'text-emerald-400',
-            error: 'text-rose-400',
-            warning: 'text-amber-400',
-            info: 'text-primary',
+            success: 'text-emerald-600 dark:text-emerald-400',
+            error: 'text-rose-600 dark:text-rose-400',
+            warning: 'text-amber-600 dark:text-amber-400',
+            info: 'text-[#4262ff]',
           }[toast.type];
 
           return (
             <div
               key={toast.id}
               role="alert"
-              className={`pointer-events-auto flex items-start gap-3 p-3.5 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-300 animate-slide-down ${typeStyles}`}
+              className={`pointer-events-auto flex items-start gap-3 p-3.5 rounded-xl border shadow-2xl transition-all duration-300 animate-slide-down ${typeStyles}`}
             >
               <IconComponent className={`size-5 mt-0.5 flex-shrink-0 ${iconColor}`} aria-hidden="true" />
               <div className="flex-1 min-w-0">
-                {toast.title && <h4 className="text-xs font-bold text-foreground mb-0.5">{toast.title}</h4>}
-                <p className="text-xs text-foreground/90 leading-relaxed break-words">{toast.message}</p>
+                {toast.title && <h4 className="text-xs font-bold mb-0.5">{toast.title}</h4>}
+                <p className="text-xs opacity-90 leading-relaxed break-words">{toast.message}</p>
               </div>
               <button
                 type="button"
                 onClick={() => removeToast(toast.id)}
-                className="text-foreground/50 hover:text-foreground p-1 rounded transition-colors"
+                className="opacity-60 hover:opacity-100 p-1 rounded transition-opacity cursor-pointer"
                 aria-label="Dismiss notification"
               >
                 <X className="size-3.5" aria-hidden="true" />
@@ -135,21 +165,21 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         })}
       </div>
 
-      {/* Modern Confirmation Modal */}
+      {/* Confirmation Modal */}
       {confirmDialog && confirmDialog.isOpen && (
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="confirm-modal-title"
-          className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
         >
-          <div className="w-full max-w-md p-6 bg-card border border-border/80 rounded-2xl shadow-2xl space-y-4 animate-scale-in">
+          <div className="w-full max-w-md p-6 bg-card text-card-foreground border border-border rounded-2xl shadow-2xl space-y-4 animate-scale-in">
             <div className="flex items-start gap-3">
               <div
                 className={`p-2.5 rounded-xl flex-shrink-0 ${
                   confirmDialog.options.destructive
                     ? 'bg-destructive/15 text-destructive'
-                    : 'bg-primary/15 text-primary'
+                    : 'bg-[#fff4c4] text-[#746019]'
                 }`}
               >
                 {confirmDialog.options.destructive ? (
@@ -172,23 +202,79 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               <button
                 type="button"
                 onClick={() => confirmDialog.resolve(false)}
-                className="px-4 py-2 text-xs font-semibold rounded-lg border border-border hover:bg-muted transition-colors text-foreground"
+                className="px-4 py-2 text-xs font-semibold rounded-full border border-border hover:bg-muted transition-colors text-foreground cursor-pointer"
               >
                 {confirmDialog.options.cancelText || 'Cancel'}
               </button>
               <button
                 type="button"
                 onClick={() => confirmDialog.resolve(true)}
-                className={`px-4 py-2 text-xs font-semibold rounded-lg shadow-sm transition-all ${
+                className={`px-4 py-2 text-xs font-semibold rounded-full shadow-sm transition-all cursor-pointer ${
                   confirmDialog.options.destructive
-                    ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
-                    : 'btn-primary-glow'
+                    ? 'bg-destructive text-destructive-foreground hover:opacity-90'
+                    : 'btn-miro-primary py-2 px-4 text-xs'
                 }`}
               >
                 {confirmDialog.options.confirmText || 'Confirm'}
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Prompt Input Modal */}
+      {promptDialog && promptDialog.isOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="prompt-modal-title"
+          className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              promptDialog.resolve(promptDialog.value.trim() || null);
+            }}
+            className="w-full max-w-md p-6 bg-card text-card-foreground border border-border rounded-2xl shadow-2xl space-y-4 animate-scale-in"
+          >
+            <div className="space-y-1">
+              <h3 id="prompt-modal-title" className="text-base font-bold text-foreground">
+                {promptDialog.options.title}
+              </h3>
+              {promptDialog.options.message && (
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {promptDialog.options.message}
+                </p>
+              )}
+            </div>
+
+            <input
+              type="text"
+              autoFocus
+              value={promptDialog.value}
+              onChange={(e) =>
+                setPromptDialog((prev) => (prev ? { ...prev, value: e.target.value } : prev))
+              }
+              placeholder={promptDialog.options.placeholder}
+              className="w-full h-11 px-4 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => promptDialog.resolve(null)}
+                className="px-4 py-2 text-xs font-semibold rounded-full border border-border hover:bg-muted transition-colors text-foreground cursor-pointer"
+              >
+                {promptDialog.options.cancelText || 'Cancel'}
+              </button>
+              <button
+                type="submit"
+                className="btn-miro-primary py-2 px-5 text-xs font-semibold"
+              >
+                {promptDialog.options.confirmText || 'Save'}
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </ToastContext.Provider>

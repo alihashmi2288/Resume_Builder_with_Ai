@@ -21,6 +21,7 @@ import {
   Maximize2
 } from 'lucide-react';
 import { ResumePreview } from '../components/builder/ResumePreview';
+import { CompanyCarousel } from '../components/home/CompanyCarousel';
 import type { ResumeData, TemplateId } from '../types';
 
 /* ─── Sample data for live template previews ─────────────────────────── */
@@ -86,16 +87,16 @@ const faqs = [
     a: 'Over 90% of Fortune 500 companies use Applicant Tracking Systems (ATS) like Workday, Greenhouse, and Taleo. Our templates are constructed with semantic hierarchy, clean single/two-column flows, and selectable vector typography so your achievements parse without error.'
   },
   {
-    q: 'How does the Gemini AI integration work?',
-    a: 'You can generate tailored executive summaries, refine existing bullet points into quantified impact statements, or match your resume to a job description. You can provide your own free Gemini API key in the header settings for completely unlimited, private generation.'
+    q: 'How does the AI Assistance integration work?',
+    a: 'AI Resume Architect connects securely on the server to AI Assistance. You can import an existing PDF/DOCX/image resume to auto-fill every field, generate tailored summaries, rewrite bullets with STAR metrics, or audit ATS keyword gaps with zero API key setup.'
   },
   {
-    q: 'Is my data secure and private?',
-    a: 'Yes, 100%. All your profile data, work history, and API keys remain stored locally in your browser (LocalStorage). Nothing is stored on an external database.'
+    q: 'Is my resume data secure and private?',
+    a: 'Yes. Your resume drafts and profile versions live locally in your browser (LocalStorage), and AI processing requests run directly through secure server-side AI Assistance endpoints without storing your personal documents in any third-party database.'
   },
   {
     q: 'Can I export clean, text-selectable PDF files?',
-    a: 'Absolutely. We use native jsPDF and clean vector generation so recruiters and automated screening software can copy, paste, and parse text directly.'
+    a: 'Absolutely. We support crisp ATS-friendly Print/Save PDFs as well as high-DPI visual PDF exports so recruiters and automated screening software can parse text and links reliably.'
   }
 ];
 
@@ -130,8 +131,8 @@ const HomePage: React.FC = () => {
         
         {/* Yellow Tag Chip per DESIGN.md (badge-tag-yellow) */}
         <div className="inline-flex items-center gap-2 bg-[#fff8e0] text-[#746019] text-[13px] font-semibold rounded-full px-4 py-1.5 mb-8 border border-[#fcb900]/40 shadow-sm">
-          <span className="size-2 rounded-full bg-[#ffd02f] animate-pulse" />
-          <span>AI Visual Workspace for Resumes • 9 ATS Templates • 100% Free</span>
+          <Sparkles className="size-3.5 text-[#746019]" aria-hidden="true" />
+          <span>AI Assistance · Smart Resume Import & 9 ATS Templates</span>
         </div>
 
         {/* 80px Hero Display per DESIGN.md (hero-display: 80px, 500, line-height 1.05, tracking -2px) */}
@@ -174,7 +175,7 @@ const HomePage: React.FC = () => {
                 </svg>
               </div>
               <span className="text-xs font-semibold text-[#1c1c1e] dark:text-white">
-                Syed Ali – Senior Software Engineer Resume.miro
+                Syed Ali – Senior Software Engineer Resume
               </span>
               <span className="hidden sm:inline-block text-[11px] bg-[#eef0f3] dark:bg-[#2c2c34] text-[#6b6f7e] dark:text-[#a5a8b5] px-2 py-0.5 rounded-full font-medium">
                 Auto-saved
@@ -185,12 +186,11 @@ const HomePage: React.FC = () => {
             <div className="flex items-center gap-2">
               <div className="flex -space-x-1.5 overflow-hidden items-center mr-2">
                 <span className="inline-flex size-6 items-center justify-center rounded-full bg-[#0fbcb0] text-[10px] font-bold text-white ring-2 ring-white dark:ring-[#1a1a1e]" title="Alex (Recruiter)">AL</span>
-                <span className="inline-flex size-6 items-center justify-center rounded-full bg-[#ffd02f] text-[10px] font-bold text-[#1c1c1e] ring-2 ring-white dark:ring-[#1a1a1e]" title="Gemini AI">AI</span>
+                <span className="inline-flex size-6 items-center justify-center rounded-full bg-[#ffd02f] text-[10px] font-bold text-[#1c1c1e] ring-2 ring-white dark:ring-[#1a1a1e]" title="AI Assistance">AI</span>
                 <span className="inline-flex size-6 items-center justify-center rounded-full bg-[#4262ff] text-[10px] font-bold text-white ring-2 ring-white dark:ring-[#1a1a1e]" title="You (Author)">ME</span>
               </div>
-              <span className="hidden md:inline-flex items-center text-xs font-medium text-[#00b473] bg-[#c3faf5]/40 px-2.5 py-1 rounded-full">
-                <span className="size-1.5 rounded-full bg-[#00b473] mr-1.5 animate-pulse" />
-                Live Whiteboard
+              <span className="hidden md:inline-flex items-center text-xs font-semibold text-[#187574] bg-[#c3faf5] px-2.5 py-1 rounded-full">
+                AI Assistance
               </span>
             </div>
           </div>
@@ -220,7 +220,7 @@ const HomePage: React.FC = () => {
             <div className="absolute top-6 left-8 md:left-20 z-10 w-[200px] p-4 rounded-xl bg-[#fff4c4] text-[#746019] shadow-md border border-[#ffd02f]/30 transform -rotate-2 hover:rotate-0 transition-transform">
               <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-1">
                 <Sparkles className="size-3.5 text-[#ffd02f] fill-[#ffd02f]" />
-                <span>Gemini Copilot</span>
+                <span>AI Assistance</span>
               </div>
               <p className="text-xs leading-snug">
                 "Quantify bullet points with metric percentages to boost ATS score +18%."
@@ -267,11 +267,11 @@ const HomePage: React.FC = () => {
               </span>
             </div>
 
-            {/* Live Cursor 2: Gemini AI */}
+            {/* Live Cursor 2: AI Assistance */}
             <div className="absolute bottom-[30%] left-[26%] z-30 pointer-events-none hidden sm:flex items-center gap-1">
               <MousePointer2 className="size-4 text-[#ffd02f] fill-[#ffd02f]" />
               <span className="bg-[#1c1c1e] text-[#ffd02f] text-[10px] font-semibold px-2 py-0.5 rounded-full shadow-sm">
-                Gemini 2.5
+                AI Assistance
               </span>
             </div>
 
@@ -348,21 +348,8 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Hiring Wall Wordmarks */}
-          <div className="pt-8 border-t border-[#e0e2e8] dark:border-[#2c2c34] text-center">
-            <p className="text-xs uppercase tracking-widest font-semibold text-[#8e91a0] mb-6">
-              Empowering candidates interviewing at leading companies worldwide
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-14 text-[#6b6f7e] dark:text-[#a5a8b5] font-semibold text-lg">
-              <span>Google</span>
-              <span>Microsoft</span>
-              <span>Amazon</span>
-              <span>Stripe</span>
-              <span>Airbnb</span>
-              <span>Spotify</span>
-              <span>Shopify</span>
-            </div>
-          </div>
+          {/* Interactive Running Hiring Wall Carousel */}
+          <CompanyCarousel />
 
         </div>
       </section>
@@ -391,15 +378,15 @@ const HomePage: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <span className="bg-[#1c1c1e] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  Gemini AI
+                  AI Assistance
                 </span>
                 <Bot className="size-6 text-[#1c1c1e]" />
               </div>
               <h3 className="font-heading-3 text-[#1c1c1e] mb-3">
-                AI Content Engine
+                Smart Import & AI Engine
               </h3>
               <p className="text-sm text-[#1c1c1e]/85 leading-relaxed">
-                Generate professional summaries, refine work experience into quantified metric bullets, and suggest role-matched skills with Google Gemini in one click.
+                Upload an existing PDF, DOCX, text, or image resume to auto-fill every field, refine bullets into STAR metrics, and generate tailored summaries with AI Assistance.
               </p>
             </div>
             <div className="pt-6">
@@ -535,8 +522,8 @@ const HomePage: React.FC = () => {
                   onClick={() => setSelectedFilter(f.id)}
                   className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
                     selectedFilter === f.id
-                      ? 'bg-[#1c1c1e] text-white'
-                      : 'bg-white dark:bg-[#1f1f24] text-[#555a6a] dark:text-[#a5a8b5] border border-[#e0e2e8] dark:border-[#2c2c34] hover:bg-[#f0f0f3]'
+                      ? 'bg-[#1c1c1e] dark:bg-[#ffd02f] text-white dark:text-[#1c1c1e]'
+                      : 'bg-white dark:bg-[#1f1f24] text-[#555a6a] dark:text-[#a5a8b5] border border-[#e0e2e8] dark:border-[#2c2c34] hover:bg-[#f0f0f3] dark:hover:bg-[#2c2c34]'
                   }`}
                 >
                   {f.label}
@@ -612,7 +599,7 @@ const HomePage: React.FC = () => {
           Transparent plans for every ambition.
         </h2>
         <p className="font-subtitle text-[#555a6a] dark:text-[#a5a8b5] max-w-xl mx-auto mb-10">
-          Core builder is 100% free with your own Gemini API key. No hidden paywalls to download your PDF.
+          Core workspace is 100% free with built-in AI Assistance and zero hidden paywalls to download your PDF.
         </p>
 
         {/* Monthly / Annual Toggle per DESIGN.md (toggle-monthly-yearly) */}
@@ -657,9 +644,9 @@ const HomePage: React.FC = () => {
               </div>
               <ul className="space-y-3 text-xs text-[#555a6a] dark:text-[#a5a8b5] mb-8">
                 <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> All 9 ATS templates</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Unlimited text PDF exports</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Own Gemini API key support</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> 100% Client-side privacy</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Smart PDF/DOCX Resume Import</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> AI Assistance</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Unlimited PDF exports</li>
               </ul>
             </div>
             <Button asChild variant="secondary" className="btn-miro-secondary w-full text-xs">
@@ -781,7 +768,7 @@ const HomePage: React.FC = () => {
                   <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
                 </tr>
                 <tr>
-                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">Use Personal Gemini API Key</td>
+                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">AI Assistance</td>
                   <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
                   <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
                   <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>

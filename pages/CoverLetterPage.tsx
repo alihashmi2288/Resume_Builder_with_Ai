@@ -87,13 +87,23 @@ const CoverLetterPage: React.FC = () => {
 
   const handlePrint = () => {
     if (!generatedLetter) return;
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      showToast('Pop-up blocked. Please allow pop-ups to print.', 'error');
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) {
+      document.body.removeChild(iframe);
+      showToast('Failed to prepare print preview.', 'error');
       return;
     }
 
-    printWindow.document.write(`
+    iframeDoc.write(`
       <!DOCTYPE html>
       <html>
         <head>
@@ -113,16 +123,20 @@ const CoverLetterPage: React.FC = () => {
         </head>
         <body>
           <div>${generatedLetter.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
-          <script>
-            window.onload = function() {
-              window.print();
-              setTimeout(() => window.close(), 500);
-            };
-          </script>
         </body>
       </html>
     `);
-    printWindow.document.close();
+    iframeDoc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe);
+        }
+      }, 1000);
+    }, 300);
   };
 
   const handleLoadSampleJD = () => {
@@ -148,13 +162,13 @@ const CoverLetterPage: React.FC = () => {
       {/* Header */}
       <div className="w-full text-center py-16 md:py-20 px-6 max-w-[1280px] mx-auto">
         <span className="bg-[#fff8e0] text-[#746019] text-[13px] font-semibold rounded-full px-4 py-1.5 mb-4 inline-block">
-          AI TAILORED LETTERS
+          AI ASSISTANCE
         </span>
         <h1 className="font-display-lg text-[#1c1c1e] dark:text-white mb-4 text-balance">
           Tailored Cover Letter Studio.
         </h1>
         <p className="font-subtitle text-[#555a6a] dark:text-[#a5a8b5] max-w-lg mx-auto">
-          Align your resume achievements directly with any job posting. The AI crafts a cohesive, role-specific letter ready to export.
+          Align your resume achievements directly with any job posting. AI Assistance crafts a cohesive, role-specific letter ready to export.
         </p>
       </div>
 
@@ -217,8 +231,8 @@ const CoverLetterPage: React.FC = () => {
                     onClick={() => setSelectedTone(t.id)}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
                       selectedTone === t.id
-                        ? 'bg-[#1c1c1e] text-white shadow-sm'
-                        : 'bg-white dark:bg-[#1f1f24] border border-[#e0e2e8] dark:border-[#2c2c34] text-[#555a6a] dark:text-[#a5a8b5] hover:bg-[#eef0f3]'
+                        ? 'bg-[#1c1c1e] dark:bg-[#ffd02f] text-white dark:text-[#1c1c1e] shadow-sm'
+                        : 'bg-white dark:bg-[#1f1f24] border border-[#e0e2e8] dark:border-[#2c2c34] text-[#555a6a] dark:text-[#a5a8b5] hover:bg-[#eef0f3] dark:hover:bg-[#2c2c34]'
                     }`}
                   >
                     {t.label}
@@ -286,7 +300,7 @@ const CoverLetterPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setIsEditing(!isEditing)}
-                      className="px-3 py-1.5 rounded-full border border-[#c7cad5] dark:border-[#3b3b45] text-xs font-medium hover:bg-[#f7f8fa] transition-colors"
+                      className="px-3 py-1.5 rounded-full border border-[#c7cad5] dark:border-[#3b3b45] text-xs font-medium hover:bg-[#f7f8fa] dark:hover:bg-[#2c2c34] transition-colors"
                     >
                       {isEditing ? 'Preview' : 'Edit'}
                     </button>
@@ -294,7 +308,7 @@ const CoverLetterPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleCopy}
-                      className="px-3 py-1.5 rounded-full border border-[#c7cad5] dark:border-[#3b3b45] text-xs font-medium hover:bg-[#f7f8fa] transition-colors"
+                      className="px-3 py-1.5 rounded-full border border-[#c7cad5] dark:border-[#3b3b45] text-xs font-medium hover:bg-[#f7f8fa] dark:hover:bg-[#2c2c34] transition-colors"
                     >
                       {isCopied ? 'Copied!' : 'Copy'}
                     </button>
@@ -302,7 +316,7 @@ const CoverLetterPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={handleDownloadTxt}
-                      className="px-3 py-1.5 rounded-full border border-[#c7cad5] dark:border-[#3b3b45] text-xs font-medium hover:bg-[#f7f8fa] transition-colors"
+                      className="px-3 py-1.5 rounded-full border border-[#c7cad5] dark:border-[#3b3b45] text-xs font-medium hover:bg-[#f7f8fa] dark:hover:bg-[#2c2c34] transition-colors"
                     >
                       TXT
                     </button>

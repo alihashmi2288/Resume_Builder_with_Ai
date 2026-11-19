@@ -126,7 +126,7 @@ export const downloadAsPdf = async (elementId: string, fileName: string = 'resum
     document.body.removeChild(sandboxContainer);
   } catch (error) {
     console.error("Error generating PDF:", error);
-    alert("An error occurred while generating your PDF. Please try again.");
+    throw error;
   } finally {
     // 8. Always remove loading overlay
     const overlayToRemove = document.getElementById('pdf-loading-overlay');
