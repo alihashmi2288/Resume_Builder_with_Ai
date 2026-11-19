@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { ResumePreview } from '../components/builder/ResumePreview';
 import { CompanyCarousel } from '../components/home/CompanyCarousel';
+import { StatStrip } from '../components/home/StatStrip';
+import { Reveal } from '../components/ui/Reveal';
 import type { ResumeData, TemplateId } from '../types';
 
 /* ─── Sample data for live template previews ─────────────────────────── */
@@ -102,16 +104,18 @@ const faqs = [
 
 const HomePage: React.FC = () => {
   const [activeTemplateIndex, setActiveTemplateIndex] = React.useState(0);
+  const [isWhiteboardHovered, setIsWhiteboardHovered] = React.useState(false);
   const [activeFaq, setActiveFaq] = React.useState<number | null>(0);
   const [selectedFilter, setSelectedFilter] = React.useState<string>('all');
 
-  // Rotate hero template preview every 3 seconds
+  // Rotate hero template preview every 3.2 seconds (paused on hover for readability)
   React.useEffect(() => {
+    if (isWhiteboardHovered) return;
     const timer = setInterval(() => {
       setActiveTemplateIndex((prev) => (prev + 1) % templates.length);
     }, 3200);
     return () => clearInterval(timer);
-  }, []);
+  }, [isWhiteboardHovered]);
 
   const filteredTemplates = React.useMemo(() => {
     if (selectedFilter === 'ats') return templates.filter(t => ['classic', 'minimalist', 'academic'].includes(t.id));
@@ -129,7 +133,8 @@ const HomePage: React.FC = () => {
       <section className="w-full pt-16 pb-20 md:pt-24 md:pb-28 px-4 sm:px-6 max-w-[1280px] mx-auto text-center flex flex-col items-center">
         
         {/* Yellow Tag Chip per DESIGN.md (badge-tag-yellow) */}
-        <div className="inline-flex items-center gap-2 bg-[#fff8e0] text-[#746019] text-[13px] font-semibold rounded-full px-4 py-1.5 mb-8 border border-[#fcb900]/40 shadow-sm">
+        <div className="inline-flex items-center gap-2 bg-[#fff8e0] text-[#746019] text-[13px] font-semibold rounded-full px-4 py-1.5 mb-8 border border-[#fcb900]/40 shadow-sm animate-fade-in">
+          <span className="size-2 rounded-full bg-[#00b473] animate-dot-live" aria-hidden="true" />
           <Sparkles className="size-3.5 text-[#746019]" aria-hidden="true" />
           <span>AI Assistance · Smart Resume Import & 9 ATS Templates</span>
         </div>
@@ -146,10 +151,10 @@ const HomePage: React.FC = () => {
 
         {/* Primary Black-Pill CTA + Secondary Outlined Pill per DESIGN.md */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-          <Button asChild size="lg" className="btn-miro-primary h-[50px] px-8 text-[15px]">
+          <Button asChild size="lg" className="group btn-miro-primary h-[50px] px-8 text-[15px]">
             <Link to="/builder">
               Get started free
-              <ArrowRight className="size-4 ml-1" />
+              <ArrowRight className="size-4 ml-1 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Link>
           </Button>
 
@@ -163,7 +168,11 @@ const HomePage: React.FC = () => {
         {/* ─────────────────────────────────────────────────────────────────── */}
         {/* WHITEBOARD MOCKUP (whiteboard-mockup per DESIGN.md)                */}
         {/* ─────────────────────────────────────────────────────────────────── */}
-        <div className="w-full max-w-[1180px] rounded-2xl border border-[#e0e2e8] dark:border-[#2c2c34] bg-[#ffffff] dark:bg-[#1a1a1e] shadow-[0_12px_32px_-4px_rgba(5,0,56,0.08)] overflow-hidden relative text-left">
+        <div
+          className="w-full max-w-[1180px] rounded-2xl border border-[#e0e2e8] dark:border-[#2c2c34] bg-[#ffffff] dark:bg-[#1a1a1e] shadow-[0_12px_32px_-4px_rgba(5,0,56,0.08)] overflow-hidden relative text-left"
+          onMouseEnter={() => setIsWhiteboardHovered(true)}
+          onMouseLeave={() => setIsWhiteboardHovered(false)}
+        >
           
           {/* Miro Board Top Application Bar */}
           <div className="h-12 border-b border-[#eef0f3] dark:border-[#2c2c34] bg-[#fafbfc] dark:bg-[#141416] px-4 flex items-center justify-between">
@@ -176,7 +185,8 @@ const HomePage: React.FC = () => {
               <span className="text-xs font-semibold text-[#1c1c1e] dark:text-white">
                 Syed Ali – Senior Software Engineer Resume
               </span>
-              <span className="hidden sm:inline-block text-[11px] bg-[#eef0f3] dark:bg-[#2c2c34] text-[#6b6f7e] dark:text-[#a5a8b5] px-2 py-0.5 rounded-full font-medium">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] bg-[#eef0f3] dark:bg-[#2c2c34] text-[#6b6f7e] dark:text-[#a5a8b5] px-2 py-0.5 rounded-full font-medium">
+                <span className="size-1.5 rounded-full bg-[#00b473] animate-dot-live" aria-hidden="true" />
                 Auto-saved
               </span>
             </div>
@@ -208,58 +218,66 @@ const HomePage: React.FC = () => {
 
             {/* Left Miro Tool Palette */}
             <div className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-2 p-1.5 bg-white dark:bg-[#1f1f24] border border-[#e0e2e8] dark:border-[#2c2c34] rounded-xl shadow-md z-20">
-              <button aria-label="Select tool" className="size-8 rounded-lg bg-[#f0f0f3] dark:bg-[#2c2c34] flex items-center justify-center text-[#1c1c1e] dark:text-white"><MousePointer2 className="size-4" /></button>
-              <button aria-label="Sticky note tool" className="size-8 rounded-lg hover:bg-[#f0f0f3] dark:hover:bg-[#2c2c34] flex items-center justify-center text-[#e11d48]"><div className="size-4 bg-[#ffd02f] rounded-sm" /></button>
-              <button aria-label="Text tool" className="size-8 rounded-lg hover:bg-[#f0f0f3] dark:hover:bg-[#2c2c34] flex items-center justify-center text-[#555a6a] dark:text-[#a5a8b5] font-serif font-bold text-sm">T</button>
-              <button aria-label="AI tool" className="size-8 rounded-lg hover:bg-[#f0f0f3] dark:hover:bg-[#2c2c34] flex items-center justify-center text-[#4262ff]"><Sparkles className="size-4" /></button>
-              <button aria-label="Layers" className="size-8 rounded-lg hover:bg-[#f0f0f3] dark:hover:bg-[#2c2c34] flex items-center justify-center text-[#555a6a] dark:text-[#a5a8b5]"><Layers className="size-4" /></button>
+              <button type="button" aria-label="Select tool" className="size-8 rounded-lg bg-[#f0f0f3] dark:bg-[#2c2c34] flex items-center justify-center text-[#1c1c1e] dark:text-white"><MousePointer2 className="size-4" /></button>
+              <button type="button" aria-label="Sticky note tool" className="size-8 rounded-lg hover:bg-[#f0f0f3] dark:hover:bg-[#2c2c34] flex items-center justify-center text-[#e11d48]"><div className="size-4 bg-[#ffd02f] rounded-sm" /></button>
+              <button type="button" aria-label="Text tool" className="size-8 rounded-lg hover:bg-[#f0f0f3] dark:hover:bg-[#2c2c34] flex items-center justify-center text-[#555a6a] dark:text-[#a5a8b5] font-serif font-bold text-sm">T</button>
+              <button type="button" aria-label="AI tool" className="size-8 rounded-lg hover:bg-[#f0f0f3] dark:hover:bg-[#2c2c34] flex items-center justify-center text-[#4262ff]"><Sparkles className="size-4" /></button>
+              <button type="button" aria-label="Layers" className="size-8 rounded-lg hover:bg-[#f0f0f3] dark:hover:bg-[#2c2c34] flex items-center justify-center text-[#555a6a] dark:text-[#a5a8b5]"><Layers className="size-4" /></button>
             </div>
 
             {/* Sticky Note 1 (Yellow #fff4c4 per DESIGN.md sticky note palette) */}
-            <div className="absolute top-6 left-8 md:left-20 z-10 w-[200px] p-4 rounded-xl bg-[#fff4c4] text-[#746019] shadow-md border border-[#ffd02f]/30 transform -rotate-2 hover:rotate-0 transition-transform">
-              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-1">
-                <Sparkles className="size-3.5 text-[#ffd02f] fill-[#ffd02f]" />
-                <span>AI Assistance</span>
+            <div className="absolute top-6 left-8 md:left-20 z-10 w-[200px] animate-float-gentle">
+              <div className="p-4 rounded-xl bg-[#fff4c4] text-[#746019] shadow-md hover:shadow-lg border border-[#ffd02f]/30 transform -rotate-2 hover:rotate-0 hover:scale-[1.03] transition-all duration-300">
+                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-1">
+                  <Sparkles className="size-3.5 text-[#ffd02f] fill-[#ffd02f]" />
+                  <span>AI Assistance</span>
+                </div>
+                <p className="text-xs leading-snug">
+                  "Quantify bullet points with metric percentages to boost ATS score +18%."
+                </p>
               </div>
-              <p className="text-xs leading-snug">
-                "Quantify bullet points with metric percentages to boost ATS score +18%."
-              </p>
             </div>
 
             {/* Sticky Note 2 (Teal #c3faf5 per DESIGN.md sticky note palette) */}
-            <div className="absolute bottom-8 left-6 md:left-24 z-10 w-[190px] p-4 rounded-xl bg-[#c3faf5] text-[#187574] shadow-md border border-[#0fbcb0]/30 transform rotate-2 hover:rotate-0 transition-transform">
-              <div className="text-xs font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
-                <SearchCheck className="size-3.5" />
-                <span>ATS Pass Score</span>
+            <div className="absolute bottom-8 left-6 md:left-24 z-10 w-[190px] animate-float-gentle-alt">
+              <div className="p-4 rounded-xl bg-[#c3faf5] text-[#187574] shadow-md hover:shadow-lg border border-[#0fbcb0]/30 transform rotate-2 hover:rotate-0 hover:scale-[1.03] transition-all duration-300">
+                <div className="text-xs font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <SearchCheck className="size-3.5" />
+                  <span>ATS Pass Score</span>
+                </div>
+                <p className="text-xl font-bold font-display tabular-nums">98 / 100</p>
+                <p className="text-[11px] opacity-80">Passed Workday &amp; Taleo</p>
               </div>
-              <p className="text-xl font-bold font-display">98 / 100</p>
-              <p className="text-[11px] opacity-80">Passed Workday & Taleo</p>
             </div>
 
             {/* Sticky Note 3 (Coral #ffc6c6 per DESIGN.md sticky note palette) */}
-            <div className="absolute top-8 right-6 md:right-16 z-10 w-[200px] p-4 rounded-xl bg-[#ffc6c6] text-[#600000] shadow-md border border-[#ff9999]/40 transform rotate-3 hover:rotate-0 transition-transform">
-              <div className="text-xs font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
-                <FileSignature className="size-3.5" />
-                <span>Cover Letter</span>
+            <div className="absolute top-8 right-6 md:right-16 z-10 w-[200px] animate-float-gentle-alt">
+              <div className="p-4 rounded-xl bg-[#ffc6c6] text-[#600000] shadow-md hover:shadow-lg border border-[#ff9999]/40 transform rotate-3 hover:rotate-0 hover:scale-[1.03] transition-all duration-300">
+                <div className="text-xs font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <FileSignature className="size-3.5" />
+                  <span>Cover Letter</span>
+                </div>
+                <p className="text-xs leading-snug">
+                  Tailored 1-click letter synced to Google SRE requirements.
+                </p>
               </div>
-              <p className="text-xs leading-snug">
-                Tailored 1-click letter synced to Google SRE requirements.
-              </p>
             </div>
 
             {/* Sticky Note 4 (Rose #fde0f0 per DESIGN.md sticky note palette) */}
-            <div className="absolute bottom-8 right-8 md:right-20 z-10 w-[190px] p-4 rounded-xl bg-[#fde0f0] text-[#1c1c1e] shadow-md border border-[#ffd8f4]/50 transform -rotate-1 hover:rotate-0 transition-transform">
-              <div className="text-xs font-bold uppercase tracking-wider mb-1 text-[#4262ff]">
-                Template Style
+            <div className="absolute bottom-8 right-8 md:right-20 z-10 w-[190px] animate-float-gentle">
+              <div className="p-4 rounded-xl bg-[#fde0f0] text-[#1c1c1e] shadow-md hover:shadow-lg border border-[#ffd8f4]/50 transform -rotate-1 hover:rotate-0 hover:scale-[1.03] transition-all duration-300">
+                <div className="text-xs font-bold uppercase tracking-wider mb-1 text-[#4262ff]">
+                  Template Style
+                </div>
+                <p className="text-xs font-semibold">
+                  Active: {templates[activeTemplateIndex].name}
+                </p>
+                <p className="text-[11px] text-[#555a6a]">9 Switchable Layouts</p>
               </div>
-              <p className="text-xs font-semibold">
-                Active: {templates[activeTemplateIndex].name}
-              </p>
-              <p className="text-[11px] text-[#555a6a]">9 Switchable Layouts</p>
             </div>
 
             {/* Live Cursor 1: Recruiter */}
-            <div className="absolute top-[35%] right-[22%] z-30 pointer-events-none hidden sm:flex items-center gap-1">
+            <div className="absolute top-[35%] right-[22%] z-30 pointer-events-none hidden sm:flex items-center gap-1 animate-cursor-a">
               <MousePointer2 className="size-4 text-[#0fbcb0] fill-[#0fbcb0]" />
               <span className="bg-[#0fbcb0] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow-sm">
                 Alex (Recruiter)
@@ -267,7 +285,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Live Cursor 2: AI Assistance */}
-            <div className="absolute bottom-[30%] left-[26%] z-30 pointer-events-none hidden sm:flex items-center gap-1">
+            <div className="absolute bottom-[30%] left-[26%] z-30 pointer-events-none hidden sm:flex items-center gap-1 animate-cursor-b">
               <MousePointer2 className="size-4 text-[#ffd02f] fill-[#ffd02f]" />
               <span className="bg-[#1c1c1e] text-[#ffd02f] text-[10px] font-semibold px-2 py-0.5 rounded-full shadow-sm">
                 AI Assistance
@@ -288,20 +306,41 @@ const HomePage: React.FC = () => {
                 <span className="text-[10px] text-[#00b473] font-semibold">Ready</span>
               </div>
 
-              <div className="relative overflow-hidden" style={{ height: '360px' }}>
-                <div className="scale-[0.44] sm:scale-[0.52] md:scale-[0.58] origin-top-left pointer-events-none" style={{ width: '200%', height: '200%' }}>
+              <div className="relative overflow-hidden bg-white" style={{ height: '360px' }}>
+                <div
+                  key={templates[activeTemplateIndex].id}
+                  className="scale-[0.44] sm:scale-[0.52] md:scale-[0.58] origin-top-left pointer-events-none animate-template-swap"
+                  style={{ width: '200%', height: '200%' }}
+                >
                   <ResumePreview data={sampleResumeData} template={templates[activeTemplateIndex].id} />
                 </div>
               </div>
 
               {/* Template Switcher Bar */}
-              <div className="bg-[#ffffff] border-t border-[#eef0f3] p-2.5 flex items-center justify-between text-xs">
-                <span className="font-semibold text-[#1c1c1e]">
+              <div className="bg-[#ffffff] border-t border-[#eef0f3] p-2.5 flex items-center justify-between gap-2 text-xs">
+                <span className="font-semibold text-[#1c1c1e] shrink-0">
                   Template: <span className="text-[#4262ff]">{templates[activeTemplateIndex].name}</span>
                 </span>
+                <div className="hidden sm:flex items-center gap-1" role="tablist" aria-label="Switch preview template">
+                  {templates.map((t, idx) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setActiveTemplateIndex(idx)}
+                      aria-label={`Preview ${t.name} template`}
+                      aria-selected={idx === activeTemplateIndex}
+                      role="tab"
+                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                        idx === activeTemplateIndex
+                          ? 'w-4 bg-[#4262ff]'
+                          : 'w-1.5 bg-[#c7cad5] hover:bg-[#8e91a0]'
+                      }`}
+                    />
+                  ))}
+                </div>
                 <Link
                   to={`/builder?template=${templates[activeTemplateIndex].id}`}
-                  className="bg-[#1c1c1e] hover:bg-[#2c2c34] text-white px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1"
+                  className="bg-[#1c1c1e] hover:bg-[#2c2c34] text-white px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 shrink-0 transition-colors"
                 >
                   Customize <ArrowRight className="size-3" />
                 </Link>
@@ -319,33 +358,8 @@ const HomePage: React.FC = () => {
       <section className="w-full py-16 border-y border-[#e0e2e8] dark:border-[#2c2c34] bg-[#f7f8fa] dark:bg-[#16161a]">
         <div className="max-w-[1280px] mx-auto px-6">
           
-          {/* Stat Row per DESIGN.md (stat-display: 64px, 500, -1.5px tracking) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center mb-12">
-            <div>
-              <p className="font-stat-display text-[#1c1c1e] dark:text-white tabular-nums">9</p>
-              <p className="text-sm font-medium text-[#555a6a] dark:text-[#a5a8b5] mt-1">
-                ATS-Optimized Templates
-              </p>
-            </div>
-            <div>
-              <p className="font-stat-display text-[#1c1c1e] dark:text-white tabular-nums">98%</p>
-              <p className="text-sm font-medium text-[#555a6a] dark:text-[#a5a8b5] mt-1">
-                ATS Scanner Pass Rate
-              </p>
-            </div>
-            <div>
-              <p className="font-stat-display text-[#1c1c1e] dark:text-white tabular-nums">100%</p>
-              <p className="text-sm font-medium text-[#555a6a] dark:text-[#a5a8b5] mt-1">
-                Private & Client-Side
-              </p>
-            </div>
-            <div>
-              <p className="font-stat-display text-[#1c1c1e] dark:text-white tabular-nums">0s</p>
-              <p className="text-sm font-medium text-[#555a6a] dark:text-[#a5a8b5] mt-1">
-                No Signup Required
-              </p>
-            </div>
-          </div>
+          {/* Interactive Animated Stat Strip (0 → 98% ATS Scanner Pass Rate + siblings) */}
+          <StatStrip />
 
           {/* Interactive Running Hiring Wall Carousel */}
           <CompanyCarousel />
@@ -373,122 +387,132 @@ const HomePage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           
           {/* Tile 1: Yellow Feature Card ({card-feature-yellow}) */}
-          <div className="card-feature-yellow flex flex-col justify-between min-h-[340px] relative overflow-hidden group">
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <span className="bg-[#1c1c1e] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  AI Assistance
-                </span>
-                <Bot className="size-6 text-[#1c1c1e]" />
+          <Reveal delayMs={0}>
+            <div className="card-feature-yellow flex flex-col justify-between min-h-[340px] h-full relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <span className="bg-[#1c1c1e] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    AI Assistance
+                  </span>
+                  <Bot className="size-6 text-[#1c1c1e] transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6" />
+                </div>
+                <h3 className="font-heading-3 text-[#1c1c1e] mb-3">
+                  Smart Import & AI Engine
+                </h3>
+                <p className="text-sm text-[#1c1c1e]/85 leading-relaxed">
+                  Upload an existing PDF, DOCX, text, or image resume to auto-fill every field, refine bullets into STAR metrics, and generate tailored summaries with AI Assistance.
+                </p>
               </div>
-              <h3 className="font-heading-3 text-[#1c1c1e] mb-3">
-                Smart Import & AI Engine
-              </h3>
-              <p className="text-sm text-[#1c1c1e]/85 leading-relaxed">
-                Upload an existing PDF, DOCX, text, or image resume to auto-fill every field, refine bullets into STAR metrics, and generate tailored summaries with AI Assistance.
-              </p>
+              <div className="pt-6">
+                <Link to="/builder" className="text-sm font-bold text-[#1c1c1e] inline-flex items-center gap-1.5 hover:underline">
+                  Try AI Builder <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                </Link>
+              </div>
             </div>
-            <div className="pt-6">
-              <Link to="/builder" className="text-sm font-bold text-[#1c1c1e] inline-flex items-center gap-1.5 hover:underline">
-                Try AI Builder <ArrowRight className="size-4" />
-              </Link>
-            </div>
-          </div>
+          </Reveal>
 
           {/* Tile 2: Teal Feature Card ({card-feature-teal}) */}
-          <div className="card-feature-teal flex flex-col justify-between min-h-[340px] relative overflow-hidden group">
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <span className="bg-[#0fbcb0] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  ATS Verified
-                </span>
-                <SearchCheck className="size-6 text-[#187574]" />
+          <Reveal delayMs={70}>
+            <div className="card-feature-teal flex flex-col justify-between min-h-[340px] h-full relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <span className="bg-[#0fbcb0] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    ATS Verified
+                  </span>
+                  <SearchCheck className="size-6 text-[#187574] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6" />
+                </div>
+                <h3 className="font-heading-3 text-[#187574] mb-3">
+                  Live ATS Score & Audit
+                </h3>
+                <p className="text-sm text-[#187574]/90 leading-relaxed">
+                  Instant parsing audit tests your resume against real ATS scanner rules. Get immediate feedback on keywords, contact info completeness, and formatting traps.
+                </p>
               </div>
-              <h3 className="font-heading-3 text-[#187574] mb-3">
-                Live ATS Score & Audit
-              </h3>
-              <p className="text-sm text-[#187574]/90 leading-relaxed">
-                Instant parsing audit tests your resume against real ATS scanner rules. Get immediate feedback on keywords, contact info completeness, and formatting traps.
-              </p>
+              <div className="pt-6">
+                <Link to="/builder?tab=audit" className="text-sm font-bold text-[#187574] inline-flex items-center gap-1.5 hover:underline">
+                  Audit Your Resume <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                </Link>
+              </div>
             </div>
-            <div className="pt-6">
-              <Link to="/builder?tab=audit" className="text-sm font-bold text-[#187574] inline-flex items-center gap-1.5 hover:underline">
-                Audit Your Resume <ArrowRight className="size-4" />
-              </Link>
-            </div>
-          </div>
+          </Reveal>
 
           {/* Tile 3: Coral Feature Card ({card-feature-coral}) */}
-          <div className="card-feature-coral flex flex-col justify-between min-h-[340px] relative overflow-hidden group">
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <span className="bg-[#ff9999] text-[#600000] text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  Tailored Letters
-                </span>
-                <FileSignature className="size-6 text-[#600000]" />
+          <Reveal delayMs={140}>
+            <div className="card-feature-coral flex flex-col justify-between min-h-[340px] h-full relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <span className="bg-[#ff9999] text-[#600000] text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    Tailored Letters
+                  </span>
+                  <FileSignature className="size-6 text-[#600000] transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6" />
+                </div>
+                <h3 className="font-heading-3 text-[#600000] mb-3">
+                  Cover Letter Generator
+                </h3>
+                <p className="text-sm text-[#600000]/85 leading-relaxed">
+                  Generate high-impact, personalized cover letters tailored to your target job description and your resume experience without generic corporate clichés.
+                </p>
               </div>
-              <h3 className="font-heading-3 text-[#600000] mb-3">
-                Cover Letter Generator
-              </h3>
-              <p className="text-sm text-[#600000]/85 leading-relaxed">
-                Generate high-impact, personalized cover letters tailored to your target job description and your resume experience without generic corporate clichés.
-              </p>
+              <div className="pt-6">
+                <Link to="/cover-letter" className="text-sm font-bold text-[#600000] inline-flex items-center gap-1.5 hover:underline">
+                  Write Cover Letter <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                </Link>
+              </div>
             </div>
-            <div className="pt-6">
-              <Link to="/cover-letter" className="text-sm font-bold text-[#600000] inline-flex items-center gap-1.5 hover:underline">
-                Write Cover Letter <ArrowRight className="size-4" />
-              </Link>
-            </div>
-          </div>
+          </Reveal>
 
           {/* Tile 4: Rose Feature Card ({card-feature-rose}) */}
-          <div className="card-feature-rose flex flex-col justify-between min-h-[340px] relative overflow-hidden group">
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <span className="bg-[#1c1c1e] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  9 Layouts
-                </span>
-                <Palette className="size-6 text-[#1c1c1e]" />
+          <Reveal delayMs={60}>
+            <div className="card-feature-rose flex flex-col justify-between min-h-[340px] h-full relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <span className="bg-[#1c1c1e] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    9 Layouts
+                  </span>
+                  <Palette className="size-6 text-[#1c1c1e] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6" />
+                </div>
+                <h3 className="font-heading-3 text-[#1c1c1e] mb-3">
+                  9 Premium Templates
+                </h3>
+                <p className="text-sm text-[#1c1c1e]/85 leading-relaxed">
+                  From executive single-column classics to modern engineering designs. Customize accent colors, margins, and typography live without losing data.
+                </p>
               </div>
-              <h3 className="font-heading-3 text-[#1c1c1e] mb-3">
-                9 Premium Templates
-              </h3>
-              <p className="text-sm text-[#1c1c1e]/85 leading-relaxed">
-                From executive single-column classics to modern engineering designs. Customize accent colors, margins, and typography live without losing data.
-              </p>
+              <div className="pt-6">
+                <Link to="/templates" className="text-sm font-bold text-[#1c1c1e] inline-flex items-center gap-1.5 hover:underline">
+                  Browse Templates <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                </Link>
+              </div>
             </div>
-            <div className="pt-6">
-              <Link to="/templates" className="text-sm font-bold text-[#1c1c1e] inline-flex items-center gap-1.5 hover:underline">
-                Browse Templates <ArrowRight className="size-4" />
-              </Link>
-            </div>
-          </div>
+          </Reveal>
 
           {/* Tile 5: White Base Card ({card-feature} with border) */}
-          <div className="card-feature lg:col-span-2 flex flex-col justify-between min-h-[340px] relative overflow-hidden group bg-white dark:bg-[#1a1a1e] border border-[#e0e2e8] dark:border-[#2c2c34]">
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <span className="bg-[#4262ff] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  Text-Selectable Vector
-                </span>
-                <Download className="size-6 text-[#4262ff]" />
+          <Reveal delayMs={130} className="lg:col-span-2">
+            <div className="card-feature flex flex-col justify-between min-h-[340px] h-full relative overflow-hidden group bg-white dark:bg-[#1a1a1e] border border-[#e0e2e8] dark:border-[#2c2c34] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <span className="bg-[#4262ff] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    Text-Selectable Vector
+                  </span>
+                  <Download className="size-6 text-[#4262ff] transition-transform duration-300 group-hover:scale-110 group-hover:translate-y-0.5" />
+                </div>
+                <h3 className="font-heading-3 text-[#1c1c1e] dark:text-white mb-3">
+                  Pixel-Perfect Vector PDF Export
+                </h3>
+                <p className="text-sm text-[#555a6a] dark:text-[#a5a8b5] leading-relaxed max-w-xl">
+                  We generate real vector PDFs with live selectable text—never low-res canvas screenshots. Your resume renders crisp at 300 DPI on any display and parses flawlessly in applicant software.
+                </p>
               </div>
-              <h3 className="font-heading-3 text-[#1c1c1e] dark:text-white mb-3">
-                Pixel-Perfect Vector PDF Export
-              </h3>
-              <p className="text-sm text-[#555a6a] dark:text-[#a5a8b5] leading-relaxed max-w-xl">
-                We generate real vector PDFs with live selectable text—never low-res canvas screenshots. Your resume renders crisp at 300 DPI on any display and parses flawlessly in applicant software.
-              </p>
+              <div className="pt-6 flex items-center justify-between border-t border-[#eef0f3] dark:border-[#2c2c34] mt-6">
+                <span className="text-xs text-[#8e91a0]">
+                  Works with Workday, Greenhouse, Taleo, iCIMS, Lever
+                </span>
+                <Link to="/builder" className="text-sm font-bold text-[#4262ff] inline-flex items-center gap-1.5 hover:underline">
+                  Build Now <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                </Link>
+              </div>
             </div>
-            <div className="pt-6 flex items-center justify-between border-t border-[#eef0f3] dark:border-[#2c2c34] mt-6">
-              <span className="text-xs text-[#8e91a0]">
-                Works with Workday, Greenhouse, Taleo, iCIMS, Lever
-              </span>
-              <Link to="/builder" className="text-sm font-bold text-[#4262ff] inline-flex items-center gap-1.5 hover:underline">
-                Build Now <ArrowRight className="size-4" />
-              </Link>
-            </div>
-          </div>
+          </Reveal>
 
         </div>
       </section>
@@ -533,46 +557,47 @@ const HomePage: React.FC = () => {
 
           {/* Template Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTemplates.slice(0, 6).map((tmpl) => (
-              <div
-                key={tmpl.id}
-                className="group bg-white dark:bg-[#1c1c1e] border border-[#e0e2e8] dark:border-[#2c2c34] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
-              >
-                {/* Header Strip */}
-                <div className="px-4 py-3 border-b border-[#eef0f3] dark:border-[#2c2c34] flex items-center justify-between text-xs">
-                  <span className="font-semibold text-[#1c1c1e] dark:text-white">{tmpl.name}</span>
-                  <span className="bg-[#fff8e0] text-[#746019] text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    {tmpl.tag}
-                  </span>
-                </div>
-
-                {/* Scaled Preview */}
-                <div className="relative overflow-hidden bg-white" style={{ height: '320px' }}>
-                  <div className="scale-[0.38] origin-top-left pointer-events-none" style={{ width: '263%', height: '263%' }}>
-                    <ResumePreview data={sampleResumeData} template={tmpl.id} />
+            {filteredTemplates.slice(0, 6).map((tmpl, idx) => (
+              <Reveal key={tmpl.id} delayMs={Math.min(idx * 60, 300)}>
+                <div
+                  className="group bg-white dark:bg-[#1c1c1e] border border-[#e0e2e8] dark:border-[#2c2c34] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                >
+                  {/* Header Strip */}
+                  <div className="px-4 py-3 border-b border-[#eef0f3] dark:border-[#2c2c34] flex items-center justify-between text-xs">
+                    <span className="font-semibold text-[#1c1c1e] dark:text-white">{tmpl.name}</span>
+                    <span className="bg-[#fff8e0] text-[#746019] text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      {tmpl.tag}
+                    </span>
                   </div>
 
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-[#1c1c1e]/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+                  {/* Scaled Preview */}
+                  <div className="relative overflow-hidden bg-white" style={{ height: '320px' }}>
+                    <div className="scale-[0.38] origin-top-left pointer-events-none transition-transform duration-500 ease-out group-hover:scale-[0.395]" style={{ width: '263%', height: '263%' }}>
+                      <ResumePreview data={sampleResumeData} template={tmpl.id} />
+                    </div>
+
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-[#1c1c1e]/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center p-4">
+                      <Link
+                        to={`/builder?template=${tmpl.id}`}
+                        className="btn-miro-primary text-xs shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-200"
+                      >
+                        Use this template
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div className="p-4 border-t border-[#eef0f3] dark:border-[#2c2c34] flex items-center justify-between text-xs">
+                    <span className="text-[#8e91a0]">100% ATS Ready</span>
                     <Link
                       to={`/builder?template=${tmpl.id}`}
-                      className="btn-miro-primary text-xs shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform"
+                      className="text-[#4262ff] font-semibold hover:underline inline-flex items-center gap-1"
                     >
-                      Use this template
+                      Select <ArrowRight className="size-3 transition-transform duration-200 group-hover:translate-x-0.5" />
                     </Link>
                   </div>
                 </div>
-
-                <div className="p-4 border-t border-[#eef0f3] dark:border-[#2c2c34] flex items-center justify-between text-xs">
-                  <span className="text-[#8e91a0]">100% ATS Ready</span>
-                  <Link
-                    to={`/builder?template=${tmpl.id}`}
-                    className="text-[#4262ff] font-semibold hover:underline inline-flex items-center gap-1"
-                  >
-                    Select <ArrowRight className="size-3" />
-                  </Link>
-                </div>
-              </div>
+              </Reveal>
             ))}
           </div>
 
@@ -605,84 +630,90 @@ const HomePage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left mb-16 max-w-5xl mx-auto">
 
           {/* Card 1: Core Workspace (Always Free) */}
-          <div className="pricing-card flex flex-col justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[#8e91a0] mb-2">Core Workspace</p>
-              <h3 className="text-xl font-bold text-[#1c1c1e] dark:text-white mb-2">Builder &amp; Templates</h3>
-              <p className="text-xs text-[#6b6f7e] dark:text-[#a5a8b5] mb-6">
-                Everything you need to craft, reorder, and export an ATS-ready resume with zero limits.
-              </p>
-              <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-4xl font-bold text-[#1c1c1e] dark:text-white">Free</span>
-                <span className="text-xs text-[#8e91a0]">always available</span>
+          <Reveal delayMs={0}>
+            <div className="pricing-card flex flex-col justify-between h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-[#8e91a0] mb-2">Core Workspace</p>
+                <h3 className="text-xl font-bold text-[#1c1c1e] dark:text-white mb-2">Builder &amp; Templates</h3>
+                <p className="text-xs text-[#6b6f7e] dark:text-[#a5a8b5] mb-6">
+                  Everything you need to craft, reorder, and export an ATS-ready resume with zero limits.
+                </p>
+                <div className="flex items-baseline gap-2 mb-6">
+                  <span className="text-4xl font-bold text-[#1c1c1e] dark:text-white">Free</span>
+                  <span className="text-xs text-[#8e91a0]">always available</span>
+                </div>
+                <ul className="space-y-3 text-xs text-[#555a6a] dark:text-[#a5a8b5] mb-8">
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> All 9 ATS-optimized templates</li>
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Drag &amp; drop sections + Undo / Redo</li>
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Live ATS score &amp; keyword audit</li>
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Unlimited text-selectable PDF exports</li>
+                </ul>
               </div>
-              <ul className="space-y-3 text-xs text-[#555a6a] dark:text-[#a5a8b5] mb-8">
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> All 9 ATS-optimized templates</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Drag &amp; drop sections + Undo / Redo</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Live ATS score &amp; keyword audit</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Unlimited text-selectable PDF exports</li>
-              </ul>
+              <Button asChild variant="secondary" className="btn-miro-secondary w-full text-xs">
+                <Link to="/builder">Open Resume Builder</Link>
+              </Button>
             </div>
-            <Button asChild variant="secondary" className="btn-miro-secondary w-full text-xs">
-              <Link to="/builder">Open Resume Builder</Link>
-            </Button>
-          </div>
+          </Reveal>
 
           {/* Card 2: AI Assistance (Featured, Free Quota) */}
-          <div className="pricing-card-featured flex flex-col justify-between shadow-lg">
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-              <span className="bg-[#4262ff] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm whitespace-nowrap">
-                Free AI Quota
-              </span>
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[#4262ff] mb-2">Smart AI Tools</p>
-              <h3 className="text-xl font-bold text-[#1c1c1e] dark:text-white mb-2">AI Assistance</h3>
-              <p className="text-xs text-[#555a6a] dark:text-[#a5a8b5] mb-6">
-                Included completely free with zero API key setup while the shared free AI quota is available.
-              </p>
-              <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-4xl font-bold text-[#1c1c1e] dark:text-white">Free</span>
-                <span className="text-xs text-[#6b6f7e] dark:text-[#a5a8b5]">until quota is reached</span>
+          <Reveal delayMs={80}>
+            <div className="pricing-card-featured flex flex-col justify-between h-full shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                <span className="bg-[#4262ff] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm whitespace-nowrap">
+                  Free AI Quota
+                </span>
               </div>
-              <ul className="space-y-3 text-xs text-[#1c1c1e] dark:text-white mb-6">
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> Smart PDF / DOCX / text resume import</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> One-click summary &amp; draft generator</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> STAR metric bullet refinement</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> Job-matched cover letter studio</li>
-              </ul>
-              <p className="text-[11px] leading-relaxed text-[#555a6a] dark:text-[#a5a8b5] bg-white/70 dark:bg-[#141416]/60 border border-[#4262ff]/20 rounded-xl p-3 mb-6">
-                If the shared free quota runs out, AI actions may temporarily pause—your manual builder, templates, and PDF downloads keep working normally.
-              </p>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-[#4262ff] mb-2">Smart AI Tools</p>
+                <h3 className="text-xl font-bold text-[#1c1c1e] dark:text-white mb-2">AI Assistance</h3>
+                <p className="text-xs text-[#555a6a] dark:text-[#a5a8b5] mb-6">
+                  Included completely free with zero API key setup while the shared free AI quota is available.
+                </p>
+                <div className="flex items-baseline gap-2 mb-6">
+                  <span className="text-4xl font-bold text-[#1c1c1e] dark:text-white">Free</span>
+                  <span className="text-xs text-[#6b6f7e] dark:text-[#a5a8b5]">until quota is reached</span>
+                </div>
+                <ul className="space-y-3 text-xs text-[#1c1c1e] dark:text-white mb-6">
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> Smart PDF / DOCX / text resume import</li>
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> One-click summary &amp; draft generator</li>
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> STAR metric bullet refinement</li>
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> Job-matched cover letter studio</li>
+                </ul>
+                <p className="text-[11px] leading-relaxed text-[#555a6a] dark:text-[#a5a8b5] bg-white/70 dark:bg-[#141416]/60 border border-[#4262ff]/20 rounded-xl p-3 mb-6">
+                  If the shared free quota runs out, AI actions may temporarily pause—your manual builder, templates, and PDF downloads keep working normally.
+                </p>
+              </div>
+              <Button asChild className="btn-miro-blue w-full text-xs">
+                <Link to="/builder">Try AI Assistance</Link>
+              </Button>
             </div>
-            <Button asChild className="btn-miro-blue w-full text-xs">
-              <Link to="/builder">Try AI Assistance</Link>
-            </Button>
-          </div>
+          </Reveal>
 
           {/* Card 3: Privacy & Zero Lock-In */}
-          <div className="pricing-card-enterprise flex flex-col justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[#a5a8b5] mb-2">No Strings Attached</p>
-              <h3 className="text-xl font-bold text-white mb-2">Private &amp; Open Access</h3>
-              <p className="text-xs text-[#a5a8b5] mb-6">
-                Built so every candidate can apply with confidence—no paywalls, trials, or upsells.
-              </p>
-              <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-4xl font-bold text-white">0</span>
-                <span className="text-xs text-[#a5a8b5]">hidden fees or accounts</span>
+          <Reveal delayMs={160}>
+            <div className="pricing-card-enterprise flex flex-col justify-between h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-[#a5a8b5] mb-2">No Strings Attached</p>
+                <h3 className="text-xl font-bold text-white mb-2">Private &amp; Open Access</h3>
+                <p className="text-xs text-[#a5a8b5] mb-6">
+                  Built so every candidate can apply with confidence—no paywalls, trials, or upsells.
+                </p>
+                <div className="flex items-baseline gap-2 mb-6">
+                  <span className="text-4xl font-bold text-white">0</span>
+                  <span className="text-xs text-[#a5a8b5]">hidden fees or accounts</span>
+                </div>
+                <ul className="space-y-3 text-xs text-[#a5a8b5] mb-8">
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Zero signup or credit card required</li>
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Local browser storage for resume drafts</li>
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Client-side ATS &amp; readiness scoring</li>
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Always works offline for manual edits</li>
+                </ul>
               </div>
-              <ul className="space-y-3 text-xs text-[#a5a8b5] mb-8">
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Zero signup or credit card required</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Local browser storage for resume drafts</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Client-side ATS &amp; readiness scoring</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Always works offline for manual edits</li>
-              </ul>
+              <Button asChild className="btn-miro-on-dark w-full text-xs">
+                <Link to="/templates">Explore 9 Templates</Link>
+              </Button>
             </div>
-            <Button asChild className="btn-miro-on-dark w-full text-xs">
-              <Link to="/templates">Explore 9 Templates</Link>
-            </Button>
-          </div>
+          </Reveal>
 
         </div>
 
@@ -770,17 +801,19 @@ const HomePage: React.FC = () => {
           {faqs.map((faq, idx) => (
             <div
               key={idx}
-              className="border border-[#e0e2e8] dark:border-[#2c2c34] rounded-xl overflow-hidden bg-white dark:bg-[#1a1a1e]"
+              className="border border-[#e0e2e8] dark:border-[#2c2c34] rounded-xl overflow-hidden bg-white dark:bg-[#1a1a1e] transition-shadow duration-200 hover:shadow-sm"
             >
               <button
+                type="button"
+                aria-expanded={activeFaq === idx}
                 onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                className="w-full p-5 text-left font-semibold text-sm flex items-center justify-between text-[#1c1c1e] dark:text-white hover:bg-[#f7f8fa] dark:hover:bg-[#242428] transition-colors"
+                className="w-full p-5 text-left font-semibold text-sm flex items-center justify-between text-[#1c1c1e] dark:text-white hover:bg-[#f7f8fa] dark:hover:bg-[#242428] transition-colors cursor-pointer"
               >
                 <span>{faq.q}</span>
-                <ChevronDown className={`size-4 text-[#8e91a0] transition-transform ${activeFaq === idx ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`size-4 text-[#8e91a0] transition-transform duration-200 ${activeFaq === idx ? 'rotate-180 text-[#4262ff]' : ''}`} />
               </button>
               {activeFaq === idx && (
-                <div className="px-5 pb-5 text-xs text-[#555a6a] dark:text-[#a5a8b5] leading-relaxed border-t border-[#eef0f3] dark:border-[#2c2c34] pt-4">
+                <div className="px-5 pb-5 text-xs text-[#555a6a] dark:text-[#a5a8b5] leading-relaxed border-t border-[#eef0f3] dark:border-[#2c2c34] pt-4 animate-faq-expand">
                   {faq.a}
                 </div>
               )}

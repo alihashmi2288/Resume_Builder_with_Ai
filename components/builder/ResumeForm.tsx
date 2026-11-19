@@ -481,7 +481,7 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch, on
                     className="w-full h-2 rounded-full bg-muted overflow-hidden"
                 >
                     <div 
-                        className={`h-full rounded-full transition-all duration-500 ${
+                        className={`h-full rounded-full transition-[width,background-color] duration-700 ease-out ${
                             readiness.score >= 80 ? 'bg-emerald-500' : readiness.score >= 50 ? 'bg-amber-500' : 'bg-rose-500'
                         }`}
                         style={{ width: `${readiness.score}%` }}
@@ -502,8 +502,8 @@ export const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, dispatch, on
                         .map(([label, ok]) => (
                             <span
                                 key={label}
-                                className={`px-2 py-0.5 rounded-full border flex items-center gap-1 ${
-                                    ok ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-muted text-muted-foreground border-border'
+                                className={`px-2 py-0.5 rounded-full border flex items-center gap-1 transition-all duration-300 ${
+                                    ok ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 scale-100' : 'bg-muted text-muted-foreground border-border'
                                 }`}
                             >
                                 {ok && <Check className="size-2.5" />} {label}

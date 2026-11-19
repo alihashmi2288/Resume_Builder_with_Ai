@@ -4,6 +4,7 @@ import { ArrowRight, Palette } from 'lucide-react';
 import { ResumePreview } from '../components/builder/ResumePreview';
 import { type ResumeData, type TemplateId, type ThemeColor } from '../types';
 import { Button } from '../components/ui/Button';
+import { Reveal } from '../components/ui/Reveal';
 
 const baseSampleResumeData: ResumeData = {
   name: 'Syed Ali Hashmi',
@@ -139,69 +140,70 @@ const TemplatesPage: React.FC = () => {
       {/* Templates Grid */}
       <div className="w-full max-w-[1280px] mx-auto px-6 pb-24">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredTemplates.map((template) => (
-            <div
-              key={template.id}
-              role="link"
-              tabIndex={0}
-              onClick={() => navigate(`/builder?template=${template.id}`)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  navigate(`/builder?template=${template.id}`);
-                }
-              }}
-              className="group flex flex-col relative text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4262ff] rounded-2xl"
-              onMouseEnter={() => setHoveredId(template.id)}
-              onMouseLeave={() => setHoveredId(null)}
-              aria-label={`Use ${template.name} template`}
-            >
-              <div className={`relative rounded-2xl border overflow-hidden bg-white dark:bg-[#1c1c1e] transition-all duration-300 flex flex-col ${
-                hoveredId === template.id
-                  ? 'border-[#1c1c1e] dark:border-[#ffd02f] shadow-xl -translate-y-1'
-                  : 'border-[#e0e2e8] dark:border-[#2c2c34] shadow-sm'
-              }`}>
-                {/* Header bar */}
-                <div className="h-10 border-b border-[#eef0f3] dark:border-[#2c2c34] px-4 flex items-center justify-between text-xs bg-[#fafbfc] dark:bg-[#16161a]">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-[#1c1c1e] dark:text-white">{template.name}</span>
-                    <span className="text-[10px] text-[#8e91a0] font-mono lowercase">.{template.id}</span>
+          {filteredTemplates.map((template, idx) => (
+            <Reveal key={template.id} delayMs={Math.min(idx * 55, 330)}>
+              <div
+                role="link"
+                tabIndex={0}
+                onClick={() => navigate(`/builder?template=${template.id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(`/builder?template=${template.id}`);
+                  }
+                }}
+                className="group flex flex-col relative text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4262ff] rounded-2xl"
+                onMouseEnter={() => setHoveredId(template.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                aria-label={`Use ${template.name} template`}
+              >
+                <div className={`relative rounded-2xl border overflow-hidden bg-white dark:bg-[#1c1c1e] transition-all duration-300 flex flex-col ${
+                  hoveredId === template.id
+                    ? 'border-[#1c1c1e] dark:border-[#ffd02f] shadow-xl -translate-y-1.5'
+                    : 'border-[#e0e2e8] dark:border-[#2c2c34] shadow-sm'
+                }`}>
+                  {/* Header bar */}
+                  <div className="h-10 border-b border-[#eef0f3] dark:border-[#2c2c34] px-4 flex items-center justify-between text-xs bg-[#fafbfc] dark:bg-[#16161a]">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-[#1c1c1e] dark:text-white">{template.name}</span>
+                      <span className="text-[10px] text-[#8e91a0] font-mono lowercase">.{template.id}</span>
+                    </div>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#fff8e0] text-[#746019]">
+                      {template.badge}
+                    </span>
                   </div>
-                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#fff8e0] text-[#746019]">
-                    {template.badge}
-                  </span>
+
+                  <div className="overflow-hidden pointer-events-none relative bg-white" style={{ aspectRatio: '8.5/11' }}>
+                    <div className="origin-top-left transition-transform duration-500 ease-out group-hover:scale-[0.415]" style={{ transform: 'scale(0.4)', width: '250%', height: '250%' }}>
+                      <ResumePreview data={previewResumeData} template={template.id} />
+                    </div>
+                  </div>
+
+                  {/* Hover overlay with Miro pill CTA */}
+                  <div className="absolute inset-0 bg-[#1c1c1e]/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center p-4">
+                    <span className="btn-miro-primary text-xs shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-200">
+                      Use {template.name}
+                      <ArrowRight className="size-3.5 ml-1 transition-transform duration-200 group-hover:translate-x-0.5" />
+                    </span>
+                  </div>
                 </div>
 
-                <div className="overflow-hidden pointer-events-none relative bg-white" style={{ aspectRatio: '8.5/11' }}>
-                  <div className="origin-top-left" style={{ transform: 'scale(0.4)', width: '250%', height: '250%' }}>
-                    <ResumePreview data={previewResumeData} template={template.id} />
+                {/* Description row */}
+                <div className="flex items-start justify-between mt-3 px-1">
+                  <div>
+                    <h3 className="text-sm font-semibold text-[#1c1c1e] dark:text-white group-hover:text-[#4262ff] transition-colors">
+                      {template.name}
+                    </h3>
+                    <p className="text-xs text-[#555a6a] dark:text-[#a5a8b5] leading-relaxed mt-0.5 max-w-[280px]">
+                      {template.desc}
+                    </p>
                   </div>
-                </div>
-
-                {/* Hover overlay with Miro pill CTA */}
-                <div className="absolute inset-0 bg-[#1c1c1e]/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
-                  <span className="btn-miro-primary text-xs shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                    Use {template.name}
-                    <ArrowRight className="size-3.5 ml-1" />
+                  <span className="text-xs font-semibold text-[#4262ff] opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center gap-1 mt-0.5 group-hover:translate-x-0.5">
+                    Select <ArrowRight className="size-3.5" />
                   </span>
                 </div>
               </div>
-
-              {/* Description row */}
-              <div className="flex items-start justify-between mt-3 px-1">
-                <div>
-                  <h3 className="text-sm font-semibold text-[#1c1c1e] dark:text-white group-hover:text-[#4262ff] transition-colors">
-                    {template.name}
-                  </h3>
-                  <p className="text-xs text-[#555a6a] dark:text-[#a5a8b5] leading-relaxed mt-0.5 max-w-[280px]">
-                    {template.desc}
-                  </p>
-                </div>
-                <span className="text-xs font-semibold text-[#4262ff] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mt-0.5">
-                  Select <ArrowRight className="size-3.5" />
-                </span>
-              </div>
-            </div>
+            </Reveal>
           ))}
         </div>
 
