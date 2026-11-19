@@ -9,7 +9,7 @@ export const Header: React.FC = () => {
   const [showPromo, setShowPromo] = React.useState(true);
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `relative py-2 px-1 text-[14px] font-medium transition-colors ${
+    `relative py-2 px-1 text-[14px] font-medium whitespace-nowrap transition-colors ${
       isActive
         ? 'text-[#1c1c1e] dark:text-white font-semibold'
         : 'text-[#555a6a] dark:text-[#a5a8b5] hover:text-[#1c1c1e] dark:hover:text-white'
@@ -46,44 +46,44 @@ export const Header: React.FC = () => {
 
       {/* Main Sticky Navbar per DESIGN.md */}
       <header className="w-full border-b border-[#e0e2e8] dark:border-[#2c2c34] bg-[#ffffff] dark:bg-[#141416] transition-colors">
-        <div className="max-w-[1280px] mx-auto flex h-[64px] items-center justify-between px-4 sm:px-6">
-          {/* Brand Logo with Miro canary-yellow mark */}
-          <div className="flex items-center gap-8">
+        <div className="max-w-[1280px] mx-auto flex lg:grid lg:grid-cols-[1fr_auto_1fr] h-[64px] items-center justify-between lg:gap-4 px-4 sm:px-6">
+          {/* Brand Logo */}
+          <div className="flex items-center lg:justify-self-start lg:shrink-0">
             <NavLink
               to="/"
               className="flex items-center gap-2.5 transition-opacity hover:opacity-90"
               onClick={closeMenu}
             >
               {/* Signature Canary-Yellow Mark ({colors.brand-yellow}) */}
-              <div className="flex size-9 items-center justify-center rounded-xl bg-[#ffd02f] shadow-sm">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-[#ffd02f] shadow-sm lg:shrink-0">
                 <svg
                   viewBox="0 0 24 24"
                   className="size-5 fill-[#1c1c1e]"
                   aria-hidden="true"
                 >
-                  {/* Miro-inspired geometric diagonal visual slats */}
+                  {/* Geometric diagonal visual slats */}
                   <path d="M4 18V6l4 2.5v7L4 18zm5.5 0V7l4 2v6.5l-4 2.5zm5.5 0V8.5l4 1.5v5.5l-4 2.5z" />
                 </svg>
               </div>
-              <span className="font-medium text-[18px] tracking-tight text-[#1c1c1e] dark:text-white">
+              <span className="font-medium text-[18px] tracking-tight text-[#1c1c1e] dark:text-white lg:whitespace-nowrap">
                 AI Resume <span className="text-[#6b6f7e] dark:text-[#a5a8b5] font-normal">Architect</span>
               </span>
             </NavLink>
-
-            {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-6">
-              <NavLink to="/" className={navLinkClass}>Overview</NavLink>
-              <NavLink to="/builder" className={navLinkClass}>Builder</NavLink>
-              <NavLink to="/templates" className={navLinkClass}>Templates</NavLink>
-              <NavLink to="/cover-letter" className={navLinkClass}>Cover Letter</NavLink>
-              <NavLink to="/about" className={navLinkClass}>About</NavLink>
-              <NavLink to="/contact" className={navLinkClass}>Contact</NavLink>
-            </nav>
           </div>
 
+          {/* Centered Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center justify-center gap-7 lg:justify-self-center">
+            <NavLink to="/" className={navLinkClass}>Home</NavLink>
+            <NavLink to="/builder" className={navLinkClass}>Builder</NavLink>
+            <NavLink to="/templates" className={navLinkClass}>Templates</NavLink>
+            <NavLink to="/cover-letter" className={navLinkClass}>Cover Letter</NavLink>
+            <NavLink to="/about" className={navLinkClass}>About</NavLink>
+            <NavLink to="/contact" className={navLinkClass}>Contact</NavLink>
+          </nav>
+
           {/* Right-side Action CTAs */}
-          <div className="flex items-center gap-2.5">
-            {/* Miro Black Pill Primary CTA */}
+          <div className="flex items-center gap-2.5 lg:justify-self-end lg:shrink-0">
+            {/* Black Pill Primary CTA */}
             <Button
               asChild
               className="hidden md:inline-flex btn-miro-primary text-[14px] font-medium"
@@ -108,7 +108,7 @@ export const Header: React.FC = () => {
         {isMenuOpen && (
           <div className="lg:hidden border-t border-[#e0e2e8] dark:border-[#2c2c34] bg-white dark:bg-[#141416] px-4 py-6 shadow-lg">
             <nav className="flex flex-col gap-4">
-              <NavLink to="/" className={navLinkClass} onClick={closeMenu}>Overview</NavLink>
+              <NavLink to="/" className={navLinkClass} onClick={closeMenu}>Home</NavLink>
               <NavLink to="/builder" className={navLinkClass} onClick={closeMenu}>Builder</NavLink>
               <NavLink to="/templates" className={navLinkClass} onClick={closeMenu}>Templates</NavLink>
               <NavLink to="/cover-letter" className={navLinkClass} onClick={closeMenu}>Cover Letter</NavLink>

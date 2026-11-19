@@ -88,7 +88,7 @@ const faqs = [
   },
   {
     q: 'How does the AI Assistance integration work?',
-    a: 'AI Resume Architect connects securely on the server to AI Assistance. You can import an existing PDF/DOCX/image resume to auto-fill every field, generate tailored summaries, rewrite bullets with STAR metrics, or audit ATS keyword gaps with zero API key setup.'
+    a: 'AI Resume Architect is 100% free to use with built-in AI Assistance—no API key setup or paid plan needed. You can import an existing PDF/DOCX/image resume, draft tailored summaries, and enhance bullets within the shared free AI quota. If the free quota is temporarily reached, manual editing, all 9 templates, ATS scoring, and PDF exports remain available.'
   },
   {
     q: 'Is my resume data secure and private?',
@@ -102,7 +102,6 @@ const faqs = [
 
 const HomePage: React.FC = () => {
   const [activeTemplateIndex, setActiveTemplateIndex] = React.useState(0);
-  const [billingPeriod, setBillingPeriod] = React.useState<'monthly' | 'annual'>('annual');
   const [activeFaq, setActiveFaq] = React.useState<number | null>(0);
   const [selectedFilter, setSelectedFilter] = React.useState<string>('all');
 
@@ -589,214 +588,166 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* ─────────────────────────────────────────────────────────────────── */}
-      {/* 5. 4-TIER PRICING & FEATURE COMPARISON (Key Miro Spec per DESIGN.md)*/}
+      {/* 5. 100% FREE ACCESS & AI QUOTA TRANSPARENCY                         */}
       {/* ─────────────────────────────────────────────────────────────────── */}
       <section className="w-full py-24 px-6 max-w-[1280px] mx-auto text-center">
         <span className="bg-[#fff8e0] text-[#746019] text-[13px] font-semibold rounded-full px-3.5 py-1 mb-4 inline-block">
-          PLANS & ACCESS
+          100% FREE ACCESS
         </span>
         <h2 className="font-display-lg text-[#1c1c1e] dark:text-white mb-4 text-balance">
-          Transparent plans for every ambition.
+          Completely free. Built for every job seeker.
         </h2>
-        <p className="font-subtitle text-[#555a6a] dark:text-[#a5a8b5] max-w-xl mx-auto mb-10">
-          Core workspace is 100% free with built-in AI Assistance and zero hidden paywalls to download your PDF.
+        <p className="font-subtitle text-[#555a6a] dark:text-[#a5a8b5] max-w-2xl mx-auto mb-14">
+          Every template, editor control, and PDF export is 100% free forever with zero paywalls. Built-in AI Assistance is also free to use within our shared free quota.
         </p>
 
-        {/* Monthly / Annual Toggle per DESIGN.md (toggle-monthly-yearly) */}
-        <div className="inline-flex items-center p-1.5 bg-[#f0f0f3] dark:bg-[#2c2c34] rounded-full mb-16 gap-1">
-          <button
-            onClick={() => setBillingPeriod('monthly')}
-            className={`px-5 py-1.5 rounded-full text-xs font-semibold transition-all ${
-              billingPeriod === 'monthly'
-                ? 'bg-white dark:bg-[#1c1c1e] text-[#1c1c1e] dark:text-white shadow-sm'
-                : 'text-[#555a6a] dark:text-[#a5a8b5]'
-            }`}
-          >
-            Monthly billing
-          </button>
-          <button
-            onClick={() => setBillingPeriod('annual')}
-            className={`px-5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-              billingPeriod === 'annual'
-                ? 'bg-white dark:bg-[#1c1c1e] text-[#1c1c1e] dark:text-white shadow-sm'
-                : 'text-[#555a6a] dark:text-[#a5a8b5]'
-            }`}
-          >
-            <span>Annual</span>
-            <span className="badge-discount text-[10px]">SAVE 20%</span>
-          </button>
-        </div>
+        {/* 3-Card Free Access Breakdown using consistent card hierarchy */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left mb-16 max-w-5xl mx-auto">
 
-        {/* 4-Tier Pricing Grid per DESIGN.md (Free / Starter / Business / Enterprise) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left mb-20">
-          
-          {/* Tier 1: Free */}
+          {/* Card 1: Core Workspace (Always Free) */}
           <div className="pricing-card flex flex-col justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[#8e91a0] mb-2">Community</p>
-              <h3 className="text-xl font-bold text-[#1c1c1e] dark:text-white mb-2">Free</h3>
+              <p className="text-xs font-bold uppercase tracking-wider text-[#8e91a0] mb-2">Core Workspace</p>
+              <h3 className="text-xl font-bold text-[#1c1c1e] dark:text-white mb-2">Builder &amp; Templates</h3>
               <p className="text-xs text-[#6b6f7e] dark:text-[#a5a8b5] mb-6">
-                Everything you need to craft and download an ATS resume today.
+                Everything you need to craft, reorder, and export an ATS-ready resume with zero limits.
               </p>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold text-[#1c1c1e] dark:text-white">$0</span>
-                <span className="text-xs text-[#8e91a0]">forever</span>
+              <div className="flex items-baseline gap-2 mb-6">
+                <span className="text-4xl font-bold text-[#1c1c1e] dark:text-white">Free</span>
+                <span className="text-xs text-[#8e91a0]">always available</span>
               </div>
               <ul className="space-y-3 text-xs text-[#555a6a] dark:text-[#a5a8b5] mb-8">
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> All 9 ATS templates</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Smart PDF/DOCX Resume Import</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> AI Assistance</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Unlimited PDF exports</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> All 9 ATS-optimized templates</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Drag &amp; drop sections + Undo / Redo</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Live ATS score &amp; keyword audit</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Unlimited text-selectable PDF exports</li>
               </ul>
             </div>
             <Button asChild variant="secondary" className="btn-miro-secondary w-full text-xs">
-              <Link to="/builder">Get started free</Link>
+              <Link to="/builder">Open Resume Builder</Link>
             </Button>
           </div>
 
-          {/* Tier 2: Starter */}
-          <div className="pricing-card flex flex-col justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[#8e91a0] mb-2">Individual</p>
-              <h3 className="text-xl font-bold text-[#1c1c1e] dark:text-white mb-2">Starter</h3>
-              <p className="text-xs text-[#6b6f7e] dark:text-[#a5a8b5] mb-6">
-                For active job seekers who want AI polish on all sections.
-              </p>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold text-[#1c1c1e] dark:text-white">
-                  {billingPeriod === 'annual' ? '$6' : '$8'}
-                </span>
-                <span className="text-xs text-[#8e91a0]">/ month</span>
-              </div>
-              <ul className="space-y-3 text-xs text-[#555a6a] dark:text-[#a5a8b5] mb-8">
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Everything in Free</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Managed AI without API key</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Live ATS keyword scanner</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Bullet impact quantification</li>
-              </ul>
-            </div>
-            <Button asChild variant="secondary" className="btn-miro-secondary w-full text-xs">
-              <Link to="/builder">Start 14-day trial</Link>
-            </Button>
-          </div>
-
-          {/* Tier 3: Business (Featured tier with lavender bg + 2px blue border per DESIGN.md) */}
+          {/* Card 2: AI Assistance (Featured, Free Quota) */}
           <div className="pricing-card-featured flex flex-col justify-between shadow-lg">
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-              <span className="bg-[#4262ff] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
-                Most Popular
+              <span className="bg-[#4262ff] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm whitespace-nowrap">
+                Free AI Quota
               </span>
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[#4262ff] mb-2">Pro Career</p>
-              <h3 className="text-xl font-bold text-[#1c1c1e] dark:text-white mb-2">Business Pro</h3>
+              <p className="text-xs font-bold uppercase tracking-wider text-[#4262ff] mb-2">Smart AI Tools</p>
+              <h3 className="text-xl font-bold text-[#1c1c1e] dark:text-white mb-2">AI Assistance</h3>
               <p className="text-xs text-[#555a6a] dark:text-[#a5a8b5] mb-6">
-                Full AI suite with tailored cover letters & deep ATS parsing.
+                Included completely free with zero API key setup while the shared free AI quota is available.
               </p>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold text-[#1c1c1e] dark:text-white">
-                  {billingPeriod === 'annual' ? '$12' : '$16'}
-                </span>
-                <span className="text-xs text-[#8e91a0]">/ month</span>
+              <div className="flex items-baseline gap-2 mb-6">
+                <span className="text-4xl font-bold text-[#1c1c1e] dark:text-white">Free</span>
+                <span className="text-xs text-[#6b6f7e] dark:text-[#a5a8b5]">until quota is reached</span>
               </div>
-              <ul className="space-y-3 text-xs text-[#1c1c1e] dark:text-white mb-8">
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff]" /> Everything in Starter</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff]" /> Unlimited Tailored Cover Letters</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff]" /> Multi-version resume profiles</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff]" /> Real-time job description matcher</li>
+              <ul className="space-y-3 text-xs text-[#1c1c1e] dark:text-white mb-6">
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> Smart PDF / DOCX / text resume import</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> One-click summary &amp; draft generator</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> STAR metric bullet refinement</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#4262ff] shrink-0" /> Job-matched cover letter studio</li>
               </ul>
+              <p className="text-[11px] leading-relaxed text-[#555a6a] dark:text-[#a5a8b5] bg-white/70 dark:bg-[#141416]/60 border border-[#4262ff]/20 rounded-xl p-3 mb-6">
+                If the shared free quota runs out, AI actions may temporarily pause—your manual builder, templates, and PDF downloads keep working normally.
+              </p>
             </div>
             <Button asChild className="btn-miro-blue w-full text-xs">
-              <Link to="/builder">Get Business Pro</Link>
+              <Link to="/builder">Try AI Assistance</Link>
             </Button>
           </div>
 
-          {/* Tier 4: Enterprise (Dark card per DESIGN.md pricing-card-enterprise) */}
+          {/* Card 3: Privacy & Zero Lock-In */}
           <div className="pricing-card-enterprise flex flex-col justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-[#a5a8b5] mb-2">Organization</p>
-              <h3 className="text-xl font-bold text-white mb-2">Enterprise</h3>
+              <p className="text-xs font-bold uppercase tracking-wider text-[#a5a8b5] mb-2">No Strings Attached</p>
+              <h3 className="text-xl font-bold text-white mb-2">Private &amp; Open Access</h3>
               <p className="text-xs text-[#a5a8b5] mb-6">
-                For career coaches, universities, and recruiting agencies.
+                Built so every candidate can apply with confidence—no paywalls, trials, or upsells.
               </p>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold text-white">Custom</span>
+              <div className="flex items-baseline gap-2 mb-6">
+                <span className="text-4xl font-bold text-white">0</span>
+                <span className="text-xs text-[#a5a8b5]">hidden fees or accounts</span>
               </div>
               <ul className="space-y-3 text-xs text-[#a5a8b5] mb-8">
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Custom template branding</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Team member seat licenses</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> Dedicated ATS parser tests</li>
-                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473]" /> SSO & Priority 24/7 SLA</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Zero signup or credit card required</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Local browser storage for resume drafts</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Client-side ATS &amp; readiness scoring</li>
+                <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Always works offline for manual edits</li>
               </ul>
             </div>
             <Button asChild className="btn-miro-on-dark w-full text-xs">
-              <Link to="/contact">Contact Sales</Link>
+              <Link to="/templates">Explore 9 Templates</Link>
             </Button>
           </div>
 
         </div>
 
-        {/* Dense Comparison Table per DESIGN.md (comparison-table & comparison-row) */}
+        {/* Feature & Quota Availability Breakdown Table */}
         <div className="w-full text-left max-w-4xl mx-auto border border-[#e0e2e8] dark:border-[#2c2c34] rounded-2xl overflow-hidden shadow-sm">
-          <div className="bg-[#fafbfc] dark:bg-[#1a1a1e] p-5 border-b border-[#e0e2e8] dark:border-[#2c2c34] font-semibold text-sm">
-            Detailed Feature Comparison Table
+          <div className="bg-[#fafbfc] dark:bg-[#1a1a1e] p-5 border-b border-[#e0e2e8] dark:border-[#2c2c34] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span className="font-semibold text-sm text-[#1c1c1e] dark:text-white">
+              Feature &amp; Availability Breakdown
+            </span>
+            <span className="text-xs text-[#6b6f7e] dark:text-[#a5a8b5]">
+              100% Free · No Subscriptions
+            </span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
                 <tr className="border-b border-[#e0e2e8] dark:border-[#2c2c34] bg-[#f7f8fa] dark:bg-[#141416] text-[#6b6f7e]">
-                  <th className="p-4 font-semibold">Features & Capabilities</th>
-                  <th className="p-4 font-semibold text-center">Free</th>
-                  <th className="p-4 font-semibold text-center">Starter</th>
-                  <th className="p-4 font-semibold text-center text-[#4262ff]">Business</th>
-                  <th className="p-4 font-semibold text-center">Enterprise</th>
+                  <th className="p-4 font-semibold">Features &amp; Capabilities</th>
+                  <th className="p-4 font-semibold text-center">Cost</th>
+                  <th className="p-4 font-semibold text-center">Availability</th>
+                  <th className="p-4 font-semibold text-center">Account Needed</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#eef0f3] dark:divide-[#2c2c34]">
                 <tr>
-                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">Templates Included</td>
-                  <td className="p-4 text-center">All 9</td>
-                  <td className="p-4 text-center">All 9</td>
-                  <td className="p-4 text-center text-[#4262ff] font-semibold">All 9</td>
-                  <td className="p-4 text-center">All 9 + Custom</td>
+                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">All 9 ATS Resume Templates</td>
+                  <td className="p-4 text-center font-semibold text-[#00b473]">Free</td>
+                  <td className="p-4 text-center">Always available</td>
+                  <td className="p-4 text-center text-[#8e91a0]">No</td>
                 </tr>
                 <tr>
-                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">Text-Selectable Vector PDF</td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
+                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">Drag &amp; Drop Reordering + Undo / Redo</td>
+                  <td className="p-4 text-center font-semibold text-[#00b473]">Free</td>
+                  <td className="p-4 text-center">Always available</td>
+                  <td className="p-4 text-center text-[#8e91a0]">No</td>
                 </tr>
                 <tr>
-                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">AI Assistance</td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">Live ATS Keyword Scanner</td>
-                  <td className="p-4 text-center text-[#8e91a0]">Basic</td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                  <td className="p-4 text-center">Deep Parser</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">Tailored Cover Letter AI</td>
-                  <td className="p-4 text-center text-[#8e91a0]">Manual</td>
-                  <td className="p-4 text-center">5 / mo</td>
-                  <td className="p-4 text-center text-[#4262ff] font-semibold">Unlimited</td>
+                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">Text-Selectable Vector PDF Export</td>
+                  <td className="p-4 text-center font-semibold text-[#00b473]">Free</td>
                   <td className="p-4 text-center">Unlimited</td>
+                  <td className="p-4 text-center text-[#8e91a0]">No</td>
                 </tr>
                 <tr>
-                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">Client-Side Privacy (Zero tracking)</td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
-                  <td className="p-4 text-center"><Check className="size-4 text-[#00b473] mx-auto" /></td>
+                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">Live ATS Score &amp; Keyword Audit</td>
+                  <td className="p-4 text-center font-semibold text-[#00b473]">Free</td>
+                  <td className="p-4 text-center">Always available</td>
+                  <td className="p-4 text-center text-[#8e91a0]">No</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">AI Resume Import &amp; Autofill</td>
+                  <td className="p-4 text-center font-semibold text-[#00b473]">Free</td>
+                  <td className="p-4 text-center text-[#4262ff] font-medium">Free while AI quota lasts</td>
+                  <td className="p-4 text-center text-[#8e91a0]">No</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium text-[#1c1c1e] dark:text-white">AI Summary, Bullet Polish &amp; Cover Letter</td>
+                  <td className="p-4 text-center font-semibold text-[#00b473]">Free</td>
+                  <td className="p-4 text-center text-[#4262ff] font-medium">Free while AI quota lasts</td>
+                  <td className="p-4 text-center text-[#8e91a0]">No</td>
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div className="px-5 py-3.5 bg-[#fafbfc] dark:bg-[#1a1a1e] border-t border-[#e0e2e8] dark:border-[#2c2c34] text-[11px] text-[#6b6f7e] dark:text-[#a5a8b5]">
+            <strong className="text-[#1c1c1e] dark:text-white font-semibold">About AI Quota:</strong> AI Assistance uses a shared free quota so everyone can use smart tools at zero cost. If the quota is temporarily exhausted, AI actions may pause until it resets, while manual editing, templates, and PDF exports always remain 100% available.
           </div>
         </div>
 
