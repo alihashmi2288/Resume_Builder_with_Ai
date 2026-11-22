@@ -3,6 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from './Button';
+import { CurioLogo } from './CurioLogo';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -21,12 +22,12 @@ export const Header: React.FC = () => {
     <div className="sticky top-0 z-50 w-full no-print">
       {/* Top Promo Banner per DESIGN.md (promo-banner) */}
       {showPromo && (
-        <div className="bg-[#1c1c1e] text-white py-2 px-4 text-[13px] md:text-[14px] font-medium flex items-center justify-center gap-3 border-b border-[#2c2c34] relative">
-          <span className="bg-[#ffd02f] text-[#1c1c1e] text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-full uppercase">
+        <div className="bg-[#1c1c1e] text-white py-2 pl-4 pr-10 sm:px-10 text-[13px] md:text-[14px] font-medium flex items-center justify-center gap-2.5 sm:gap-3 border-b border-[#2c2c34] relative">
+          <span className="shrink-0 bg-[#ffd02f] text-[#1c1c1e] text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-full uppercase">
             NEW
           </span>
           <span className="truncate">
-            AI Assistance is live — Import your current resume & score ATS match in seconds.
+            Curio AI Assistance is live — Write with AI, import your resume &amp; audit ATS match free.
           </span>
           <Link
             to="/builder"
@@ -51,23 +52,11 @@ export const Header: React.FC = () => {
           <div className="flex items-center lg:justify-self-start lg:shrink-0">
             <NavLink
               to="/"
-              className="flex items-center gap-2.5 transition-opacity hover:opacity-90"
+              className="flex items-center transition-opacity hover:opacity-90"
               onClick={closeMenu}
+              aria-label="Curio Home"
             >
-              {/* Signature Canary-Yellow Mark ({colors.brand-yellow}) */}
-              <div className="flex size-9 items-center justify-center rounded-xl bg-[#ffd02f] shadow-sm lg:shrink-0">
-                <svg
-                  viewBox="0 0 24 24"
-                  className="size-5 fill-[#1c1c1e]"
-                  aria-hidden="true"
-                >
-                  {/* Geometric diagonal visual slats */}
-                  <path d="M4 18V6l4 2.5v7L4 18zm5.5 0V7l4 2v6.5l-4 2.5zm5.5 0V8.5l4 1.5v5.5l-4 2.5z" />
-                </svg>
-              </div>
-              <span className="font-medium text-[18px] tracking-tight text-[#1c1c1e] dark:text-white lg:whitespace-nowrap">
-                AI Resume <span className="text-[#6b6f7e] dark:text-[#a5a8b5] font-normal">Architect</span>
-              </span>
+              <CurioLogo size="md" />
             </NavLink>
           </div>
 

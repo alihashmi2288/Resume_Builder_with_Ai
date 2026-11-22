@@ -84,13 +84,13 @@ const TemplatesPage: React.FC = () => {
       {/* Page Header */}
       <div className="w-full text-center py-16 md:py-20 px-6 max-w-[1280px] mx-auto">
         <span className="bg-[#fff8e0] text-[#746019] text-[13px] font-semibold rounded-full px-4 py-1.5 mb-4 inline-block">
-          9 PROFESSIONAL RESUME LAYOUTS
+          9 RESUME DESIGNS
         </span>
         <h1 className="font-display-lg text-[#1c1c1e] dark:text-white mb-4 text-balance">
-          Pick your winning resume style.
+          Choose a design that reflects you.
         </h1>
         <p className="font-subtitle text-[#555a6a] dark:text-[#a5a8b5] max-w-xl mx-auto mb-8">
-          Every template is engineered to pass Applicant Tracking Systems (ATS) and impress hiring managers. Filter by industry and customize colors in real-time.
+          Every Curio design is engineered to pass Applicant Tracking Systems (ATS) and present your career clearly. Filter by industry and preview accent colors live.
         </p>
 
         {/* Interactive Live Color Palette Bar */}
@@ -218,7 +218,7 @@ const TemplatesPage: React.FC = () => {
           </p>
           <Button asChild size="lg" className="btn-miro-primary">
             <Link to="/builder">
-              Open Resume Builder
+              Open Resume Workspace
               <ArrowRight className="ml-2 size-4" />
             </Link>
           </Button>

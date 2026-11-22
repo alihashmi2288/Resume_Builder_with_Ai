@@ -162,13 +162,13 @@ const CoverLetterPage: React.FC = () => {
       {/* Header */}
       <div className="w-full text-center py-16 md:py-20 px-6 max-w-[1280px] mx-auto">
         <span className="bg-[#fff8e0] text-[#746019] text-[13px] font-semibold rounded-full px-4 py-1.5 mb-4 inline-block">
-          AI ASSISTANCE
+          CURIO · AI ASSISTANCE
         </span>
         <h1 className="font-display-lg text-[#1c1c1e] dark:text-white mb-4 text-balance">
           Tailored Cover Letter Studio.
         </h1>
         <p className="font-subtitle text-[#555a6a] dark:text-[#a5a8b5] max-w-lg mx-auto">
-          Align your resume achievements directly with any job posting. AI Assistance crafts a cohesive, role-specific letter ready to export.
+          Align your experience directly with any job posting. Write with AI, edit every sentence in your own voice, and export in seconds.
         </p>
       </div>
 

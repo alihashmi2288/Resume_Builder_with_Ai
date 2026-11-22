@@ -1,10 +1,10 @@
 
 
-# AI Resume Architect
+# Curio — Your career, clearly expressed.
 
-![AI Resume Architect Hero](https://i.imgur.com/8Q5p7y9.png)
+![Curio Hero](https://i.imgur.com/8Q5p7y9.png)
 
-**AI Resume Architect** is a modern, web-based application designed to help you craft a professional, standout resume with the power of Google's Gemini AI. It offers real-time previews, a variety of templates, and intelligent suggestions to streamline the resume-building process and help you land your dream job.
+**Curio** is an AI-powered resume builder that helps you turn your skills, experience, and achievements into a polished, ATS-ready resume—with built-in AI Assistance and complete control over every detail.
 
 ---
 

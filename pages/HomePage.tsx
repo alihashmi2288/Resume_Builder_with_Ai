@@ -24,6 +24,7 @@ import { ResumePreview } from '../components/builder/ResumePreview';
 import { CompanyCarousel } from '../components/home/CompanyCarousel';
 import { StatStrip } from '../components/home/StatStrip';
 import { Reveal } from '../components/ui/Reveal';
+import { CurioMark } from '../components/ui/CurioLogo';
 import type { ResumeData, TemplateId } from '../types';
 
 /* ─── Sample data for live template previews ─────────────────────────── */
@@ -64,8 +65,8 @@ const sampleResumeData: ResumeData = {
   projects: [
     {
       id: 'proj-1',
-      name: 'AI Resume Architect',
-      description: 'Visual AI resume builder with ATS scoring and real-time PDF generation.',
+      name: 'Curio',
+      description: 'AI-powered resume workspace with ATS scoring and vector PDF export.',
       url: 'github.com/alihashmi2288/resume-builder'
     }
   ]
@@ -90,7 +91,7 @@ const faqs = [
   },
   {
     q: 'How does the AI Assistance integration work?',
-    a: 'AI Resume Architect is 100% free to use with built-in AI Assistance—no API key setup or paid plan needed. You can import an existing PDF/DOCX/image resume, draft tailored summaries, and enhance bullets within the shared free AI quota. If the free quota is temporarily reached, manual editing, all 9 templates, ATS scoring, and PDF exports remain available.'
+    a: 'Curio is 100% free to use with built-in AI Assistance—no API key setup or paid plan needed. You can import an existing PDF/DOCX/image resume, write with AI, and improve bullets within the shared free AI quota. If the free quota is temporarily reached, manual editing, all 9 resume designs, ATS scoring, and PDF exports remain available.'
   },
   {
     q: 'Is my resume data secure and private?',
@@ -133,37 +134,41 @@ const HomePage: React.FC = () => {
       <section className="w-full pt-16 pb-20 md:pt-24 md:pb-28 px-4 sm:px-6 max-w-[1280px] mx-auto text-center flex flex-col items-center">
         
         {/* Yellow Tag Chip per DESIGN.md (badge-tag-yellow) */}
-        <div className="inline-flex items-center gap-2 bg-[#fff8e0] text-[#746019] text-[13px] font-semibold rounded-full px-4 py-1.5 mb-8 border border-[#fcb900]/40 shadow-sm animate-fade-in">
-          <span className="size-2 rounded-full bg-[#00b473] animate-dot-live" aria-hidden="true" />
-          <Sparkles className="size-3.5 text-[#746019]" aria-hidden="true" />
-          <span>AI Assistance · Smart Resume Import & 9 ATS Templates</span>
+        <div className="inline-flex items-center gap-2 bg-[#fff8e0] text-[#746019] text-[11px] sm:text-[12px] font-bold tracking-[0.06em] uppercase rounded-full px-4 py-1.5 mb-8 border border-[#fcb900]/40 shadow-sm animate-fade-in">
+          <span className="size-2 rounded-full bg-[#00b473] animate-dot-live shrink-0" aria-hidden="true" />
+          <span>AI-POWERED RESUME &amp; COVER LETTER BUILDER</span>
         </div>
 
         {/* 80px Hero Display per DESIGN.md (hero-display: 80px, 500, line-height 1.05, tracking -2px) */}
         <h1 className="font-hero-display text-[#1c1c1e] dark:text-white max-w-4xl mx-auto text-balance mb-6">
-          See how teams & talent get great done with AI.
+          Your career, clearly expressed.
         </h1>
 
         {/* Hero Subtitle (18px, 400, line-height 1.50) */}
-        <p className="text-[18px] text-[#555a6a] dark:text-[#a5a8b5] max-w-2xl mx-auto leading-relaxed mb-10 text-pretty">
-          The collaborative visual workspace where you craft interview-winning resumes, audit ATS keyword compatibility, and generate tailored cover letters in seconds.
+        <p className="text-[17px] sm:text-[18px] text-[#555a6a] dark:text-[#a5a8b5] max-w-3xl mx-auto leading-relaxed mb-10 text-pretty">
+          Build a resume that reflects your experience and a cover letter that tells your story. Start from scratch or import your existing resume, use AI to refine your writing, tailor your content to the role, and customize every detail with complete control.
         </p>
 
         {/* Primary Black-Pill CTA + Secondary Outlined Pill per DESIGN.md */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-5">
           <Button asChild size="lg" className="group btn-miro-primary h-[50px] px-8 text-[15px]">
             <Link to="/builder">
-              Get started free
+              Build my resume
               <ArrowRight className="size-4 ml-1 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Link>
           </Button>
 
           <Button asChild size="lg" variant="secondary" className="btn-miro-secondary h-[50px] px-8 text-[15px]">
             <Link to="/templates">
-              Explore 9 templates
+              Explore templates
             </Link>
           </Button>
         </div>
+
+        {/* Brand promise micro-line */}
+        <p className="text-xs sm:text-[13px] font-medium text-[#6b6f7e] dark:text-[#a5a8b5] mb-14 tracking-tight">
+          AI-assisted writing · ATS-friendly templates · Fully editable
+        </p>
 
         {/* ─────────────────────────────────────────────────────────────────── */}
         {/* WHITEBOARD MOCKUP (whiteboard-mockup per DESIGN.md)                */}
@@ -174,14 +179,10 @@ const HomePage: React.FC = () => {
           onMouseLeave={() => setIsWhiteboardHovered(false)}
         >
           
-          {/* Miro Board Top Application Bar */}
+          {/* Curio Workspace Top Application Bar */}
           <div className="h-12 border-b border-[#eef0f3] dark:border-[#2c2c34] bg-[#fafbfc] dark:bg-[#141416] px-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex size-7 items-center justify-center rounded-lg bg-[#ffd02f]">
-                <svg viewBox="0 0 24 24" className="size-4 fill-[#1c1c1e]">
-                  <path d="M4 18V6l4 2.5v7L4 18zm5.5 0V7l4 2v6.5l-4 2.5zm5.5 0V8.5l4 1.5v5.5l-4 2.5z" />
-                </svg>
-              </div>
+              <CurioMark size="xs" />
               <span className="text-xs font-semibold text-[#1c1c1e] dark:text-white">
                 Syed Ali – Senior Software Engineer Resume
               </span>
@@ -230,7 +231,7 @@ const HomePage: React.FC = () => {
               <div className="p-4 rounded-xl bg-[#fff4c4] text-[#746019] shadow-md hover:shadow-lg border border-[#ffd02f]/30 transform -rotate-2 hover:rotate-0 hover:scale-[1.03] transition-all duration-300">
                 <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider mb-1">
                   <Sparkles className="size-3.5 text-[#ffd02f] fill-[#ffd02f]" />
-                  <span>AI Assistance</span>
+                  <span>Curio Suggestions</span>
                 </div>
                 <p className="text-xs leading-snug">
                   "Quantify bullet points with metric percentages to boost ATS score +18%."
@@ -373,17 +374,17 @@ const HomePage: React.FC = () => {
       <section className="w-full py-24 px-6 max-w-[1280px] mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="bg-[#fff8e0] text-[#746019] text-[13px] font-semibold rounded-full px-3.5 py-1 mb-4 inline-block">
-            VISUAL WORKSPACE CAPABILITIES
+            AI HELPS YOU CREATE · YOU CONTROL EVERY DETAIL
           </span>
           <h2 className="font-display-lg text-[#1c1c1e] dark:text-white mb-4 text-balance">
-            Everything you need to land interviews.
+            Your experience deserves a better presentation.
           </h2>
           <p className="font-subtitle text-[#555a6a] dark:text-[#a5a8b5]">
-            From smart bullet suggestions to vector PDF export, explore tools designed to beat automated filters and impress recruiters.
+            Write with AI, edit every detail, and export a polished resume that reflects your voice—never a generic automated document.
           </p>
         </div>
 
-        {/* Feature Grid with Miro Sticky-Note Pastels (Yellow, Coral, Teal, Rose, White) */}
+        {/* Feature Grid with Sticky-Note Pastels (Yellow, Coral, Teal, Rose, White) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           
           {/* Tile 1: Yellow Feature Card ({card-feature-yellow}) */}
@@ -392,20 +393,20 @@ const HomePage: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <span className="bg-[#1c1c1e] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                    AI Assistance
+                    Curio Suggestions
                   </span>
                   <Bot className="size-6 text-[#1c1c1e] transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6" />
                 </div>
                 <h3 className="font-heading-3 text-[#1c1c1e] mb-3">
-                  Smart Import & AI Engine
+                  Write &amp; Improve with AI
                 </h3>
                 <p className="text-sm text-[#1c1c1e]/85 leading-relaxed">
-                  Upload an existing PDF, DOCX, text, or image resume to auto-fill every field, refine bullets into STAR metrics, and generate tailored summaries with AI Assistance.
+                  Import an existing PDF, DOCX, text, or image resume to auto-fill every field, turn rough notes into clear impact bullets, and stay in full control of every word.
                 </p>
               </div>
               <div className="pt-6">
                 <Link to="/builder" className="text-sm font-bold text-[#1c1c1e] inline-flex items-center gap-1.5 hover:underline">
-                  Try AI Builder <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                  Open Resume Workspace <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
               </div>
             </div>
@@ -422,10 +423,10 @@ const HomePage: React.FC = () => {
                   <SearchCheck className="size-6 text-[#187574] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6" />
                 </div>
                 <h3 className="font-heading-3 text-[#187574] mb-3">
-                  Live ATS Score & Audit
+                  Live ATS Score &amp; Clarity Check
                 </h3>
                 <p className="text-sm text-[#187574]/90 leading-relaxed">
-                  Instant parsing audit tests your resume against real ATS scanner rules. Get immediate feedback on keywords, contact info completeness, and formatting traps.
+                  Instant parsing audit tests your resume against real ATS scanner rules. Get clear feedback on keywords, structure, and formatting before you apply.
                 </p>
               </div>
               <div className="pt-6">
@@ -447,10 +448,10 @@ const HomePage: React.FC = () => {
                   <FileSignature className="size-6 text-[#600000] transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6" />
                 </div>
                 <h3 className="font-heading-3 text-[#600000] mb-3">
-                  Cover Letter Generator
+                  Cover Letter Studio
                 </h3>
                 <p className="text-sm text-[#600000]/85 leading-relaxed">
-                  Generate high-impact, personalized cover letters tailored to your target job description and your resume experience without generic corporate clichés.
+                  Craft thoughtful, personalized cover letters aligned to your target role and real achievements—in your own tone, without generic corporate clichés.
                 </p>
               </div>
               <div className="pt-6">
@@ -467,20 +468,20 @@ const HomePage: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <span className="bg-[#1c1c1e] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                    9 Layouts
+                    9 Designs
                   </span>
                   <Palette className="size-6 text-[#1c1c1e] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6" />
                 </div>
                 <h3 className="font-heading-3 text-[#1c1c1e] mb-3">
-                  9 Premium Templates
+                  9 Resume Designs
                 </h3>
                 <p className="text-sm text-[#1c1c1e]/85 leading-relaxed">
-                  From executive single-column classics to modern engineering designs. Customize accent colors, margins, and typography live without losing data.
+                  From crisp single-column classics to modern technical layouts. Customize colors, margins, section order, and typography live without losing a single word.
                 </p>
               </div>
               <div className="pt-6">
                 <Link to="/templates" className="text-sm font-bold text-[#1c1c1e] inline-flex items-center gap-1.5 hover:underline">
-                  Browse Templates <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                  Explore Resume Designs <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
               </div>
             </div>
@@ -492,15 +493,15 @@ const HomePage: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <span className="bg-[#4262ff] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                    Text-Selectable Vector
+                    Export Resume
                   </span>
                   <Download className="size-6 text-[#4262ff] transition-transform duration-300 group-hover:scale-110 group-hover:translate-y-0.5" />
                 </div>
                 <h3 className="font-heading-3 text-[#1c1c1e] dark:text-white mb-3">
-                  Pixel-Perfect Vector PDF Export
+                  Clean, Text-Selectable PDF Export
                 </h3>
                 <p className="text-sm text-[#555a6a] dark:text-[#a5a8b5] leading-relaxed max-w-xl">
-                  We generate real vector PDFs with live selectable text—never low-res canvas screenshots. Your resume renders crisp at 300 DPI on any display and parses flawlessly in applicant software.
+                  Curio exports crisp vector PDFs with live selectable text—never blurry screenshots. Your resume reads effortlessly for hiring managers and parses reliably across ATS software.
                 </p>
               </div>
               <div className="pt-6 flex items-center justify-between border-t border-[#eef0f3] dark:border-[#2c2c34] mt-6">
@@ -508,7 +509,7 @@ const HomePage: React.FC = () => {
                   Works with Workday, Greenhouse, Taleo, iCIMS, Lever
                 </span>
                 <Link to="/builder" className="text-sm font-bold text-[#4262ff] inline-flex items-center gap-1.5 hover:underline">
-                  Build Now <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                  Create Your Resume <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
               </div>
             </div>
@@ -525,17 +526,17 @@ const HomePage: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
             <div>
               <span className="bg-[#fff8e0] text-[#746019] text-[13px] font-semibold rounded-full px-3.5 py-1 mb-3 inline-block">
-                CURATED LAYOUTS
+                RESUME DESIGNS
               </span>
               <h2 className="font-heading-1 text-[#1c1c1e] dark:text-white">
-                Choose your ideal resume format.
+                Build a resume that reflects you.
               </h2>
             </div>
 
             {/* Pill Tabs per DESIGN.md (pill-tab and pill-tab-active) */}
             <div className="flex flex-wrap items-center gap-2">
               {[
-                { id: 'all', label: 'All Templates (9)' },
+                { id: 'all', label: 'All Designs (9)' },
                 { id: 'ats', label: 'ATS Verified' },
                 { id: 'tech', label: 'Tech & Engineering' },
                 { id: 'design', label: 'Creative & Exec' }
@@ -604,7 +605,7 @@ const HomePage: React.FC = () => {
           <div className="mt-12 text-center">
             <Button asChild variant="secondary" size="lg" className="btn-miro-secondary">
               <Link to="/templates">
-                View all 9 templates in gallery
+                View all 9 resume designs
                 <ArrowRight className="size-4 ml-1.5" />
               </Link>
             </Button>
@@ -620,10 +621,10 @@ const HomePage: React.FC = () => {
           100% FREE ACCESS
         </span>
         <h2 className="font-display-lg text-[#1c1c1e] dark:text-white mb-4 text-balance">
-          Completely free. Built for every job seeker.
+          Completely free. Made to represent you.
         </h2>
         <p className="font-subtitle text-[#555a6a] dark:text-[#a5a8b5] max-w-2xl mx-auto mb-14">
-          Every template, editor control, and PDF export is 100% free forever with zero paywalls. Built-in AI Assistance is also free to use within our shared free quota.
+          Every resume design, workspace control, and PDF export in Curio is 100% free forever with zero paywalls. Built-in AI Assistance is also free to use within our shared free quota.
         </p>
 
         {/* 3-Card Free Access Breakdown using consistent card hierarchy */}
@@ -633,8 +634,8 @@ const HomePage: React.FC = () => {
           <Reveal delayMs={0}>
             <div className="pricing-card flex flex-col justify-between h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-[#8e91a0] mb-2">Core Workspace</p>
-                <h3 className="text-xl font-bold text-[#1c1c1e] dark:text-white mb-2">Builder &amp; Templates</h3>
+                <p className="text-xs font-bold uppercase tracking-wider text-[#8e91a0] mb-2">Resume Workspace</p>
+                <h3 className="text-xl font-bold text-[#1c1c1e] dark:text-white mb-2">Editor &amp; Designs</h3>
                 <p className="text-xs text-[#6b6f7e] dark:text-[#a5a8b5] mb-6">
                   Everything you need to craft, reorder, and export an ATS-ready resume with zero limits.
                 </p>
@@ -643,14 +644,14 @@ const HomePage: React.FC = () => {
                   <span className="text-xs text-[#8e91a0]">always available</span>
                 </div>
                 <ul className="space-y-3 text-xs text-[#555a6a] dark:text-[#a5a8b5] mb-8">
-                  <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> All 9 ATS-optimized templates</li>
+                  <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> All 9 ATS-optimized resume designs</li>
                   <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Drag &amp; drop sections + Undo / Redo</li>
                   <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Live ATS score &amp; keyword audit</li>
                   <li className="flex items-center gap-2"><Check className="size-4 text-[#00b473] shrink-0" /> Unlimited text-selectable PDF exports</li>
                 </ul>
               </div>
               <Button asChild variant="secondary" className="btn-miro-secondary w-full text-xs">
-                <Link to="/builder">Open Resume Builder</Link>
+                <Link to="/builder">Open Resume Workspace</Link>
               </Button>
             </div>
           </Reveal>
@@ -833,21 +834,21 @@ const HomePage: React.FC = () => {
           <div className="absolute -bottom-24 -left-24 size-64 rounded-full bg-[#4262ff]/10 blur-3xl pointer-events-none" />
 
           <span className="bg-[#ffd02f] text-[#1c1c1e] text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-6">
-            Instant Free Access
+            Your Career, Clearly Expressed
           </span>
 
           <h2 className="font-display-lg text-white mb-6 text-balance max-w-2xl">
-            Get great done with AI Resume Architect today.
+            Less formatting. More opportunity.
           </h2>
 
           <p className="font-subtitle text-[#a5a8b5] max-w-xl mb-10 text-pretty">
-            Build your ATS-optimized resume in minutes, test keyword coverage, and download your free recruiter-ready PDF.
+            AI helps you create. You control every detail. Build your ATS-ready resume with Curio and export your free PDF in minutes.
           </p>
 
-          <Button asChild size="lg" className="btn-miro-on-dark h-[50px] px-10 text-[15px]">
+          <Button asChild size="lg" className="group btn-miro-on-dark h-[50px] px-10 text-[15px]">
             <Link to="/builder">
-              Get started free
-              <ArrowRight className="size-4 ml-1" />
+              Create my resume
+              <ArrowRight className="size-4 ml-1 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Link>
           </Button>
         </div>

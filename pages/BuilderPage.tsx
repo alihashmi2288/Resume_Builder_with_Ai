@@ -365,8 +365,8 @@ const BuilderPage: React.FC = () => {
                   className="btn-miro-primary h-8 px-4 text-xs font-semibold gap-1.5 whitespace-nowrap shrink-0"
                 >
                   <Download className="size-3.5" aria-hidden="true" />
-                  <span className="hidden sm:inline">Download PDF</span>
-                  <span className="sm:hidden">PDF</span>
+                  <span className="hidden sm:inline">Export Resume</span>
+                  <span className="sm:hidden">Export</span>
                   <ChevronDown className="size-3 opacity-70" aria-hidden="true" />
                 </Button>
 

@@ -69,7 +69,7 @@ const ContactPage: React.FC = () => {
           Get in touch with us.
         </h1>
         <p className="font-subtitle text-[#555a6a] dark:text-[#a5a8b5] max-w-sm mx-auto">
-          Have feedback, need assistance, or want to discuss enterprise features? We’d love to hear from you.
+          Have feedback, need assistance, or want to share an idea for Curio? We&rsquo;d love to hear from you.
         </p>
       </div>
 
@@ -136,7 +136,7 @@ const ContactPage: React.FC = () => {
             <div className="p-6 rounded-2xl bg-[#fff8e0] text-[#746019] border border-[#fcb900]/30 mt-6">
               <span className="font-bold text-xs uppercase tracking-wider block mb-1">Direct Developer Note</span>
               <p className="text-xs leading-relaxed">
-                Created by Syed Ali Hashmi. Feel free to connect for software engineering collaborations, feedback, or custom resume architecture features!
+                Curio is built by Syed Ali Hashmi. Feel free to connect for software engineering collaborations, feedback, or ideas to make Curio even clearer!
               </p>
             </div>
           </div>

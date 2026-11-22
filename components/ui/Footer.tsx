@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Award, Globe } from 'lucide-react';
 import { LinkedinIcon, GithubIcon, InstagramIcon } from './SocialIcons';
+import { CurioLogo } from './CurioLogo';
 
 export const Footer: React.FC = () => {
   const year = new Date().getFullYear();
@@ -13,18 +14,11 @@ export const Footer: React.FC = () => {
         
         {/* Col 1: Brand & Badge */}
         <div className="col-span-2 md:col-span-3 lg:col-span-2 flex flex-col gap-4">
-          <Link to="/" className="inline-flex items-center gap-2.5">
-            <div className="flex size-8 items-center justify-center rounded-xl bg-[#ffd02f]">
-              <svg viewBox="0 0 24 24" className="size-4 fill-[#1c1c1e]" aria-hidden="true">
-                <path d="M4 18V6l4 2.5v7L4 18zm5.5 0V7l4 2v6.5l-4 2.5zm5.5 0V8.5l4 1.5v5.5l-4 2.5z" />
-              </svg>
-            </div>
-            <span className="font-medium text-lg tracking-tight text-white">
-              AI Resume Architect
-            </span>
+          <Link to="/" className="inline-flex items-center" aria-label="Curio Home">
+            <CurioLogo size="sm" tone="dark" />
           </Link>
           <p className="text-sm text-[#a5a8b5] leading-relaxed max-w-sm">
-            The AI-powered visual workspace for careers. Build ATS-optimized resumes, write tailored cover letters, and export recruiter-ready PDFs in seconds.
+            Your career, clearly expressed. Build from scratch, improve your experience with AI Assistance, and export recruiter-ready PDFs with complete control.
           </p>
 
           {/* Capterra & G2 Ratings Badge per DESIGN.md (capterra-badge) */}
@@ -81,17 +75,17 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col gap-3">
           <p className="text-[16px] font-medium text-white mb-1">Product</p>
           <nav className="flex flex-col gap-2.5 text-sm">
-            <Link to="/builder" className="text-[#a5a8b5] hover:text-white transition-colors">Resume Builder</Link>
-            <Link to="/cover-letter" className="text-[#a5a8b5] hover:text-white transition-colors">Cover Letter AI</Link>
+            <Link to="/builder" className="text-[#a5a8b5] hover:text-white transition-colors">Resume Workspace</Link>
+            <Link to="/cover-letter" className="text-[#a5a8b5] hover:text-white transition-colors">Cover Letter Studio</Link>
             <Link to="/builder?tab=audit" className="text-[#a5a8b5] hover:text-white transition-colors">ATS Scanner</Link>
-            <Link to="/templates" className="text-[#a5a8b5] hover:text-white transition-colors">Template Gallery</Link>
-            <Link to="/builder" className="text-[#a5a8b5] hover:text-white transition-colors">Visual Board</Link>
+            <Link to="/templates" className="text-[#a5a8b5] hover:text-white transition-colors">Resume Designs</Link>
+            <Link to="/builder" className="text-[#a5a8b5] hover:text-white transition-colors">Export Resume</Link>
           </nav>
         </div>
 
-        {/* Col 3: Templates */}
+        {/* Col 3: Resume Designs */}
         <div className="flex flex-col gap-3">
-          <p className="text-[16px] font-medium text-white mb-1">Templates</p>
+          <p className="text-[16px] font-medium text-white mb-1">Resume Designs</p>
           <nav className="flex flex-col gap-2.5 text-sm">
             <Link to="/builder?template=classic" className="text-[#a5a8b5] hover:text-white transition-colors">Classic (ATS)</Link>
             <Link to="/builder?template=modern" className="text-[#a5a8b5] hover:text-white transition-colors">Modern Executive</Link>
@@ -115,17 +109,17 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Col 5: Company & Plans */}
-        <div className="flex flex-col gap-3">
-          <p className="text-[16px] font-medium text-white mb-1">Company</p>
-          <nav className="flex flex-col gap-2.5 text-sm">
-            <Link to="/about" className="text-[#a5a8b5] hover:text-white transition-colors">About Us</Link>
-            <Link to="/contact" className="text-[#a5a8b5] hover:text-white transition-colors">Contact Support</Link>
-            <a href="https://github.com/alihashmi2288" target="_blank" rel="noopener noreferrer" className="text-[#a5a8b5] hover:text-white transition-colors">GitHub Repository</a>
-            <span className="text-[#ffd02f] text-xs font-semibold inline-flex items-center gap-1.5 mt-1">
-              Powered by AI Assistance
-            </span>
-          </nav>
-        </div>
+          <div className="flex flex-col gap-3">
+            <p className="text-[16px] font-medium text-white mb-1">Company</p>
+            <nav className="flex flex-col gap-2.5 text-sm">
+              <Link to="/about" className="text-[#a5a8b5] hover:text-white transition-colors">About Curio</Link>
+              <Link to="/contact" className="text-[#a5a8b5] hover:text-white transition-colors">Contact Support</Link>
+              <a href="https://github.com/alihashmi2288" target="_blank" rel="noopener noreferrer" className="text-[#a5a8b5] hover:text-white transition-colors">GitHub Repository</a>
+              <span className="text-[#ffd02f] text-xs font-semibold inline-flex items-center gap-1.5 mt-1">
+                Powered by AI Assistance
+              </span>
+            </nav>
+          </div>
 
       </div>
 
@@ -133,7 +127,7 @@ export const Footer: React.FC = () => {
       <div className="border-t border-[#2c2c34] bg-[#141416]">
         <div className="max-w-[1280px] mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#a5a8b5]">
           <div className="flex items-center gap-2">
-            <span>&copy; {year} AI Resume Architect. Built by</span>
+            <span>&copy; {year} Curio. Built by</span>
             <a
               href="https://www.linkedin.com/in/alihashmi2288"
               target="_blank"
